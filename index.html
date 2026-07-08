@@ -1907,7 +1907,104 @@ function showParentReport(sid,cls){
     let w=window.open('','_blank','width=750,height=900');
     w.document.write('<html><head><title>Parent Report — '+name+'</title><style>body{margin:0;padding:20px;font-family:Arial,sans-serif}@media print{body{margin:0}}</style></head><body>');
     w.document.write(document.getElementById('parentReportContent').innerHTML);
-    w.document.write('</body></html>');
+    w.document.write('
+
+<script>
+/* FINAL SAFE TEACHER LOGIN FIX — password works even if earlier handlers fail */
+(function(){
+  const SAFE_TEACHER_PASSWORD = 'moe@6060';
+  window.TEACHER_PASSWORD = SAFE_TEACHER_PASSWORD;
+
+  function byId(id){ return document.getElementById(id); }
+  function openTeacherPortal(){
+    try { sessionStorage.setItem('teacherAuth','1'); } catch(e){}
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(teacherSection) teacherSection.classList.add('lms-active');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='flex';
+    if(back) back.classList.add('visible');
+    window._lmsRole='teacher';
+    const now = byId('now');
+    if(now) now.textContent = new Date().toLocaleString();
+    try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
+    try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
+  }
+
+  window.checkTeacherPassword = function(){
+    const input = byId('gatePassword');
+    const err = byId('gateError');
+    const entered = (input && input.value ? input.value : '').trim();
+    if(entered === SAFE_TEACHER_PASSWORD){
+      openTeacherPortal();
+      return true;
+    }
+    if(err) err.textContent = 'Wrong password. Use: moe@6060';
+    if(input){
+      input.value='';
+      input.placeholder='Wrong password — use moe@6060';
+      input.style.border='2px solid #dc2626';
+      setTimeout(()=>{ input.style.border=''; input.placeholder='Password'; }, 1800);
+      input.focus();
+    }
+    return false;
+  };
+
+  window.lmsSelectRole = function(role){
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(back) back.classList.add('visible');
+    window._lmsRole=role;
+    if(role === 'teacher'){
+      if(studentSection) studentSection.classList.remove('lms-active');
+      if(teacherSection) teacherSection.classList.add('lms-active');
+      if(gate) gate.style.display='flex';
+      if(app) app.style.display='none';
+      setTimeout(()=>{ const p=byId('gatePassword'); if(p) p.focus(); },100);
+    } else {
+      if(teacherSection) teacherSection.classList.remove('lms-active');
+      if(studentSection) studentSection.classList.add('lms-active');
+      try { if(typeof restoreSavedLogin === 'function') restoreSavedLogin(); } catch(e){}
+    }
+  };
+
+  window.lmsGoBack = function(){
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const back = byId('lmsBackBtn');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    if(landing) landing.style.display='flex';
+    if(teacherSection) teacherSection.classList.remove('lms-active');
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(back) back.classList.remove('visible');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='none';
+    window._lmsRole=null;
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const input = byId('gatePassword');
+    if(input){
+      input.addEventListener('keydown', function(e){ if(e.key === 'Enter') window.checkTeacherPassword(); });
+    }
+  });
+})();
+</script>
+
+</body></html>');
     w.document.close();
     w.focus();
     setTimeout(()=>w.print(),400);
@@ -1961,7 +2058,104 @@ function printAllParentReports(){
   w.document.write('<html><head><title>Parent Reports — Grade '+cls+'</title><style>body{margin:0}@media print{.no-print{display:none}}</style></head><body>');
   w.document.write('<div class="no-print" style="position:sticky;top:0;background:#1a56db;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;z-index:999"><span>📋 Parent Reports — Grade '+cls+' ('+students.length+' students)</span><button onclick="window.print()" style="background:#fff;color:#1a56db;border:none;padding:6px 16px;border-radius:4px;font-weight:700;cursor:pointer">🖨 Print All</button></div>');
   w.document.write(pages);
-  w.document.write('</body></html>');
+  w.document.write('
+
+<script>
+/* FINAL SAFE TEACHER LOGIN FIX — password works even if earlier handlers fail */
+(function(){
+  const SAFE_TEACHER_PASSWORD = 'moe@6060';
+  window.TEACHER_PASSWORD = SAFE_TEACHER_PASSWORD;
+
+  function byId(id){ return document.getElementById(id); }
+  function openTeacherPortal(){
+    try { sessionStorage.setItem('teacherAuth','1'); } catch(e){}
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(teacherSection) teacherSection.classList.add('lms-active');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='flex';
+    if(back) back.classList.add('visible');
+    window._lmsRole='teacher';
+    const now = byId('now');
+    if(now) now.textContent = new Date().toLocaleString();
+    try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
+    try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
+  }
+
+  window.checkTeacherPassword = function(){
+    const input = byId('gatePassword');
+    const err = byId('gateError');
+    const entered = (input && input.value ? input.value : '').trim();
+    if(entered === SAFE_TEACHER_PASSWORD){
+      openTeacherPortal();
+      return true;
+    }
+    if(err) err.textContent = 'Wrong password. Use: moe@6060';
+    if(input){
+      input.value='';
+      input.placeholder='Wrong password — use moe@6060';
+      input.style.border='2px solid #dc2626';
+      setTimeout(()=>{ input.style.border=''; input.placeholder='Password'; }, 1800);
+      input.focus();
+    }
+    return false;
+  };
+
+  window.lmsSelectRole = function(role){
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(back) back.classList.add('visible');
+    window._lmsRole=role;
+    if(role === 'teacher'){
+      if(studentSection) studentSection.classList.remove('lms-active');
+      if(teacherSection) teacherSection.classList.add('lms-active');
+      if(gate) gate.style.display='flex';
+      if(app) app.style.display='none';
+      setTimeout(()=>{ const p=byId('gatePassword'); if(p) p.focus(); },100);
+    } else {
+      if(teacherSection) teacherSection.classList.remove('lms-active');
+      if(studentSection) studentSection.classList.add('lms-active');
+      try { if(typeof restoreSavedLogin === 'function') restoreSavedLogin(); } catch(e){}
+    }
+  };
+
+  window.lmsGoBack = function(){
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const back = byId('lmsBackBtn');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    if(landing) landing.style.display='flex';
+    if(teacherSection) teacherSection.classList.remove('lms-active');
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(back) back.classList.remove('visible');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='none';
+    window._lmsRole=null;
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const input = byId('gatePassword');
+    if(input){
+      input.addEventListener('keydown', function(e){ if(e.key === 'Enter') window.checkTeacherPassword(); });
+    }
+  });
+})();
+</script>
+
+</body></html>');
   w.document.close();
 }
 
@@ -2617,6 +2811,103 @@ window.addEventListener('load', function(){
       var b=document.createElement('button'); b.id='testFirebaseBtn'; b.className='btn light'; b.textContent='🔌 Test Firebase';
       b.onclick=function(){ window.testFirebaseConnection(); return false; };
       actions.insertBefore(b, actions.firstChild);
+    }
+  });
+})();
+</script>
+
+
+
+<script>
+/* FINAL SAFE TEACHER LOGIN FIX — password works even if earlier handlers fail */
+(function(){
+  const SAFE_TEACHER_PASSWORD = 'moe@6060';
+  window.TEACHER_PASSWORD = SAFE_TEACHER_PASSWORD;
+
+  function byId(id){ return document.getElementById(id); }
+  function openTeacherPortal(){
+    try { sessionStorage.setItem('teacherAuth','1'); } catch(e){}
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(teacherSection) teacherSection.classList.add('lms-active');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='flex';
+    if(back) back.classList.add('visible');
+    window._lmsRole='teacher';
+    const now = byId('now');
+    if(now) now.textContent = new Date().toLocaleString();
+    try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
+    try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
+  }
+
+  window.checkTeacherPassword = function(){
+    const input = byId('gatePassword');
+    const err = byId('gateError');
+    const entered = (input && input.value ? input.value : '').trim();
+    if(entered === SAFE_TEACHER_PASSWORD){
+      openTeacherPortal();
+      return true;
+    }
+    if(err) err.textContent = 'Wrong password. Use: moe@6060';
+    if(input){
+      input.value='';
+      input.placeholder='Wrong password — use moe@6060';
+      input.style.border='2px solid #dc2626';
+      setTimeout(()=>{ input.style.border=''; input.placeholder='Password'; }, 1800);
+      input.focus();
+    }
+    return false;
+  };
+
+  window.lmsSelectRole = function(role){
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(back) back.classList.add('visible');
+    window._lmsRole=role;
+    if(role === 'teacher'){
+      if(studentSection) studentSection.classList.remove('lms-active');
+      if(teacherSection) teacherSection.classList.add('lms-active');
+      if(gate) gate.style.display='flex';
+      if(app) app.style.display='none';
+      setTimeout(()=>{ const p=byId('gatePassword'); if(p) p.focus(); },100);
+    } else {
+      if(teacherSection) teacherSection.classList.remove('lms-active');
+      if(studentSection) studentSection.classList.add('lms-active');
+      try { if(typeof restoreSavedLogin === 'function') restoreSavedLogin(); } catch(e){}
+    }
+  };
+
+  window.lmsGoBack = function(){
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const back = byId('lmsBackBtn');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    if(landing) landing.style.display='flex';
+    if(teacherSection) teacherSection.classList.remove('lms-active');
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(back) back.classList.remove('visible');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='none';
+    window._lmsRole=null;
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const input = byId('gatePassword');
+    if(input){
+      input.addEventListener('keydown', function(e){ if(e.key === 'Enter') window.checkTeacherPassword(); });
     }
   });
 })();
