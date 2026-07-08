@@ -1905,14 +1905,12 @@ function showParentReport(sid,cls){
   modal.style.display='flex';
   window.printParentReport=function(){
     let w=window.open('','_blank','width=750,height=900');
-    if(!w){ alert('Please allow popups to print the report.'); return; }
-    w.document.open();
-    w.document.write('<!DOCTYPE html><html><head><title>Parent Report</title><style>body{margin:0;padding:20px;font-family:Arial,sans-serif}@media print{body{margin:0}}</style></head><body>');
+    w.document.write('<html><head><title>Parent Report — '+name+'</title><style>body{margin:0;padding:20px;font-family:Arial,sans-serif}@media print{body{margin:0}}</style></head><body>');
     w.document.write(document.getElementById('parentReportContent').innerHTML);
     w.document.write('</body></html>');
     w.document.close();
     w.focus();
-    setTimeout(function(){ w.print(); },400);
+    setTimeout(()=>w.print(),400);
   };
 }
 
@@ -1921,7 +1919,7 @@ function printAllParentReports(){
   let students=makeRemedialStudentsForClass(cls);
   if(!students.length){alert('No students found for this class.');return;}
   let today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-  let pages=students.map(function(st){
+  let pages=students.map(st=>{
     let r=getStudentLatestDiagnosis(st,cls);
     let pct=r?Number(String(r.percentage).replace('%','')):NaN;
     if(r&&isNaN(pct)&&r.score){let m=String(r.score).match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);if(m&&Number(m[2]))pct=Math.round(Number(m[1])/Number(m[2])*100);}
@@ -1932,41 +1930,39 @@ function printAllParentReports(){
     let rec=getDailyRecordForStudent(st,cls);
     if(rec&&Array.isArray(rec.tasks)&&rec.tasks.length)tasks=rec.tasks;
     let name=st.englishName||st.name||'Student';
-    let scoreText=r?(String(isNaN(pct)?(r.percentage||'N/A'):pct)+'%'):'Not tested yet';
+    let scoreText=r?(String(isNaN(pct)?r.percentage||'N/A':pct)+'%'):'Not tested yet';
     let planByDay={Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]};
-    tasks.forEach(function(t){if(planByDay[t.day])planByDay[t.day].push(t);});
-    let planRows=Object.entries(planByDay).map(function(pair){
-      let day=pair[0], dt=pair[1];
-      if(!dt.length) return '';
-      return '<tr><td style="padding:5px 8px;font-weight:600">'+day+'</td><td style="padding:5px 8px">'+dt.map(function(t){return (t.icon||'')+' '+(t.title||t.skill||'');}).join(', ')+'</td></tr>';
-    }).join('');
-    let skillNames={Reading:'📖 Reading',Grammar:'✏️ Grammar',Vocabulary:'📚 Vocabulary',Writing:'📝 Writing'};
-    let weakList=weak.map(function(w){return skillNames[w]||w;}).join(', ')||'—';
-    return '<div style="page-break-after:always;font-family:Arial,sans-serif;padding:24px;max-width:680px;margin:0 auto">'
-      + '<div style="text-align:center;border-bottom:3px solid #1a56db;padding-bottom:12px;margin-bottom:16px">'
-      + '<h2 style="color:#1a56db;margin:0">Student Learning Report</h2>'
-      + '<p style="color:#666;margin:4px 0;font-size:13px">Al-Rams Schools — English Department &nbsp;|&nbsp; '+today+'</p></div>'
-      + '<table style="width:100%;font-size:14px;margin-bottom:14px">'
-      + '<tr><td style="color:#555;width:130px;padding:4px 8px">Student</td><td style="font-weight:700;font-size:16px;padding:4px 8px">'+name+'</td></tr>'
-      + '<tr style="background:#f7f7f7"><td style="color:#555;padding:4px 8px">Class</td><td style="padding:4px 8px">Grade '+cls+'</td></tr>'
-      + '<tr><td style="color:#555;padding:4px 8px">Score</td><td style="padding:4px 8px">'+scoreText+'</td></tr>'
-      + '<tr style="background:#f7f7f7"><td style="color:#555;padding:4px 8px">Level</td><td style="padding:4px 8px">'+lev.label+' ('+lev.duration+')</td></tr>'
-      + '<tr><td style="color:#555;padding:4px 8px">Weak Skills</td><td style="padding:4px 8px;color:#dc2626">'+weakList+'</td></tr></table>'
-      + '<h3 style="color:#1a56db;margin:10px 0 6px">Weekly Plan</h3>'
-      + '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#1a56db;color:#fff"><th style="padding:6px 8px;text-align:left">Day</th><th style="padding:6px 8px;text-align:left">Tasks</th></tr></thead><tbody>'
-      + (planRows||'<tr><td colspan="2" style="padding:8px;color:#888">No plan yet</td></tr>') + '</tbody></table>'
-      + '<div style="margin-top:16px;background:#f0fdf4;border:1px solid #86efac;padding:12px;border-radius:6px;font-size:12px"><b style="color:#16a34a">Message to Parent:</b> Your child is at <b>'+lev.label+'</b> level. Please encourage completion of 2 daily tasks in the student portal each school day. Contact the English Department for questions.</div>'
-      + '</div>';
+    tasks.forEach(t=>{if(planByDay[t.day])planByDay[t.day].push(t);});
+    let planRows=Object.entries(planByDay).map(([day,dt])=>dt.length?'<tr><td style="padding:5px 8px;font-weight:600">'+day+'</td><td style="padding:5px 8px">'+dt.map(t=>(t.icon||'')+' '+(t.title||t.skill||'')).join(', ')+'</td></tr>':'').join('');
+    let weakList=weak.map(w=>({Reading:'📖 Reading',Grammar:'✏️ Grammar',Vocabulary:'📚 Vocabulary',Writing:'📝 Writing'}[w]||w)).join(', ')||'—';
+    return `<div style="page-break-after:always;font-family:Arial,sans-serif;padding:24px;max-width:680px;margin:0 auto">
+      <div style="text-align:center;border-bottom:3px solid #1a56db;padding-bottom:12px;margin-bottom:16px">
+        <h2 style="color:#1a56db;margin:0">Student Learning Report</h2>
+        <p style="color:#666;margin:4px 0;font-size:13px">Al-Rams Schools — English Department &nbsp;|&nbsp; ${today}</p>
+      </div>
+      <table style="width:100%;font-size:14px;margin-bottom:14px">
+        <tr><td style="color:#555;width:130px;padding:4px 8px">Student</td><td style="font-weight:700;font-size:16px;padding:4px 8px">${name}</td></tr>
+        <tr style="background:#f7f7f7"><td style="color:#555;padding:4px 8px">Class</td><td style="padding:4px 8px">Grade ${cls}</td></tr>
+        <tr><td style="color:#555;padding:4px 8px">Score</td><td style="padding:4px 8px">${scoreText}</td></tr>
+        <tr style="background:#f7f7f7"><td style="color:#555;padding:4px 8px">Level</td><td style="padding:4px 8px">${lev.label} (${lev.duration})</td></tr>
+        <tr><td style="color:#555;padding:4px 8px">Weak Skills</td><td style="padding:4px 8px;color:#dc2626">${weakList}</td></tr>
+      </table>
+      <h3 style="color:#1a56db;margin:10px 0 6px">Weekly Plan</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:#1a56db;color:#fff"><th style="padding:6px 8px;text-align:left">Day</th><th style="padding:6px 8px;text-align:left">Tasks</th></tr></thead>
+        <tbody>${planRows||'<tr><td colspan="2" style="padding:8px;color:#888">No plan yet</td></tr>'}</tbody>
+      </table>
+      <div style="margin-top:16px;background:#f0fdf4;border:1px solid #86efac;padding:12px;border-radius:6px;font-size:12px">
+        <b style="color:#16a34a">Message to Parent:</b> Your child is at <b>${lev.label}</b> level. Please encourage completion of 2 daily tasks in the student portal each school day. Contact the English Department for questions.
+      </div>
+    </div>`;
   }).join('');
   let w=window.open('','_blank','width=780,height=900');
-  if(!w){ alert('Please allow popups to print the reports.'); return; }
-  w.document.open();
-  w.document.write('<!DOCTYPE html><html><head><title>Parent Reports - Grade '+cls+'</title><style>body{margin:0}@media print{.no-print{display:none}}</style></head><body>');
-  w.document.write('<div class="no-print" style="position:sticky;top:0;background:#1a56db;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;z-index:999"><span>📋 Parent Reports - Grade '+cls+' ('+students.length+' students)</span><button onclick="window.print()" style="background:#fff;color:#1a56db;border:none;padding:6px 16px;border-radius:4px;font-weight:700;cursor:pointer">🖨 Print All</button></div>');
+  w.document.write('<html><head><title>Parent Reports — Grade '+cls+'</title><style>body{margin:0}@media print{.no-print{display:none}}</style></head><body>');
+  w.document.write('<div class="no-print" style="position:sticky;top:0;background:#1a56db;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;z-index:999"><span>📋 Parent Reports — Grade '+cls+' ('+students.length+' students)</span><button onclick="window.print()" style="background:#fff;color:#1a56db;border:none;padding:6px 16px;border-radius:4px;font-weight:700;cursor:pointer">🖨 Print All</button></div>');
   w.document.write(pages);
   w.document.write('</body></html>');
   w.document.close();
-  w.focus();
 }
 
 function printRemedial(){showPage('remedial');renderRemedial();window.print();}
@@ -2628,12 +2624,12 @@ window.addEventListener('load', function(){
 
 
 
+
 <script>
-/* FINAL SAFE TEACHER LOGIN FIX — password works even if earlier handlers fail */
+/* FINAL SAFE TEACHER LOGIN FIX — password: moe@6060 */
 (function(){
   const SAFE_TEACHER_PASSWORD = 'moe@6060';
   window.TEACHER_PASSWORD = SAFE_TEACHER_PASSWORD;
-
   function byId(id){ return document.getElementById(id); }
   function openTeacherPortal(){
     try { sessionStorage.setItem('teacherAuth','1'); } catch(e){}
@@ -2655,33 +2651,21 @@ window.addEventListener('load', function(){
     try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
     try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
   }
-
   window.checkTeacherPassword = function(){
     const input = byId('gatePassword');
     const err = byId('gateError');
     const entered = (input && input.value ? input.value : '').trim();
-    if(entered === SAFE_TEACHER_PASSWORD){
-      openTeacherPortal();
-      return true;
-    }
+    if(entered === SAFE_TEACHER_PASSWORD){ openTeacherPortal(); return true; }
     if(err) err.textContent = 'Wrong password. Use: moe@6060';
     if(input){
-      input.value='';
-      input.placeholder='Wrong password — use moe@6060';
-      input.style.border='2px solid #dc2626';
+      input.value=''; input.placeholder='Wrong password — use moe@6060'; input.style.border='2px solid #dc2626';
       setTimeout(()=>{ input.style.border=''; input.placeholder='Password'; }, 1800);
       input.focus();
     }
     return false;
   };
-
   window.lmsSelectRole = function(role){
-    const landing = byId('landingPage');
-    const teacherSection = byId('teacherSection');
-    const studentSection = byId('studentSection');
-    const gate = byId('gateOverlay');
-    const app = byId('teacherApp');
-    const back = byId('lmsBackBtn');
+    const landing = byId('landingPage'), teacherSection = byId('teacherSection'), studentSection = byId('studentSection'), gate = byId('gateOverlay'), app = byId('teacherApp'), back = byId('lmsBackBtn');
     if(landing) landing.style.display='none';
     if(back) back.classList.add('visible');
     window._lmsRole=role;
@@ -2697,14 +2681,8 @@ window.addEventListener('load', function(){
       try { if(typeof restoreSavedLogin === 'function') restoreSavedLogin(); } catch(e){}
     }
   };
-
   window.lmsGoBack = function(){
-    const landing = byId('landingPage');
-    const teacherSection = byId('teacherSection');
-    const studentSection = byId('studentSection');
-    const back = byId('lmsBackBtn');
-    const gate = byId('gateOverlay');
-    const app = byId('teacherApp');
+    const landing = byId('landingPage'), teacherSection = byId('teacherSection'), studentSection = byId('studentSection'), back = byId('lmsBackBtn'), gate = byId('gateOverlay'), app = byId('teacherApp');
     if(landing) landing.style.display='flex';
     if(teacherSection) teacherSection.classList.remove('lms-active');
     if(studentSection) studentSection.classList.remove('lms-active');
@@ -2713,15 +2691,11 @@ window.addEventListener('load', function(){
     if(app) app.style.display='none';
     window._lmsRole=null;
   };
-
   document.addEventListener('DOMContentLoaded', function(){
     const input = byId('gatePassword');
-    if(input){
-      input.addEventListener('keydown', function(e){ if(e.key === 'Enter') window.checkTeacherPassword(); });
-    }
+    if(input) input.addEventListener('keydown', function(e){ if(e.key === 'Enter') window.checkTeacherPassword(); });
   });
 })();
 </script>
-
 </body>
 </html>
