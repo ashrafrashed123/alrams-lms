@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Grade 8 | English | End-of-Term 3 Exam</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#1a1a2e;font-size:18px}
+/* Header */
+.exam-header{background:linear-gradient(135deg,#1a3a5c 0%,#2e6da4 100%);color:white;padding:22px 24px;text-align:center}
+.exam-header h1{font-size:26px;font-weight:700;line-height:1.3}
+.exam-header p{font-size:16px;opacity:.85;margin-top:6px}
+/* Timer */
+#timer{background:#e74c3c;color:white;text-align:center;padding:10px;font-weight:bold;font-size:19px;display:none;position:sticky;top:0;z-index:100}
+#timer.timer-warning{background:#c0392b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+/* Layout */
+.container{max-width:860px;margin:0 auto;padding:16px}
+/* Start Panel */
+#startPanel{background:white;border-radius:14px;padding:50px 30px;box-shadow:0 2px 16px rgba(0,0,0,.1);margin-bottom:16px;text-align:center}
+#startBtn{background:#16a34a;color:white;border:none;padding:18px 48px;border-radius:12px;font-size:22px;font-weight:700;cursor:pointer;display:inline-block}
+#startBtn:hover{background:#15803d}
+/* Section cards */
+.section-card{background:white;border-radius:12px;padding:24px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.section-title{background:#1a3a5c;color:white;padding:13px 18px;border-radius:8px 8px 0 0;margin:-24px -24px 20px -24px;font-size:18px;font-weight:700}
+.section-info{background:#eef4fb;border:1px solid #c3d8f0;border-radius:7px;padding:11px 15px;margin-bottom:18px;font-size:16px;color:#1a3a5c;font-weight:600}
+/* Passage */
+.passage-box{background:#f8faff;border:2px solid #d0ddf0;border-radius:9px;padding:20px;margin-bottom:20px;font-size:18px;line-height:1.9;color:#222}
+.passage-box p{margin-bottom:12px}
+.passage-box p:last-child{margin-bottom:0}
+.passage-title{font-weight:700;font-size:17px;color:#1a3a5c;margin-bottom:10px;text-align:center}
+/* Questions */
+.q-block{border:2px solid #e0e6f0;border-radius:9px;margin-bottom:14px;overflow:hidden;transition:.2s}
+.q-block.answered{border-color:#16a34a}
+.q-num{background:#2e6da4;color:white;padding:9px 15px;font-weight:700;font-size:15px}
+.q-text{padding:14px 16px;background:#fafbff;font-size:18px;line-height:1.6;font-weight:500}
+.q-options{padding:6px 16px 12px}
+.q-options label{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;margin:4px 0;border-radius:7px;cursor:pointer;font-size:18px;line-height:1.5;transition:.15s}
+.q-options label:hover{background:#eef4ff}
+.q-options input[type=radio]{margin-top:3px;min-width:18px;height:18px;accent-color:#2e6da4}
+/* Submit */
+.btn-submit{background:#dc2626;color:white;border:none;padding:17px 32px;border-radius:10px;font-size:20px;font-weight:700;cursor:pointer;width:100%;margin-top:10px}
+.btn-submit:hover{background:#b91c1c}
+/* Results */
+#results-panel{display:none;background:white;border-radius:12px;padding:26px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.score-display{text-align:center;padding:24px;background:linear-gradient(135deg,#1a3a5c,#2e6da4);border-radius:10px;color:white;margin-bottom:22px}
+.score-big{font-size:56px;font-weight:900;line-height:1}
+.score-label{font-size:16px;opacity:.85;margin-top:8px}
+.section-score{display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#f5f8ff;border-radius:8px;margin-bottom:8px;font-size:16px}
+.section-score span:last-child{font-weight:700;color:#1a3a5c}
+.q-result{border-radius:8px;margin-bottom:8px;overflow:hidden}
+.q-result-hdr{display:flex;align-items:center;gap:9px;padding:9px 14px;font-size:15px;font-weight:600}
+.q-result-hdr.correct{background:#dcfce7;color:#166534}
+.q-result-hdr.wrong{background:#fee2e2;color:#991b1b}
+.q-result-body{padding:8px 14px;font-size:14px;background:#fafafa;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px}
+/* Cheat warning */
+#cheat-warning{display:none;position:fixed;inset:0;z-index:99999;background:rgba(150,0,0,.97);color:white;font-size:26px;font-weight:bold;align-items:center;justify-content:center;text-align:center;flex-direction:column;padding:30px}
+</style>
+</head>
+<body>
+
+<div class="exam-header">
+  <h1>Grade 8 General &nbsp;|&nbsp; English &nbsp;|&nbsp; End-of-Term 3 Exam</h1>
+  <p>Academic Year 2025–2026 &nbsp;|&nbsp; Reading &amp; Viewing &nbsp;|&nbsp; Total Marks: 100 &nbsp;|&nbsp; Time: 90 Minutes</p>
+</div>
+<div id="timer">&#9200; Time Remaining: 90:00</div>
+
+<div class="container">
+
+<!-- Start Panel -->
+<div id="startPanel">
+  <input type="hidden" id="studentName" value="Student">
+  <input type="hidden" id="studentClass" value="Grade 8">
+  <button id="startBtn">Start Test</button>
+</div>
+
+<form id="assessmentForm" style="display:none">
+<input type="hidden" id="currentDate">
+
+<!-- ===== PART 1: VOCABULARY ===== -->
+<div class="section-card">
+  <div class="section-title">Part 1 &mdash; Vocabulary: Multiple Choice Gap Fill</div>
+  <div class="section-info">5 sentences &bull; 2 gaps each &bull; 2 marks each &bull; Total: 10 marks<br>
+  Choose the correct word pair (A, B or C) to complete each sentence.</div>
+
+  <div class="q-block" data-q="v1">
+    <div class="q-num">Question 1</div>
+    <div class="q-text">Every year, millions of pilgrims make a long __________ to reach the __________ city of Mecca, where they pray together at the Grand Mosque.</div>
+    <div class="q-options">
+      <label><input type="radio" name="v1" value="A"> A)&nbsp; festival &nbsp;/&nbsp; bright</label>
+      <label><input type="radio" name="v1" value="B"> B)&nbsp; journey &nbsp;/&nbsp; holy</label>
+      <label><input type="radio" name="v1" value="C"> C)&nbsp; crowd &nbsp;/&nbsp; delicious</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="v2">
+    <div class="q-num">Question 2</div>
+    <div class="q-text">Families __________ the national occasion by lighting colourful __________ and sharing traditional sweets with friends and neighbours.</div>
+    <div class="q-options">
+      <label><input type="radio" name="v2" value="A"> A)&nbsp; travel &nbsp;/&nbsp; pancakes</label>
+      <label><input type="radio" name="v2" value="B"> B)&nbsp; decorate &nbsp;/&nbsp; mosques</label>
+      <label><input type="radio" name="v2" value="C"> C)&nbsp; celebrate &nbsp;/&nbsp; lanterns</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="v3">
+    <div class="q-num">Question 3</div>
+    <div class="q-text">Sailing across stormy seas in a small __________ is incredibly __________, especially when waves rise to dangerous heights.</div>
+    <div class="q-options">
+      <label><input type="radio" name="v3" value="A"> A)&nbsp; ship &nbsp;/&nbsp; dangerous</label>
+      <label><input type="radio" name="v3" value="B"> B)&nbsp; rocket &nbsp;/&nbsp; special</label>
+      <label><input type="radio" name="v3" value="C"> C)&nbsp; spacecraft &nbsp;/&nbsp; bright</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="v4">
+    <div class="q-num">Question 4</div>
+    <div class="q-text">The highly trained __________ carefully guided the automated __________ as it docked alongside the international space station.</div>
+    <div class="q-options">
+      <label><input type="radio" name="v4" value="A"> A)&nbsp; passenger &nbsp;/&nbsp; robot</label>
+      <label><input type="radio" name="v4" value="B"> B)&nbsp; astronaut &nbsp;/&nbsp; spacecraft</label>
+      <label><input type="radio" name="v4" value="C"> C)&nbsp; explorer &nbsp;/&nbsp; planet</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="v5">
+    <div class="q-num">Question 5</div>
+    <div class="q-text">Launching a mission to deep space is incredibly __________; however, scientists remain determined to __________ new worlds beyond our solar system.</div>
+    <div class="q-options">
+      <label><input type="radio" name="v5" value="A"> A)&nbsp; delicious &nbsp;/&nbsp; celebrate</label>
+      <label><input type="radio" name="v5" value="B"> B)&nbsp; terrible &nbsp;/&nbsp; get hurt</label>
+      <label><input type="radio" name="v5" value="C"> C)&nbsp; expensive &nbsp;/&nbsp; explore</label>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PART 2: GRAMMAR ===== -->
+<div class="section-card">
+  <div class="section-title">Part 2 &mdash; Grammar: Multiple Choice Gap Fill</div>
+  <div class="section-info">Read the text and choose the correct word(s) to complete each gap &bull; 2 marks each &bull; Total: 10 marks<br>
+  Theme: Great Expeditions &mdash; Above and Beyond</div>
+  <div class="passage-box">
+    <div class="passage-title">Exploring Beyond Our Solar System</div>
+    <p>In recent years, our knowledge of space <strong>(1) __________</strong> enormously because of exciting new technology developed by scientists around the globe. The latest international space station <strong>(2) __________</strong> by a dedicated team of highly skilled engineers working together, and it now orbits the Earth at an incredible speed every ninety minutes. Last summer, a courageous team of astronauts <strong>(3) __________</strong> through the darkness of deep space when they suddenly spotted a large asteroid travelling dangerously close to their planned route. They reported that the spacecraft they used was far <strong>(4) __________</strong> than any vehicle they had ever piloted before. Space agencies around the world are now planning on <strong>(5) __________</strong> beyond the Moon, as scientists believe that finding signs of life on other planets would be the greatest discovery in the history of humanity.</p>
+  </div>
+
+  <div class="q-block" data-q="g1">
+    <div class="q-num">Gap 1 &mdash; Grammar: Present Perfect</div>
+    <div class="q-text">In recent years, our knowledge of space <em>(1) __________</em> enormously&hellip;</div>
+    <div class="q-options">
+      <label><input type="radio" name="g1" value="A"> A)&nbsp; has grown</label>
+      <label><input type="radio" name="g1" value="B"> B)&nbsp; is growing</label>
+      <label><input type="radio" name="g1" value="C"> C)&nbsp; was growing</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="g2">
+    <div class="q-num">Gap 2 &mdash; Grammar: Present Perfect Passive</div>
+    <div class="q-text">The latest international space station <em>(2) __________</em> by a dedicated team of highly skilled engineers&hellip;</div>
+    <div class="q-options">
+      <label><input type="radio" name="g2" value="A"> A)&nbsp; is building</label>
+      <label><input type="radio" name="g2" value="B"> B)&nbsp; was built</label>
+      <label><input type="radio" name="g2" value="C"> C)&nbsp; has been built</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="g3">
+    <div class="q-num">Gap 3 &mdash; Grammar: Past Continuous</div>
+    <div class="q-text">Last summer, a courageous team of astronauts <em>(3) __________</em> through the darkness of deep space when they suddenly spotted a large asteroid&hellip;</div>
+    <div class="q-options">
+      <label><input type="radio" name="g3" value="A"> A)&nbsp; were travelling</label>
+      <label><input type="radio" name="g3" value="B"> B)&nbsp; will travel</label>
+      <label><input type="radio" name="g3" value="C"> C)&nbsp; have travelled</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="g4">
+    <div class="q-num">Gap 4 &mdash; Grammar: Comparative Adjective</div>
+    <div class="q-text">They reported that the spacecraft they used was far <em>(4) __________</em> than any vehicle they had ever piloted before.</div>
+    <div class="q-options">
+      <label><input type="radio" name="g4" value="A"> A)&nbsp; most advanced</label>
+      <label><input type="radio" name="g4" value="B"> B)&nbsp; more advanced</label>
+      <label><input type="radio" name="g4" value="C"> C)&nbsp; very advanced</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="g5">
+    <div class="q-num">Gap 5 &mdash; Grammar: Verb Form (Gerund)</div>
+    <div class="q-text">Space agencies around the world are now planning on <em>(5) __________</em> beyond the Moon&hellip;</div>
+    <div class="q-options">
+      <label><input type="radio" name="g5" value="A"> A)&nbsp; explore</label>
+      <label><input type="radio" name="g5" value="B"> B)&nbsp; will explore</label>
+      <label><input type="radio" name="g5" value="C"> C)&nbsp; exploring</label>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PART 3A: READING T/F/NG ===== -->
+<div class="section-card">
+  <div class="section-title">Part 3A &mdash; Reading: True, False or Not Given</div>
+  <div class="section-info">Theme: World Festivals &mdash; National Festivals &bull; Level: Towards Grade Level Goal<br>
+  6 statements &bull; 4 marks each &bull; Total: 24 marks</div>
+  <div class="passage-box">
+    <div class="passage-title">National Festivals</div>
+    <p>National festivals are celebrated all over the world to bring communities together and honour cultural heritage. In many countries, these celebrations are massive events that require months of careful preparation. People decorate streets with colourful banners, bright lights, and traditional lanterns. Families gather to share delicious meals, exchange traditional sweets, and enjoy live music together.</p>
+    <p>One major aspect of these national celebrations is the parade. Large crowds gather along the main roads to watch dancers, musicians, and beautiful floats pass by. For many citizens, participating in or watching these events is an important experience that strengthens their sense of belonging to their country. In the United Arab Emirates, National Day is a prime example, where people enthusiastically wave flags and express great pride in their nation&rsquo;s history and achievements.</p>
+    <p>While some festivals are religious, national festivals focus primarily on the history, achievements, and unity of a specific country. They provide a wonderful opportunity for visitors to learn about local traditions, clothing, and food. Many schools and businesses close for the day so that everyone can fully participate in the celebrations. These events are essential for keeping ancient cultural practices alive for younger generations who might otherwise forget them in the modern world. Without such celebrations, many important traditions could gradually disappear forever.</p>
+  </div>
+  <p style="font-size:16px;color:#444;margin-bottom:16px;padding:0 4px"><strong>Directions:</strong> Read the passage and decide if each statement is <strong>True</strong>, <strong>False</strong> or <strong>Not Given</strong>. Choose A, B or C.</p>
+
+  <div class="q-block" data-q="r1q1">
+    <div class="q-num">Statement 1</div>
+    <div class="q-text">National festivals around the world require a great deal of time and effort to prepare.</div>
+    <div class="q-options">
+      <label><input type="radio" name="r1q1" value="A"> A)&nbsp; True</label>
+      <label><input type="radio" name="r1q1" value="B"> B)&nbsp; False</label>
+      <label><input type="radio" name="r1q1" value="C"> C)&nbsp; Not Given</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r1q2">
+    <div class="q-num">Statement 2</div>
+    <div class="q-text">During festival parades, families usually stay at home rather than going outside to watch.</div>
+    <div class="q-options">
+      <label><input type="radio" name="r1q2" value="A"> A)&nbsp; True</label>
+      <label><input type="radio" name="r1q2" value="B"> B)&nbsp; False</label>
+      <label><input type="radio" name="r1q2" value="C"> C)&nbsp; Not Given</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r1q3">
+    <div class="q-num">Statement 3</div>
+    <div class="q-text">The cost of organising national festival parades has increased significantly in recent years.</div>
+    <div class="q-options">
+      <label><input type="radio" name="r1q3" value="A"> A)&nbsp; True</label>
+      <label><input type="radio" name="r1q3" value="B"> B)&nbsp; False</label>
+      <label><input type="radio" name="r1q3" value="C"> C)&nbsp; Not Given</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r1q4">
+    <div class="q-num">Statement 4</div>
+    <div class="q-text">Watching or joining national celebrations can make people feel more connected to their country.</div>
+    <div class="q-options">
+      <label><input type="radio" name="r1q4" value="A"> A)&nbsp; True</label>
+      <label><input type="radio" name="r1q4" value="B"> B)&nbsp; False</label>
+      <label><input type="radio" name="r1q4" value="C"> C)&nbsp; Not Given</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r1q5">
+    <div class="q-num">Statement 5</div>
+    <div class="q-text">Schools and workplaces typically close for two full weeks to mark national festivals.</div>
+    <div class="q-options">
+      <label><input type="radio" name="r1q5" value="A"> A)&nbsp; True</label>
+      <label><input type="radio" name="r1q5" value="B"> B)&nbsp; False</label>
+      <label><input type="radio" name="r1q5" value="C"> C)&nbsp; Not Given</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r1q6">
+    <div class="q-num">Statement 6</div>
+    <div class="q-text">The word &ldquo;massive&rdquo; in the first paragraph suggests that national festival events are extremely large.</div>
+    <div class="q-options">
+      <label><input type="radio" name="r1q6" value="A"> A)&nbsp; True</label>
+      <label><input type="radio" name="r1q6" value="B"> B)&nbsp; False</label>
+      <label><input type="radio" name="r1q6" value="C"> C)&nbsp; Not Given</label>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PART 3B: READING MCQ ===== -->
+<div class="section-card">
+  <div class="section-title">Part 3B &mdash; Reading: Multiple Choice</div>
+  <div class="section-info">Theme: Great Expeditions &mdash; Travels in Africa &bull; Level: At Grade Level Goal<br>
+  7 questions &bull; 4 marks each &bull; Total: 28 marks</div>
+  <div class="passage-box">
+    <div class="passage-title">My African Adventure Blog &mdash; Posted by Tariq</div>
+    <p>Last month, I finally fulfilled my lifelong dream of exploring the incredible landscapes of East Africa. My journey began in Tanzania, where our expedition group set out early in the morning to explore the famous Serengeti. Travelling across the wide grasslands in an open-top vehicle was an experience I will never forget. The terrain was beautiful but dangerous, filled with wild predators hunting for their prey.</p>
+    <p>Our local guide, Juma, was an expert. He could spot a leopard hidden in a tree from a long distance. On our third day, we faced a terrible situation when our vehicle got stuck in deep mud near a river. It was a potential disaster because the sun was setting, and wild animals were active. Luckily, Juma used a strong rope and a nearby tree to pull the vehicle out safely. No one got hurt, but it was a scary reminder of how unpredictable nature can be.</p>
+    <p>Later, we visited a traditional village. The local people welcomed our crowd of travellers with bright smiles and delicious food. They performed a traditional dance around a campfire under the night sky. This trip was expensive, but the memories of the wildlife and the wonderful people I met made every single dirham worth it.</p>
+  </div>
+  <p style="font-size:16px;color:#444;margin-bottom:16px;padding:0 4px"><strong>Directions:</strong> Read the passage and choose the best answer. Choose A, B or C.</p>
+
+  <div class="q-block" data-q="r2q1">
+    <div class="q-num">Question 1</div>
+    <div class="q-text">Where did Tariq&rsquo;s journey in East Africa begin?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q1" value="A"> A)&nbsp; Kenya</label>
+      <label><input type="radio" name="r2q1" value="B"> B)&nbsp; Egypt</label>
+      <label><input type="radio" name="r2q1" value="C"> C)&nbsp; Tanzania</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r2q2">
+    <div class="q-num">Question 2</div>
+    <div class="q-text">Why was travelling across the Serengeti grasslands described as dangerous?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q2" value="A"> A)&nbsp; The roads were completely blocked by fallen trees.</label>
+      <label><input type="radio" name="r2q2" value="B"> B)&nbsp; The area was filled with wild predators hunting for food.</label>
+      <label><input type="radio" name="r2q2" value="C"> C)&nbsp; The open-top vehicles had serious engine problems.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r2q3">
+    <div class="q-num">Question 3</div>
+    <div class="q-text">What difficult problem did the travellers face on the third day?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q3" value="A"> A)&nbsp; Their vehicle became stuck in deep mud near a river.</label>
+      <label><input type="radio" name="r2q3" value="B"> B)&nbsp; They ran out of food and water supplies.</label>
+      <label><input type="radio" name="r2q3" value="C"> C)&nbsp; Juma was unable to find the correct path home.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r2q4">
+    <div class="q-num">Question 4</div>
+    <div class="q-text">How did Juma manage to free the trapped vehicle?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q4" value="A"> A)&nbsp; He drove to a nearby town to borrow a second vehicle.</label>
+      <label><input type="radio" name="r2q4" value="B"> B)&nbsp; He attached a strong rope to a tree and pulled the vehicle out.</label>
+      <label><input type="radio" name="r2q4" value="C"> C)&nbsp; He asked the crowd of travellers to push the vehicle from behind.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r2q5">
+    <div class="q-num">Question 5</div>
+    <div class="q-text">In paragraph 2, the word &ldquo;disaster&rdquo; most closely means:</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q5" value="A"> A)&nbsp; A very successful and positive event.</label>
+      <label><input type="radio" name="r2q5" value="B"> B)&nbsp; A funny and entertaining mistake.</label>
+      <label><input type="radio" name="r2q5" value="C"> C)&nbsp; A serious situation causing great danger or harm.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r2q6">
+    <div class="q-num">Question 6</div>
+    <div class="q-text">How did the people in the traditional village respond to Tariq and the travellers?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q6" value="A"> A)&nbsp; They completely ignored the group of visitors.</label>
+      <label><input type="radio" name="r2q6" value="B"> B)&nbsp; They greeted them warmly and shared food and dancing.</label>
+      <label><input type="radio" name="r2q6" value="C"> C)&nbsp; They asked them to leave the village before sunset.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r2q7">
+    <div class="q-num">Question 7</div>
+    <div class="q-text">What is Tariq&rsquo;s overall conclusion about his trip to East Africa?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r2q7" value="A"> A)&nbsp; The trip cost far too much money to be enjoyable.</label>
+      <label><input type="radio" name="r2q7" value="B"> B)&nbsp; The experience was frightening and he would not recommend it.</label>
+      <label><input type="radio" name="r2q7" value="C"> C)&nbsp; Despite the high cost, the memories made the journey completely worthwhile.</label>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PART 3C: READING MCQ ===== -->
+<div class="section-card">
+  <div class="section-title">Part 3C &mdash; Reading: Multiple Choice</div>
+  <div class="section-info">Theme: World Festivals &mdash; Invitation to a Food Festival &bull; Level: Beyond Grade Level Goal<br>
+  7 questions &bull; 4 marks each &bull; Total: 28 marks</div>
+  <div class="passage-box">
+    <div class="passage-title">A Letter from Mona</div>
+    <p>Dear Sarah,</p>
+    <p>I am writing to invite you to the Annual International Children&rsquo;s Food Festival next weekend! It is being held at the City Park from Friday to Sunday. I went last year with my family, and it was a spectacular experience. This year promises to be even bigger and more exciting, and I immediately thought of you because I know how much you love trying new recipes.</p>
+    <p>The festival features rows of colourful stalls representing different countries. Chefs from around the world prepare miniature versions of their traditional dishes. You can try everything from French cr&ecirc;pes and American pancakes to traditional Arabic sweets and fresh fruit juices. There is also a special children&rsquo;s pavilion where we can participate in a live cooking competition. If we enter, we will have to create a unique dessert using a basket of mystery ingredients!</p>
+    <p>Aside from the food, there are glowing lanterns hanging from the trees, live music, and puppet shows. It gets incredibly busy in the evening, so I suggest we meet at the main gate at 2:00 PM on Saturday before the huge crowds arrive. Entrance is completely free, but you will need some pocket money to buy food items. Let me know if your parents say yes!</p>
+    <p>Your friend,<br>Mona</p>
+  </div>
+  <p style="font-size:16px;color:#444;margin-bottom:16px;padding:0 4px"><strong>Directions:</strong> Read the letter and choose the best answer. Choose A, B or C.</p>
+
+  <div class="q-block" data-q="r3q1">
+    <div class="q-num">Question 1</div>
+    <div class="q-text">What is the main reason Mona wrote this letter to Sarah?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q1" value="A"> A)&nbsp; To explain how to bake traditional pancakes at home.</label>
+      <label><input type="radio" name="r3q1" value="B"> B)&nbsp; To describe her family trip to the City Park last year.</label>
+      <label><input type="radio" name="r3q1" value="C"> C)&nbsp; To invite Sarah to an upcoming international food festival.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r3q2">
+    <div class="q-num">Question 2</div>
+    <div class="q-text">Why did Mona specifically think of Sarah when planning her festival visit?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q2" value="A"> A)&nbsp; Because Sarah is an expert at decorating festival stalls.</label>
+      <label><input type="radio" name="r3q2" value="B"> B)&nbsp; Because Sarah has a strong passion for trying new recipes.</label>
+      <label><input type="radio" name="r3q2" value="C"> C)&nbsp; Because Sarah won a cooking competition the previous year.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r3q3">
+    <div class="q-num">Question 3</div>
+    <div class="q-text">What special activity can children take part in inside the festival&rsquo;s pavilion?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q3" value="A"> A)&nbsp; Compete in a live cooking contest using mystery ingredients.</label>
+      <label><input type="radio" name="r3q3" value="B"> B)&nbsp; Watch international chefs demonstrate how to build food stalls.</label>
+      <label><input type="radio" name="r3q3" value="C"> C)&nbsp; Purchase professional kitchen equipment at a low price.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r3q4">
+    <div class="q-num">Question 4</div>
+    <div class="q-text">If Sarah and Mona decide to enter the cooking competition, what will they need to make?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q4" value="A"> A)&nbsp; A unique dessert created from a basket of mystery ingredients.</label>
+      <label><input type="radio" name="r3q4" value="B"> B)&nbsp; A traditional three-course meal with local ingredients.</label>
+      <label><input type="radio" name="r3q4" value="C"> C)&nbsp; A selection of fresh fruit juices from different countries.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r3q5">
+    <div class="q-num">Question 5</div>
+    <div class="q-text">Why does Mona suggest that they meet at 2:00 PM on Saturday?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q5" value="A"> A)&nbsp; Because the park closes its main gates shortly after 3:00 PM.</label>
+      <label><input type="radio" name="r3q5" value="B"> B)&nbsp; Because Saturday afternoon is the only time entry to the park is free.</label>
+      <label><input type="radio" name="r3q5" value="C"> C)&nbsp; To arrive before the large evening crowds make it difficult to enter.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r3q6">
+    <div class="q-num">Question 6</div>
+    <div class="q-text">Based on the letter, what can we understand about the cost of attending the festival?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q6" value="A"> A)&nbsp; Visitors are required to pay an expensive entry fee at the gate.</label>
+      <label><input type="radio" name="r3q6" value="B"> B)&nbsp; All food samples at every stall are provided completely free of charge.</label>
+      <label><input type="radio" name="r3q6" value="C"> C)&nbsp; Entry to the festival is free, but visitors need money to purchase food.</label>
+    </div>
+  </div>
+
+  <div class="q-block" data-q="r3q7">
+    <div class="q-num">Question 7</div>
+    <div class="q-text">What will most likely happen next, based on the end of Mona&rsquo;s letter?</div>
+    <div class="q-options">
+      <label><input type="radio" name="r3q7" value="A"> A)&nbsp; Sarah will reply to Mona to let her know if she can go.</label>
+      <label><input type="radio" name="r3q7" value="B"> B)&nbsp; Sarah will travel to the City Park alone on Friday morning.</label>
+      <label><input type="radio" name="r3q7" value="C"> C)&nbsp; Mona will decide to go with her family instead of Sarah.</label>
+    </div>
+  </div>
+</div>
+
+<button class="btn-submit" onclick="submitExam()">Submit Test</button>
+
+</form>
+
+<!-- Results Panel -->
+<div id="results-panel">
+  <h2 style="margin-bottom:18px;color:#1a3a5c;font-size:22px">Your Results</h2>
+  <div class="score-display">
+    <div class="score-big"><span id="final-score">0</span><span style="font-size:26px">/100</span></div>
+    <div class="score-label">Total Score &nbsp;|&nbsp; <span id="final-percent">0</span>%</div>
+  </div>
+  <div id="section-scores"></div>
+  <div id="detailed-results" style="margin-top:18px"></div>
+</div>
+
+</div><!-- container -->
+
+<!-- Cheat Warning Overlay -->
+<div id="cheat-warning">
+  <div id="cheat-msg"></div>
+</div>
+
+<script>
+// ── Answer Key & Marks ────────────────────────────────────
+const answerKey = {
+  v1:'B', v2:'C', v3:'A', v4:'B', v5:'C',
+  g1:'A', g2:'C', g3:'A', g4:'B', g5:'C',
+  r1q1:'A', r1q2:'B', r1q3:'C', r1q4:'A', r1q5:'B', r1q6:'A',
+  r2q1:'C', r2q2:'B', r2q3:'A', r2q4:'B', r2q5:'C', r2q6:'B', r2q7:'C',
+  r3q1:'C', r3q2:'B', r3q3:'A', r3q4:'A', r3q5:'C', r3q6:'C', r3q7:'A'
+};
+const marks = {
+  v1:2,v2:2,v3:2,v4:2,v5:2,
+  g1:2,g2:2,g3:2,g4:2,g5:2,
+  r1q1:4,r1q2:4,r1q3:4,r1q4:4,r1q5:4,r1q6:4,
+  r2q1:4,r2q2:4,r2q3:4,r2q4:4,r2q5:4,r2q6:4,r2q7:4,
+  r3q1:4,r3q2:4,r3q3:4,r3q4:4,r3q5:4,r3q6:4,r3q7:4
+};
+const qLabels = {
+  v1:'Part 1 Q1',v2:'Part 1 Q2',v3:'Part 1 Q3',v4:'Part 1 Q4',v5:'Part 1 Q5',
+  g1:'Part 2 Gap 1',g2:'Part 2 Gap 2',g3:'Part 2 Gap 3',g4:'Part 2 Gap 4',g5:'Part 2 Gap 5',
+  r1q1:'Part 3A Q1',r1q2:'Part 3A Q2',r1q3:'Part 3A Q3',r1q4:'Part 3A Q4',r1q5:'Part 3A Q5',r1q6:'Part 3A Q6',
+  r2q1:'Part 3B Q1',r2q2:'Part 3B Q2',r2q3:'Part 3B Q3',r2q4:'Part 3B Q4',r2q5:'Part 3B Q5',r2q6:'Part 3B Q6',r2q7:'Part 3B Q7',
+  r3q1:'Part 3C Q1',r3q2:'Part 3C Q2',r3q3:'Part 3C Q3',r3q4:'Part 3C Q4',r3q5:'Part 3C Q5',r3q6:'Part 3C Q6',r3q7:'Part 3C Q7'
+};
+
+let timeLeft=90*60, timerId=null, submitted=false;
+
+function updateTimer(){
+  if(submitted)return;
+  let m=Math.floor(timeLeft/60),s=timeLeft%60;
+  document.getElementById('timer').innerText='⏱ Time Remaining: '+m+':'+(s<10?'0':'')+s;
+  if(timeLeft<=600)document.getElementById('timer').classList.add('timer-warning');
+  if(timeLeft<=0){clearInterval(timerId);submitExam(true);}
+  timeLeft--;
+}
+
+function submitExam(auto=false){
+  if(submitted)return;
+  if(!auto){
+    let g={};
+    document.querySelectorAll('input[type="radio"]').forEach(r=>{
+      if(!g[r.name])g[r.name]=false;if(r.checked)g[r.name]=true;
+    });
+    let left=Object.values(g).filter(v=>!v).length;
+    if(left>0){alert('⚠️ Please answer all '+left+' remaining question(s) before submitting.');return;}
+  }
+  let name=document.getElementById('studentName').value||'Student';
+  let cls=document.getElementById('studentClass').value||'Grade 8';
+  let date=document.getElementById('currentDate').value||new Date().toISOString().slice(0,10);
+  submitted=true;clearInterval(timerId);
+  document.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);
+  document.querySelector('.btn-submit').style.display='none';
+
+  let total=0,sec={s1:0,s2:0,s3a:0,s3b:0,s3c:0},details=[];
+  for(let[qId,correct]of Object.entries(answerKey)){
+    let sel=document.querySelector('input[name="'+qId+'"]:checked');
+    let chosen=sel?sel.value:'—';
+    let pts=marks[qId],ok=(chosen===correct);
+    if(ok)total+=pts;
+    if(qId.startsWith('v'))sec.s1+=(ok?pts:0);
+    else if(qId.startsWith('g'))sec.s2+=(ok?pts:0);
+    else if(qId.startsWith('r1'))sec.s3a+=(ok?pts:0);
+    else if(qId.startsWith('r2'))sec.s3b+=(ok?pts:0);
+    else if(qId.startsWith('r3'))sec.s3c+=(ok?pts:0);
+    details.push({qId,chosen,correct,ok,pts});
+  }
+
+  document.getElementById('final-score').innerText=total;
+  document.getElementById('final-percent').innerText=total;
+
+  let ss=document.getElementById('section-scores');
+  [['Part 1 — Vocabulary','s1',10],['Part 2 — Grammar','s2',10],
+   ['Part 3A — Reading T/F/NG','s3a',24],['Part 3B — Reading MCQ','s3b',28],['Part 3C — Reading MCQ','s3c',28]]
+  .forEach(([n,k,mx])=>{
+    let d=document.createElement('div');d.className='section-score';
+    d.innerHTML='<span>'+n+'</span><span>'+sec[k]+' / '+mx+'</span>';ss.appendChild(d);
+  });
+
+  let dr=document.getElementById('detailed-results');
+  dr.innerHTML='<h3 style="margin-bottom:10px;color:#1a3a5c;font-size:18px">Question Details</h3>'+
+    details.map(d=>'<div class="q-result"><div class="q-result-hdr '+(d.ok?'correct':'wrong')+'">'
+      +(d.ok?'✓':'✗')+' '+qLabels[d.qId]+'</div>'
+      +'<div class="q-result-body">Your answer: <strong>'+d.chosen+'</strong>'
+      +(!d.ok?' &nbsp;&rarr;&nbsp; Correct: <strong>'+d.correct+'</strong>':'')
+      +' &nbsp;('+d.pts+' marks)</div></div>').join('');
+
+  document.getElementById('results-panel').style.display='block';
+  document.getElementById('assessmentForm').style.display='none';
+  window.scrollTo(0,0);
+
+  // Firebase
+  try{
+    const cfg={apiKey:"AIzaSyAxK_HHx-FAeeyrOzUt01R-QeZ9LFjiybg",projectId:"alrams-exam-system"};
+    fetch('https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/student_results?key='+cfg.apiKey,
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({fields:{
+         studentName:{stringValue:name},name:{stringValue:name},
+         className:{stringValue:cls},cls:{stringValue:cls},
+         examName:{stringValue:"G8 English EOT3"},exam:{stringValue:"G8 English EOT3"},
+         examId:{stringValue:"g8-english-eot3-2526"},
+         score:{integerValue:total},total:{integerValue:100},percentage:{doubleValue:total},
+         date:{stringValue:date},grade:{stringValue:"8"},timestamp:{integerValue:Date.now()},source:{stringValue:"scorm"}
+       }})}).catch(()=>{});
+  }catch(e){}
+}
+
+// Mark answered questions green
+document.querySelectorAll('input[type="radio"]').forEach(r=>{
+  r.addEventListener('change',function(){
+    let b=this.closest('.q-block');if(b)b.classList.add('answered');
+  });
+});
+
+// Start button
+document.getElementById('startBtn').addEventListener('click',function(){
+  document.getElementById('currentDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('startPanel').style.display='none';
+  document.getElementById('assessmentForm').style.display='block';
+  document.getElementById('timer').style.display='block';
+  timerId=setInterval(updateTimer,1000);
+  try{let e=document.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen||e.msRequestFullscreen).call(e);}catch(ex){}
+  _acStarted=true;
+});
+document.addEventListener('fullscreenchange',function(){
+  if(!submitted&&document.getElementById('assessmentForm').style.display!=='none'&&!document.fullscreenElement){
+    setTimeout(function(){try{let e=document.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen||e.msRequestFullscreen).call(e);}catch(ex){}},300);
+  }
+});
+</script>
+
+<script>
+// ── SCORM 1.2 ───────────────────────────────────────────────
+var SCORM_API=null;
+function findAPI(w){var t=0;while(w&&t<10){try{if(w.API)return w.API;}catch(e){}try{if(w.parent===w)break;w=w.parent;}catch(e){break;}t++;}try{if(window.opener&&window.opener.API)return window.opener.API;}catch(e){}return null;}
+function initSCORM(){SCORM_API=findAPI(window);if(SCORM_API){try{SCORM_API.LMSInitialize("");}catch(e){SCORM_API=null;}}}
+function scormSet(k,v){try{if(SCORM_API)SCORM_API.LMSSetValue(k,String(v));}catch(e){}}
+function scormFinish(){try{if(SCORM_API){SCORM_API.LMSCommit("");SCORM_API.LMSFinish("");}}catch(e){}}
+
+/* AlRams portal signal — injected to report completion */
+(function(){
+  var _orig=scormFinish;
+  scormFinish=function(){
+    _orig.apply(this,arguments);
+    try{
+      var p=new URLSearchParams(location.search);
+      var eid=p.get('eid')||'';
+      if(!eid)return;
+      var score=typeof calculateScore==='function'?calculateScore():0;
+      var total=typeof TOTAL_MARKS!=='undefined'?TOTAL_MARKS:100;
+      var percent=Math.round((score/total)*100);
+      var rec={type:'ashrafScore',examId:eid,score:score,total:total,percent:percent};
+      try{localStorage.setItem('ar_link_done_'+eid,JSON.stringify(rec));}catch(e){}
+      try{if(window.parent&&window.parent!==window)window.parent.postMessage(rec,'*');}catch(e){}
+      try{if(window.opener&&!window.opener.closed)window.opener.postMessage(rec,'*');}catch(e){}
+    }catch(e){}
+  };
+})();
+function reportScore(s,t){scormSet("cmi.core.score.raw",s);scormSet("cmi.core.score.min","0");scormSet("cmi.core.score.max",t);scormSet("cmi.core.lesson_status",s/t>=0.5?"passed":"failed");scormSet("cmi.core.exit","");setTimeout(scormFinish,800);}
+window.addEventListener('DOMContentLoaded',initSCORM);
+if(document.readyState!=='loading')initSCORM();
+(function(){var _o=window.submitExam;if(!_o)return;window.submitExam=function(a){_o.call(this,a);setTimeout(function(){var e=document.getElementById('final-score');reportScore(e?parseFloat(e.innerText)||0:0,100);},150);};})();
+
+// ── Anti-Cheat ──────────────────────────────────────────────
+var _acStarted=false,_acCC=0,_acAl=null,_acDone=false;
+function _acBeep(){try{var c=new(window.AudioContext||window.webkitAudioContext)();[880,660,880].forEach(function(f,i){var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.value=0.3;o.start(c.currentTime+i*0.25);o.stop(c.currentTime+i*0.25+0.22);});}catch(e){}}
+function _acOn(msg){document.getElementById('cheat-msg').innerHTML=msg;document.getElementById('cheat-warning').style.display='flex';_acBeep();_acAl=setInterval(_acBeep,2500);}
+function _acOff(){clearInterval(_acAl);_acAl=null;document.getElementById('cheat-warning').style.display='none';}
+function _acAll(){var g={};document.querySelectorAll('input[type="radio"]').forEach(function(r){if(!g[r.name])g[r.name]=false;if(r.checked)g[r.name]=true;});return Object.values(g).every(function(v){return v;});}
+function _acLeft(){var g={};document.querySelectorAll('input[type="radio"]').forEach(function(r){if(!g[r.name])g[r.name]=false;if(r.checked)g[r.name]=true;});return Object.values(g).filter(function(v){return!v;}).length;}
+document.addEventListener('visibilitychange',function(){
+  if(!_acStarted||_acDone)return;
+  if(document.hidden){
+    _acCC++;
+    if(_acCC===1)_acOn('⚠️ WARNING &mdash; Attempt 1 of 2<br><span style="font-size:18px;display:block;margin-top:12px">You switched tabs!<br>Return to the exam immediately.<br>One more warning before auto-submit.</span>');
+    else if(_acCC===2)_acOn('🚨 FINAL WARNING &mdash; Attempt 2 of 2<br><span style="font-size:18px;display:block;margin-top:12px">Return NOW.<br>Next violation = auto-submit (if all questions answered).</span>');
+    else if(_acAll())_acOn('❌ AUTO-SUBMITTING&hellip;<br><span style="font-size:18px;display:block;margin-top:12px">Return to this tab to trigger submission.</span>');
+    else _acOn('🚨 TAB SWITCH DETECTED<br><span style="font-size:18px;display:block;margin-top:12px">'+_acLeft()+' question(s) still unanswered.<br>Complete all questions before leaving!</span>');
+  }else{
+    if(_acCC>=3&&_acAll()&&!_acDone){_acDone=true;_acOff();submitExam(true);}
+    else _acOff();
+  }
+});
+document.addEventListener('contextmenu',function(e){if(_acStarted)e.preventDefault();});
+document.addEventListener('keydown',function(e){if(!_acStarted)return;if(e.key==='F12'||(e.ctrlKey&&['u','s','i','j'].includes(e.key.toLowerCase())))e.preventDefault();});
+</script>
+
+<script>
+/* AlRams Portal Result Bridge v2.1 - auto sends score to student/teacher portals */
+(function(){
+  if(window.__ALRAMS_PORTAL_BRIDGE_V21) return;
+  window.__ALRAMS_PORTAL_BRIDGE_V21=true;
+  var sent=false;
+  function qs(id){return document.getElementById(id);} 
+  function text(el){return (el && (el.innerText||el.textContent)||'').trim();}
+  function num(x){var n=Number(x);return isNaN(n)?0:n;}
+  function visible(el){ if(!el) return false; var s=getComputedStyle(el); return s.display!=='none' && s.visibility!=='hidden' && el.offsetParent!==null; }
+  function getExamId(){try{var p=new URLSearchParams(location.search);return p.get('eid')||p.get('examId')||p.get('id')||'';}catch(e){return ''}}
+  function compute(){
+    var score=null,total=null;
+    try{
+      if(Array.isArray(window.userAnswers) && Array.isArray(window.runtimeAnswers) && window.runtimeAnswers.length){
+        total=window.runtimeAnswers.length; score=0;
+        for(var i=0;i<window.runtimeAnswers.length;i++){ if(window.userAnswers[i]===window.runtimeAnswers[i]) score++; }
+      }
+    }catch(e){}
+    try{
+      if(score===null && window.EXAM && Array.isArray(window.EXAM.questions)){
+        score=0; total=0;
+        window.EXAM.questions.forEach(function(q){
+          var marks=num(q.marks||q.points||1); total+=marks;
+          var picked=null;
+          if(window.answers && window.answers[q.num]!==undefined) picked=window.answers[q.num];
+          var name=q.id||('q'+q.num);
+          var checked=document.querySelector('input[name="'+name+'"]:checked');
+          if(checked) picked=isNaN(Number(checked.value))?checked.value:Number(checked.value);
+          if(String(picked)===String(q.correct)) score+=marks;
+        });
+      }
+    }catch(e){}
+    try{
+      if(score===null && typeof window.calculateScore==='function'){
+        score=num(window.calculateScore());
+        if(window.TOTAL_MARKS!==undefined) total=num(window.TOTAL_MARKS);
+        else if(window.currentExam && window.currentExam.total) total=num(window.currentExam.total);
+        else if(window.EXAM && window.EXAM.total) total=num(window.EXAM.total);
+      }
+    }catch(e){}
+    try{
+      var body=text(document.body);
+      var m=body.match(/(?:Score|Your Score|Result)\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/i);
+      if(m){score=num(m[1]);total=num(m[2]);}
+    }catch(e){}
+    try{
+      var rs=qs('r-score')||qs('score')||qs('final-score')||qs('scoreText')||document.querySelector('[id*=score]');
+      var rp=qs('r-pct')||qs('total')||document.querySelector('[id*=pct],[id*=percent]');
+      var st=text(rs), tt=text(rp);
+      var mm=(st+' '+tt).match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+      if(mm){score=num(mm[1]);total=num(mm[2]);}
+      else if(score===null && st.match(/\d/)){score=num(st.match(/\d+(?:\.\d+)?/)[0]); var tm=tt.match(/\/\s*(\d+(?:\.\d+)?)/)||tt.match(/(\d+(?:\.\d+)?)\s*marks/i); if(tm) total=num(tm[1]);}
+    }catch(e){}
+    if(total===null || !total) total=100;
+    if(score===null) score=0;
+    var percent=Math.round((score/total)*100);
+    return {score:score,total:total,percent:percent};
+  }
+  function looksSubmitted(){
+    if(window.submitted===true) return true;
+    var ids=['results-screen','results','result','reviewPage','review-section','scoreText','portalScoreBox'];
+    for(var i=0;i<ids.length;i++){var el=qs(ids[i]); if(visible(el) && text(el).match(/\d|complete|submit|score/i)) return true;}
+    var b=text(document.body); return /Quiz Complete|Submitted Successfully|Exam Submitted|Your Score|Score\s*:/i.test(b) && !/Begin Quiz/i.test(b.substring(0,500));
+  }
+  function signal(){
+    try{
+      if(sent) return;
+      if(!looksSubmitted()) return;
+      sent=true;
+      var eid=getExamId();
+      var r=compute();
+      var rec={type:'ashrafScore',examId:eid,score:r.score,total:r.total,percent:r.percent,percentage:r.percent,completed:true,time:new Date().toLocaleString(),timestamp:Date.now()};
+      try{ if(eid) localStorage.setItem('ar_link_done_'+eid,JSON.stringify(rec)); }catch(e){}
+      try{ if(window.parent && window.parent!==window) window.parent.postMessage(rec,'*'); }catch(e){}
+      try{ if(window.opener && !window.opener.closed) window.opener.postMessage(rec,'*'); }catch(e){}
+      try{ new BroadcastChannel('alrams_results').postMessage({type:'exam_complete',record:rec}); }catch(e){}
+    }catch(e){}
+  }
+  function hook(fn){
+    try{ if(typeof window[fn]==='function' && !window[fn].__alramsHooked){ var old=window[fn]; window[fn]=function(){ var ret=old.apply(this,arguments); setTimeout(signal,500); setTimeout(signal,1500); return ret; }; window[fn].__alramsHooked=true; }}catch(e){}
+  }
+  ['submitExam','submitTest','finishExam','submitQuiz','showResults'].forEach(hook);
+  document.addEventListener('click',function(e){try{var t=e.target; if(t && /submit|finish|complete/i.test(t.textContent||t.value||'')){setTimeout(signal,700);setTimeout(signal,1800);}}catch(x){}},true);
+  setInterval(function(){ if(!sent) signal(); },2000);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Exam &#8211; Grade 8 General (Set 2)</title>
+<style>
+:root{--primary:#0f6b3b;--bg:#f5f7fa;--text:#2c3e50;--white:#fff;--danger:#c0392b;--success:#27ae60;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;margin:0;padding:0;}
+.container{max-width:1100px;margin:0 auto;padding:20px;}
+.header{background:#0f6b3b;color:white;border-radius:18px;text-align:center;padding:42px 24px;margin-bottom:20px;}
+.header h1{margin:0;font-size:32px;}
+.header p{margin:8px 0 0;font-size:1rem;opacity:.9;}
+.timer-bar{position:sticky;top:0;background:var(--white);padding:15px;text-align:center;font-size:1.5rem;font-weight:bold;color:var(--primary);z-index:1000;border-bottom:3px solid var(--primary);box-shadow:0 2px 5px rgba(0,0,0,.1);}
+.timer-warning{color:var(--danger);animation:flash 1s infinite;}
+@keyframes flash{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}
+.section{background:var(--white);padding:25px;border-radius:8px;margin-bottom:25px;box-shadow:0 2px 4px rgba(0,0,0,.1);}
+.section h2{border-bottom:2px solid var(--primary);padding-bottom:10px;margin-top:0;color:var(--primary);}
+.section p.sub{color:#555;font-style:italic;margin-top:-5px;}
+.question{margin-bottom:25px;padding-bottom:15px;border-bottom:1px solid #eee;}
+.question:last-child{border-bottom:none;margin-bottom:0;}
+.question-text{font-weight:bold;margin-bottom:10px;display:block;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option-label{display:flex;align-items:center;padding:10px;border:1px solid #ddd;border-radius:4px;cursor:pointer;transition:background .2s;}
+.option-label:hover{background:#f0faf4;}
+.option-label input{margin-right:15px;width:18px;height:18px;flex-shrink:0;}
+.marks{float:right;color:#666;font-size:.9rem;font-weight:normal;}
+.passage{background:#f6fdf9;padding:18px;border-left:4px solid var(--primary);margin-bottom:20px;font-size:1.05rem;line-height:1.9;border-radius:0 6px 6px 0;}
+.blog-header{font-size:.85rem;color:#777;border-bottom:1px solid #ddd;padding-bottom:8px;margin-bottom:12px;}
+.btn-submit{background:var(--primary);color:var(--white);border:none;padding:15px 30px;font-size:1.2rem;border-radius:5px;cursor:pointer;width:100%;display:block;margin-top:20px;}
+.btn-submit:hover{background:#0a5230;}
+#results-panel{display:none;background:var(--white);padding:25px;border-radius:8px;margin-top:25px;box-shadow:0 2px 4px rgba(0,0,0,.1);}
+.correct-text{color:var(--success);font-weight:bold;margin-top:5px;display:block;}
+.wrong-text{color:var(--danger);font-weight:bold;margin-top:5px;display:block;}
+.score-box{background:#f0faf4;border:2px solid var(--primary);border-radius:12px;padding:20px;text-align:center;font-size:1.4rem;margin-bottom:20px;}
+@media print{.timer-bar,.btn-submit{display:none;}}
+</style>
+</head>
+<body>
+<div class="timer-bar" id="timer" style="display:none;">Time Remaining: 90:00</div>
+<div class="container">
+<div class="header">
+  <h1>Sample Exam &#8211; Grade 8 General (Set 2)</h1>
+  <p>End of Term 3 &nbsp;|&nbsp; Reading &amp; Viewing &nbsp;|&nbsp; Total Marks: 100 &nbsp;|&nbsp; Time: 90 Minutes</p>
+</div>
+<div id="startPanel" style="background:white;padding:30px;border-radius:12px;margin-bottom:20px;">
+  <h2 style="color:#0f6b3b;">Instructions</h2>
+  <ul style="line-height:2.2;">
+    <li>This exam has <strong>4 parts</strong> and <strong>100 marks</strong> in total.</li>
+    <li>You have <strong>90 minutes</strong> to complete all parts.</li>
+    <li>For each question, choose the best answer: <strong>A</strong>, <strong>B</strong>, or <strong>C</strong>.</li>
+    <li>Do <strong>not</strong> switch tabs or leave the browser window during the exam.</li>
+  </ul>
+  <input type="hidden" id="studentName" value="Student">
+  <input type="hidden" id="studentClass" value="Grade 8">
+  <input type="hidden" id="currentDate">
+  <button id="startBtn" type="button" style="background:#16a34a;color:white;border:none;padding:14px 32px;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:10px;">&#9654; Start Test</button>
+</div>
+</div>
+
+<form id="assessmentForm" style="display:none;">
+<div class="container">
+
+<!-- ═══ PART 1: VOCABULARY ═══ -->
+<div class="section">
+  <h2>Part 1: Vocabulary <span class="marks" style="font-size:1rem;">(10 Marks)</span></h2>
+  <p class="sub">Towards Grade Level Goal</p>
+  <p>Choose the correct words to complete each sentence. Choose <strong>A</strong>, <strong>B</strong> or <strong>C</strong>.</p>
+
+  <div class="question" data-q="v1">
+    <span class="question-text">1. The ______ of Eid Al Fitr is one of the most ______ events in the Islamic calendar, bringing communities together in prayer and celebration. <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="v1" value="A"> A) festival / religious</label>
+      <label class="option-label"><input type="radio" name="v1" value="B"> B) disaster / holy</label>
+      <label class="option-label"><input type="radio" name="v1" value="C"> C) journey / dangerous</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="v2">
+    <span class="question-text">2. During Diwali, families ______ their homes with ______ lights, beautiful patterns, and colourful decorations to welcome the festival of light. <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="v2" value="A"> A) explore / expensive</label>
+      <label class="option-label"><input type="radio" name="v2" value="B"> B) celebrate / terrible</label>
+      <label class="option-label"><input type="radio" name="v2" value="C"> C) decorate / colourful</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="v3">
+    <span class="question-text">3. The first astronaut to ______ on the Moon said it was the most amazing ______ of his entire life. <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="v3" value="A"> A) land / experience</label>
+      <label class="option-label"><input type="radio" name="v3" value="B"> B) sink / journey</label>
+      <label class="option-label"><input type="radio" name="v3" value="C"> C) explore / crowd</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="v4">
+    <span class="question-text">4. The ______ at sea was so ______ that the captain ordered everyone to leave the ship immediately and get into the lifeboats. <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="v4" value="A"> A) rocket / holy</label>
+      <label class="option-label"><input type="radio" name="v4" value="B"> B) disaster / terrible</label>
+      <label class="option-label"><input type="radio" name="v4" value="C"> C) mosque / bright</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="v5">
+    <span class="question-text">5. Living on a ______ is a ______ experience because astronauts float in zero gravity and cannot walk normally. <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="v5" value="A"> A) space station / special</label>
+      <label class="option-label"><input type="radio" name="v5" value="B"> B) solar system / religious</label>
+      <label class="option-label"><input type="radio" name="v5" value="C"> C) spacecraft / dangerous</label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PART 2: GRAMMAR ═══ -->
+<div class="section">
+  <h2>Part 2: Grammar <span class="marks" style="font-size:1rem;">(10 Marks)</span></h2>
+  <p class="sub">At Grade Level Goal</p>
+  <p>Read the text and choose the correct option to fill each gap. Choose <strong>A</strong>, <strong>B</strong> or <strong>C</strong>.</p>
+  <div class="passage">Valentina Tereshkova was the first woman ever to travel into outer space. In 1963, while she (&#160;1&#160;) ______ around the Earth inside her small spacecraft, she successfully completed 48 orbits in just three days, setting a remarkable world record. Scientists widely believe that space travel is actually (&#160;2&#160;) ______ deep-sea exploration in terms of the advanced technology and careful preparation required. A team of international researchers has recently announced that a brand new crewed space mission (&#160;3&#160;) ______ to Mars early next year. The mission will carry a highly advanced robot that will spend time (&#160;4&#160;) ______ the rocky red surface of the planet for any signs of liquid water or life. Tereshkova's remarkable historic flight (&#160;5&#160;) ______ into many books, films, and documentaries over the past sixty years, inspiring millions of young people all over the world.</div>
+
+  <div class="question" data-q="g1">
+    <span class="question-text">Gap (&#160;1&#160;) <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="g1" value="A"> A) was travelling</label>
+      <label class="option-label"><input type="radio" name="g1" value="B"> B) has been travelling</label>
+      <label class="option-label"><input type="radio" name="g1" value="C"> C) will be travelling</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="g2">
+    <span class="question-text">Gap (&#160;2&#160;) <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="g2" value="A"> A) as challenging as</label>
+      <label class="option-label"><input type="radio" name="g2" value="B"> B) more challenging than</label>
+      <label class="option-label"><input type="radio" name="g2" value="C"> C) less challenging than</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="g3">
+    <span class="question-text">Gap (&#160;3&#160;) <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="g3" value="A"> A) will be sent</label>
+      <label class="option-label"><input type="radio" name="g3" value="B"> B) is being sent</label>
+      <label class="option-label"><input type="radio" name="g3" value="C"> C) has been sent</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="g4">
+    <span class="question-text">Gap (&#160;4&#160;) <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="g4" value="A"> A) to explore</label>
+      <label class="option-label"><input type="radio" name="g4" value="B"> B) explore</label>
+      <label class="option-label"><input type="radio" name="g4" value="C"> C) exploring</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="g5">
+    <span class="question-text">Gap (&#160;5&#160;) <span class="marks">[2 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="g5" value="A"> A) was turned</label>
+      <label class="option-label"><input type="radio" name="g5" value="B"> B) had been turned</label>
+      <label class="option-label"><input type="radio" name="g5" value="C"> C) has been turned</label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PART 3A: TRUE / FALSE / NOT GIVEN ═══ -->
+<div class="section">
+  <h2>Part 3A: Reading &#8211; Eid Al Adha <span class="marks" style="font-size:1rem;">(24 Marks)</span></h2>
+  <p class="sub">Towards Grade Level Goal &nbsp;|&nbsp; Expository text (A2.1&#8211;A2.2)</p>
+  <p>Read the text. Choose the correct answer. Choose <strong>True</strong>, <strong>False</strong> or <strong>Not Given</strong> for each statement.</p>
+  <div class="passage">Eid Al Adha is one of the most important festivals in the Islamic calendar. It is celebrated every year to remember the story of Prophet Ibrahim, who showed his complete faith and obedience to God. The festival lasts for three days and takes place at the end of the Hajj pilgrimage season, when Muslims from all over the world travel to Mecca in Saudi Arabia.<br><br>On the morning of Eid Al Adha, Muslims wake up early and wear their best clothes before going to perform a special prayer at the mosque. After the prayer, families gather together to share large and delicious meals, which often include meat, rice, and traditional sweet dishes.<br><br>One of the most significant traditions during Eid Al Adha is the act of animal sacrifice. A sheep, goat, or cow is sacrificed, and the meat is then divided into three equal parts: one for the family, one for friends and neighbours, and one for people who are in need. This important tradition teaches the values of sharing and generosity.<br><br>In the UAE, Eid Al Adha is an official public holiday. Schools, universities, and government offices close for several days, giving families time to visit relatives and travel. Many shopping centres and public parks organise special activities and entertainment for children and families during the holiday period.</div>
+
+  <div class="question" data-q="r1a">
+    <span class="question-text">1. Eid Al Adha lasts for four days. <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r1a" value="A"> A) True</label>
+      <label class="option-label"><input type="radio" name="r1a" value="B"> B) False</label>
+      <label class="option-label"><input type="radio" name="r1a" value="C"> C) Not Given</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r2a">
+    <span class="question-text">2. Muslims wear their best clothes for the Eid Al Adha prayer. <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r2a" value="A"> A) True</label>
+      <label class="option-label"><input type="radio" name="r2a" value="B"> B) False</label>
+      <label class="option-label"><input type="radio" name="r2a" value="C"> C) Not Given</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r3a">
+    <span class="question-text">3. The sacrifice meat is divided into three equal parts. <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r3a" value="A"> A) True</label>
+      <label class="option-label"><input type="radio" name="r3a" value="B"> B) False</label>
+      <label class="option-label"><input type="radio" name="r3a" value="C"> C) Not Given</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r4a">
+    <span class="question-text">4. Most Emirati families spend Eid Al Adha travelling abroad. <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r4a" value="A"> A) True</label>
+      <label class="option-label"><input type="radio" name="r4a" value="B"> B) False</label>
+      <label class="option-label"><input type="radio" name="r4a" value="C"> C) Not Given</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r5a">
+    <span class="question-text">5. The Eid Al Adha prayer is held in the afternoon. <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r5a" value="A"> A) True</label>
+      <label class="option-label"><input type="radio" name="r5a" value="B"> B) False</label>
+      <label class="option-label"><input type="radio" name="r5a" value="C"> C) Not Given</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r6a">
+    <span class="question-text">6. Schools in the UAE close during Eid Al Adha. <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r6a" value="A"> A) True</label>
+      <label class="option-label"><input type="radio" name="r6a" value="B"> B) False</label>
+      <label class="option-label"><input type="radio" name="r6a" value="C"> C) Not Given</label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PART 3B: MULTIPLE CHOICE ═══ -->
+<div class="section">
+  <h2>Part 3B: Reading &#8211; My Journey to Morocco <span class="marks" style="font-size:1rem;">(28 Marks)</span></h2>
+  <p class="sub">At Grade Level Goal &nbsp;|&nbsp; Narrative text &#8211; Blog Post (A2.2&#8211;B1.1)</p>
+  <p>Read the text and answer the questions. Choose <strong>A</strong>, <strong>B</strong> or <strong>C</strong>.</p>
+  <div class="passage">
+    <div class="blog-header"><strong>My Journey to Morocco</strong> &nbsp;|&nbsp; By Emma Clarke &nbsp;|&nbsp; Travel &amp; Exploration Blog</div>
+    Last summer, I had the most incredible adventure of my life when I travelled to Morocco for two weeks. It was my first time visiting Africa, and the experience completely changed the way I see the world.<br><br>
+    I arrived in Marrakech, a city famous for its ancient markets called souks. As I was walking through the narrow winding streets of the old city, I was completely amazed by the noise, colours, and smells all around me. Sellers were calling out to customers, musicians were playing traditional instruments, and the air was filled with the sweet scent of spices and fresh mint tea.<br><br>
+    One afternoon, I hired a local guide named Youssef to take me to the Atlas Mountains. The drive through the mountain roads was far more breathtaking than I had ever imagined. Youssef shared fascinating stories about the Berber people, who have lived in those mountains for thousands of years. He explained that the word &#8216;Berber&#8217; has been used by outsiders for centuries, but that these communities prefer to call themselves &#8216;Amazigh&#8217;, a word which means &#8216;free people&#8217;.<br><br>
+    Travelling through Morocco taught me that the very best way to truly understand a culture is to speak with the people who live and breathe it every single day.
+  </div>
+
+  <div class="question" data-q="r1b">
+    <span class="question-text">1. Which country did Emma visit for her adventure? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r1b" value="A"> A) Kenya</label>
+      <label class="option-label"><input type="radio" name="r1b" value="B"> B) Morocco</label>
+      <label class="option-label"><input type="radio" name="r1b" value="C"> C) Egypt</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r2b">
+    <span class="question-text">2. How long did Emma stay in Morocco? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r2b" value="A"> A) One week</label>
+      <label class="option-label"><input type="radio" name="r2b" value="B"> B) Three weeks</label>
+      <label class="option-label"><input type="radio" name="r2b" value="C"> C) Two weeks</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r3b">
+    <span class="question-text">3. What was Emma doing when she was amazed by the sights and sounds around her? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r3b" value="A"> A) She was shopping in the souks</label>
+      <label class="option-label"><input type="radio" name="r3b" value="B"> B) She was walking through the streets of the old city</label>
+      <label class="option-label"><input type="radio" name="r3b" value="C"> C) She was drinking mint tea at a market stall</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r4b">
+    <span class="question-text">4. Who took Emma to the Atlas Mountains? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r4b" value="A"> A) A friend she met at the hotel</label>
+      <label class="option-label"><input type="radio" name="r4b" value="B"> B) A local guide named Youssef</label>
+      <label class="option-label"><input type="radio" name="r4b" value="C"> C) Her travel agent</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r5b">
+    <span class="question-text">5. What does the word &#8216;Amazigh&#8217; mean according to the passage? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r5b" value="A"> A) Ancient people</label>
+      <label class="option-label"><input type="radio" name="r5b" value="B"> B) Mountain people</label>
+      <label class="option-label"><input type="radio" name="r5b" value="C"> C) Free people</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r6b">
+    <span class="question-text">6. What does the word &#8216;souks&#8217; most likely refer to in this passage? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r6b" value="A"> A) Ancient markets in the old city</label>
+      <label class="option-label"><input type="radio" name="r6b" value="B"> B) Traditional Moroccan restaurants</label>
+      <label class="option-label"><input type="radio" name="r6b" value="C"> C) Mountain villages in the Atlas range</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r7b">
+    <span class="question-text">7. What is the main lesson Emma learned from her trip to Morocco? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r7b" value="A"> A) That Morocco has the most beautiful markets in Africa</label>
+      <label class="option-label"><input type="radio" name="r7b" value="B"> B) That it is important to always hire a local guide when travelling</label>
+      <label class="option-label"><input type="radio" name="r7b" value="C"> C) That talking to local people is the best way to understand a culture</label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PART 3C: MULTIPLE CHOICE (BEYOND GRADE LEVEL) ═══ -->
+<div class="section">
+  <h2>Part 3C: Reading &#8211; The Lantern Festival &#8211; You Must Come! <span class="marks" style="font-size:1rem;">(28 Marks)</span></h2>
+  <p class="sub">Beyond Grade Level Goal &nbsp;|&nbsp; Narrative text (B1.1) &#8211; Personal Email</p>
+  <p>Read the text and answer the questions. Choose <strong>A</strong>, <strong>B</strong> or <strong>C</strong>.</p>
+  <div class="passage">
+    <div class="blog-header"><strong>Subject:</strong> The Lantern Festival &#8211; You Must Come! &nbsp;|&nbsp; <strong>From:</strong> Rania &nbsp;|&nbsp; <strong>To:</strong> Hana</div>
+    Hi Hana,<br><br>
+    I just had to write and tell you about something truly unforgettable! Last weekend, my family and I attended the Spring Lantern Festival at the Cultural Village in Abu Dhabi, and it was honestly one of the most beautiful experiences I have ever had.<br><br>
+    The festival celebrates the end of the Chinese New Year season. Hundreds of enormous, brightly coloured lanterns were displayed all around the outdoor park, each one painted with different animals, flowers, and traditional Chinese symbols. The atmosphere was absolutely magical &#8211; the lanterns glowed in deep reds, warm golds, and vivid greens against the dark evening sky.<br><br>
+    Throughout the evening there were also live performances of traditional Chinese music and dance. I particularly loved watching a group of young children performing a dragon dance, which is traditionally believed to bring good luck and happiness for the year ahead. I must admit that when the performers moved the long dragon through the crowd, I felt completely mesmerised &#8211; I simply could not take my eyes off it.<br><br>
+    What I found most meaningful was learning that the lantern festival symbolises letting go of past difficulties and welcoming new beginnings with hope and positivity. I left feeling genuinely inspired.<br><br>
+    I believe the festival is planned again for next spring. I strongly recommend that you go &#8211; it is absolutely worth it!<br><br>
+    Rania
+  </div>
+
+  <div class="question" data-q="r1c">
+    <span class="question-text">1. Why is Rania writing to Hana? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r1c" value="A"> A) To ask Hana for advice about visiting Abu Dhabi</label>
+      <label class="option-label"><input type="radio" name="r1c" value="B"> B) To share an experience and recommend a festival to her friend</label>
+      <label class="option-label"><input type="radio" name="r1c" value="C"> C) To invite Hana to travel with her to China</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r2c">
+    <span class="question-text">2. Where was the Lantern Festival held? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r2c" value="A"> A) In Dubai Festival City</label>
+      <label class="option-label"><input type="radio" name="r2c" value="B"> B) In a traditional village in China</label>
+      <label class="option-label"><input type="radio" name="r2c" value="C"> C) At the Cultural Village in Abu Dhabi</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r3c">
+    <span class="question-text">3. What was painted on the lanterns at the festival? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r3c" value="A"> A) Photographs of famous people</label>
+      <label class="option-label"><input type="radio" name="r3c" value="B"> B) Animals, flowers, and traditional Chinese symbols</label>
+      <label class="option-label"><input type="radio" name="r3c" value="C"> C) Maps and directions around the park</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r4c">
+    <span class="question-text">4. According to the text, what does the dragon dance traditionally represent? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r4c" value="A"> A) The end of the Chinese New Year season</label>
+      <label class="option-label"><input type="radio" name="r4c" value="B"> B) Good luck and happiness for the year ahead</label>
+      <label class="option-label"><input type="radio" name="r4c" value="C"> C) The power and strength of the dragon</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r5c">
+    <span class="question-text">5. What does the word &#8216;mesmerised&#8217; most likely mean in this passage? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r5c" value="A"> A) Completely bored and uninterested</label>
+      <label class="option-label"><input type="radio" name="r5c" value="B"> B) Extremely frightened and anxious</label>
+      <label class="option-label"><input type="radio" name="r5c" value="C"> C) So fascinated that you cannot look away</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r6c">
+    <span class="question-text">6. What does the Lantern Festival symbolise, according to Rania? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r6c" value="A"> A) The start of winter and the cold season</label>
+      <label class="option-label"><input type="radio" name="r6c" value="B"> B) Letting go of past difficulties and welcoming new beginnings</label>
+      <label class="option-label"><input type="radio" name="r6c" value="C"> C) The importance of light and colour in Chinese culture</label>
+    </div>
+  </div>
+
+  <div class="question" data-q="r7c">
+    <span class="question-text">7. What can we infer about Rania&#8217;s personality from this email? <span class="marks">[4 marks]</span></span>
+    <div class="options">
+      <label class="option-label"><input type="radio" name="r7c" value="A"> A) She prefers indoor activities to cultural events</label>
+      <label class="option-label"><input type="radio" name="r7c" value="B"> B) She is enthusiastic and enjoys sharing meaningful experiences with friends</label>
+      <label class="option-label"><input type="radio" name="r7c" value="C"> C) She visits a new festival every single weekend</label>
+    </div>
+  </div>
+</div>
+
+<div id="submit-warning" style="display:none;background:#fff3cd;border:2px solid #f0ad4e;border-radius:8px;padding:15px 18px;margin-top:15px;color:#856404;line-height:1.6;"></div>
+<button type="button" class="btn-submit" onclick="validateAndSubmit()">&#10004; SUBMIT ASSESSMENT</button>
+</div>
+</form>
+
+<div class="container">
+<div id="results-panel">
+  <div class="score-box">
+    <strong>Score:</strong> <span id="final-score" style="font-size:2rem;color:#0f6b3b;"></span> / 100
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <strong>Percentage:</strong> <span id="final-percent" style="font-size:2rem;color:#0f6b3b;"></span>%
+  </div>
+  <h3 style="color:#0f6b3b;">Review your answers above &#8593;</h3>
+</div>
+</div>
+
+<script>
+const answerKey={
+  v1:"A",v2:"C",v3:"A",v4:"B",v5:"A",
+  g1:"A",g2:"B",g3:"B",g4:"C",g5:"C",
+  r1a:"B",r2a:"A",r3a:"A",r4a:"C",r5a:"B",r6a:"A",
+  r1b:"B",r2b:"C",r3b:"B",r4b:"B",r5b:"C",r6b:"A",r7b:"C",
+  r1c:"B",r2c:"C",r3c:"B",r4c:"B",r5c:"C",r6c:"B",r7c:"B"
+};
+const marks={
+  v1:2,v2:2,v3:2,v4:2,v5:2,
+  g1:2,g2:2,g3:2,g4:2,g5:2,
+  r1a:4,r2a:4,r3a:4,r4a:4,r5a:4,r6a:4,
+  r1b:4,r2b:4,r3b:4,r4b:4,r5b:4,r6b:4,r7b:4,
+  r1c:4,r2c:4,r3c:4,r4c:4,r5c:4,r6c:4,r7c:4
+};
+let timeLeft=90*60,timerId=null,submitted=false;
+function updateTimer(){
+  if(submitted)return;
+  let m=Math.floor(timeLeft/60),s=timeLeft%60;
+  let tb=document.getElementById('timer');
+  tb.innerText='Time Remaining: '+m+':'+(s<10?'0'+s:s);
+  if(timeLeft<=600)tb.classList.add('timer-warning');
+  if(timeLeft<=0){clearInterval(timerId);submitExam(true);}
+  timeLeft--;
+}
+function validateAndSubmit(){
+  var qLabels={
+    v1:'Part 1 - Q1',v2:'Part 1 - Q2',v3:'Part 1 - Q3',v4:'Part 1 - Q4',v5:'Part 1 - Q5',
+    g1:'Part 2 - Q1',g2:'Part 2 - Q2',g3:'Part 2 - Q3',g4:'Part 2 - Q4',g5:'Part 2 - Q5',
+    r1a:'Part 3A - Q1',r2a:'Part 3A - Q2',r3a:'Part 3A - Q3',r4a:'Part 3A - Q4',r5a:'Part 3A - Q5',r6a:'Part 3A - Q6',
+    r1b:'Part 3B - Q1',r2b:'Part 3B - Q2',r3b:'Part 3B - Q3',r4b:'Part 3B - Q4',r5b:'Part 3B - Q5',r6b:'Part 3B - Q6',r7b:'Part 3B - Q7',
+    r1c:'Part 3C - Q1',r2c:'Part 3C - Q2',r3c:'Part 3C - Q3',r4c:'Part 3C - Q4',r5c:'Part 3C - Q5',r6c:'Part 3C - Q6',r7c:'Part 3C - Q7'
+  };
+  var unanswered=[],firstEl=null;
+  document.querySelectorAll('.question').forEach(function(q){q.style.border='';q.style.borderRadius='';q.style.padding='';});
+  for(var qId in qLabels){
+    if(!document.querySelector('input[name="'+qId+'"]:checked')){
+      unanswered.push(qLabels[qId]);
+      var el=document.querySelector('div[data-q="'+qId+'"]');
+      if(el){el.style.border='2px solid #c0392b';el.style.borderRadius='6px';el.style.padding='10px';if(!firstEl)firstEl=el;}
+    }
+  }
+  var w=document.getElementById('submit-warning');
+  if(unanswered.length>0){
+    w.style.display='block';
+    w.innerHTML='&#9888;&#65039; <strong>Please answer all questions before submitting.</strong><br>'
+      +'<span style="font-weight:normal;font-size:.95rem;">Unanswered ('+unanswered.length+'): '+unanswered.join(' &nbsp;|&nbsp; ')+'</span>';
+    if(firstEl)firstEl.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  w.style.display='none';
+  submitExam();
+}
+function submitExam(auto){
+  if(submitted)return;
+  submitted=true;clearInterval(timerId);
+  document.querySelectorAll('input[type="radio"]').forEach(function(i){i.disabled=true;});
+  let score=0;
+  for(const[qId,correct]of Object.entries(answerKey)){
+    let sel=document.querySelector('input[name="'+qId+'"]:checked');
+    let qDiv=document.querySelector('div[data-q="'+qId+'"]');
+    let span=document.createElement('span');
+    if(sel&&sel.value===correct){score+=marks[qId];span.className='correct-text';span.innerText='✓ Correct';}
+    else{span.className='wrong-text';span.innerText=sel?'✗ Wrong  (Correct: '+correct+')':'✗ Not answered  (Correct: '+correct+')';}
+    qDiv.appendChild(span);
+  }
+  document.getElementById('final-score').innerText=score;
+  document.getElementById('final-percent').innerText=score;
+  document.getElementById('results-panel').style.display='block';
+  document.querySelector('.btn-submit').style.display='none';
+  document.getElementById('submit-warning').style.display='none';
+  try{let r=JSON.parse(localStorage.getItem('examGr8EOT3v2')||'[]');r.push({score:score,time:new Date().toLocaleString()});localStorage.setItem('examGr8EOT3v2',JSON.stringify(r));}catch(e){}
+  setTimeout(function(){window.scrollTo({top:document.getElementById('results-panel').offsetTop,behavior:'smooth'});},200);
+}
+function forceFullscreen(){
+  const el=document.documentElement;
+  try{if(!document.fullscreenElement)(el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen).call(el);}catch(e){}
+}
+document.getElementById('startBtn').addEventListener('click',function(){
+  document.getElementById('currentDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('startPanel').style.display='none';
+  document.getElementById('assessmentForm').style.display='block';
+  document.getElementById('timer').style.display='block';
+  forceFullscreen();
+  if(timerId)clearInterval(timerId);
+  timerId=setInterval(updateTimer,1000);
+  _acStarted=true;
+});
+document.addEventListener('fullscreenchange',function(){
+  if(!submitted&&document.getElementById('assessmentForm').style.display!=='none'&&!document.fullscreenElement)setTimeout(forceFullscreen,300);
+});
+</script>
+
+<div id="cheat-warning" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(160,0,0,0.97);color:white;font-size:26px;font-weight:bold;align-items:center;justify-content:center;text-align:center;flex-direction:column;padding:30px;">
+<div id="cheat-msg"></div>
+</div>
+
+<script>
+var SCORM_API=null;
+function findAPI(win){var t=0,w=win;while(w&&t<10){try{if(w.API)return w.API;}catch(e){}try{if(w.parent===w)break;w=w.parent;}catch(e){break;}t++;}try{if(window.opener&&window.opener.API)return window.opener.API;}catch(e){}return null;}
+function initSCORM(){SCORM_API=findAPI(window);if(SCORM_API){try{SCORM_API.LMSInitialize("");}catch(e){SCORM_API=null;}}}
+function scormSet(k,v){try{if(SCORM_API)SCORM_API.LMSSetValue(k,String(v));}catch(e){}}
+function scormCommitFinish(){try{if(SCORM_API){SCORM_API.LMSCommit("");SCORM_API.LMSFinish("");}}catch(e){}}
+function reportScore(s,t){scormSet("cmi.core.score.raw",s);scormSet("cmi.core.score.min","0");scormSet("cmi.core.score.max",t);scormSet("cmi.core.lesson_status",(s/t)>=0.5?"passed":"failed");scormSet("cmi.core.exit","");setTimeout(scormCommitFinish,800);}
+window.addEventListener('DOMContentLoaded',function(){initSCORM();});
+if(document.readyState!=='loading'){initSCORM();}
+(function(){var _o=window.submitExam;if(!_o)return;window.submitExam=function(a){_o.call(this,a);setTimeout(function(){var el=document.getElementById('final-score');reportScore(el?(parseFloat(el.innerText)||0):0,100);},100);};})();
+var _acStarted=false,_acCheatCount=0,_acAlarm=null,_acDone=false;
+function _acPlayAlarm(){try{var c=new(window.AudioContext||window.webkitAudioContext)();[880,660,880].forEach(function(f,i){var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.value=0.3;o.start(c.currentTime+i*0.25);o.stop(c.currentTime+i*0.25+0.22);});}catch(e){}}
+function _acStartAlarm(msg){document.getElementById('cheat-msg').innerHTML=msg;document.getElementById('cheat-warning').style.display='flex';_acPlayAlarm();_acAlarm=setInterval(_acPlayAlarm,2500);}
+function _acStopAlarm(){clearInterval(_acAlarm);_acAlarm=null;document.getElementById('cheat-warning').style.display='none';}
+function _acAllAnswered(){var g={};document.querySelectorAll('input[type="radio"]').forEach(function(r){if(!g[r.name])g[r.name]=false;if(r.checked)g[r.name]=true;});return Object.values(g).every(function(v){return v;});}
+function _acUnansweredCount(){var g={};document.querySelectorAll('input[type="radio"]').forEach(function(r){if(!g[r.name])g[r.name]=false;if(r.checked)g[r.name]=true;});return Object.values(g).filter(function(v){return!v;}).length;}
+document.addEventListener('visibilitychange',function(){
+  if(!_acStarted||_acDone)return;
+  if(document.hidden){
+    _acCheatCount++;
+    if(_acCheatCount===1){_acStartAlarm('&#9888;&#65039; WARNING 1 of 2<br><span style="font-size:18px;display:block;margin-top:14px">You switched tabs!<br>Return to the exam immediately.<br>One more warning before auto-submit.</span>');}
+    else if(_acCheatCount===2){_acStartAlarm('&#128680; FINAL WARNING &#8211; 2 of 2<br><span style="font-size:18px;display:block;margin-top:14px">You switched tabs again!<br>Return NOW. Next violation = auto-submit.</span>');}
+    else{var l=_acUnansweredCount();if(l===0){_acStartAlarm('&#10060; EXAM WILL BE AUTO-SUBMITTED<br><span style="font-size:18px;display:block;margin-top:14px">Return to the tab &#8211; your exam will be submitted automatically.</span>');}else{_acStartAlarm('&#128680; TAB SWITCH DETECTED<br><span style="font-size:18px;display:block;margin-top:14px">You still have '+l+' unanswered question(s).<br>Complete all questions before leaving!</span>');}}
+  }else{if(_acCheatCount>=3&&_acAllAnswered()&&!_acDone){_acDone=true;_acStopAlarm();window.submitExam(true);}else{_acStopAlarm();}}
+});
+document.addEventListener('contextmenu',function(e){if(_acStarted)e.preventDefault();});
+document.addEventListener('keydown',function(e){if(!_acStarted)return;if(e.key==='F12'||(e.ctrlKey&&['u','s','i','j'].includes(e.key.toLowerCase())))e.preventDefault();});
+</script>
+
+
+<script>
+/* AlRams Portal Result Bridge v2.1 - auto sends score to student/teacher portals */
+(function(){
+  if(window.__ALRAMS_PORTAL_BRIDGE_V21) return;
+  window.__ALRAMS_PORTAL_BRIDGE_V21=true;
+  var sent=false;
+  function qs(id){return document.getElementById(id);} 
+  function text(el){return (el && (el.innerText||el.textContent)||'').trim();}
+  function num(x){var n=Number(x);return isNaN(n)?0:n;}
+  function visible(el){ if(!el) return false; var s=getComputedStyle(el); return s.display!=='none' && s.visibility!=='hidden' && el.offsetParent!==null; }
+  function getExamId(){try{var p=new URLSearchParams(location.search);return p.get('eid')||p.get('examId')||p.get('id')||'';}catch(e){return ''}}
+  function compute(){
+    var score=null,total=null;
+    try{
+      if(Array.isArray(window.userAnswers) && Array.isArray(window.runtimeAnswers) && window.runtimeAnswers.length){
+        total=window.runtimeAnswers.length; score=0;
+        for(var i=0;i<window.runtimeAnswers.length;i++){ if(window.userAnswers[i]===window.runtimeAnswers[i]) score++; }
+      }
+    }catch(e){}
+    try{
+      if(score===null && window.EXAM && Array.isArray(window.EXAM.questions)){
+        score=0; total=0;
+        window.EXAM.questions.forEach(function(q){
+          var marks=num(q.marks||q.points||1); total+=marks;
+          var picked=null;
+          if(window.answers && window.answers[q.num]!==undefined) picked=window.answers[q.num];
+          var name=q.id||('q'+q.num);
+          var checked=document.querySelector('input[name="'+name+'"]:checked');
+          if(checked) picked=isNaN(Number(checked.value))?checked.value:Number(checked.value);
+          if(String(picked)===String(q.correct)) score+=marks;
+        });
+      }
+    }catch(e){}
+    try{
+      if(score===null && typeof window.calculateScore==='function'){
+        score=num(window.calculateScore());
+        if(window.TOTAL_MARKS!==undefined) total=num(window.TOTAL_MARKS);
+        else if(window.currentExam && window.currentExam.total) total=num(window.currentExam.total);
+        else if(window.EXAM && window.EXAM.total) total=num(window.EXAM.total);
+      }
+    }catch(e){}
+    try{
+      var body=text(document.body);
+      var m=body.match(/(?:Score|Your Score|Result)\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/i);
+      if(m){score=num(m[1]);total=num(m[2]);}
+    }catch(e){}
+    try{
+      var rs=qs('r-score')||qs('score')||qs('final-score')||qs('scoreText')||document.querySelector('[id*=score]');
+      var rp=qs('r-pct')||qs('total')||document.querySelector('[id*=pct],[id*=percent]');
+      var st=text(rs), tt=text(rp);
+      var mm=(st+' '+tt).match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+      if(mm){score=num(mm[1]);total=num(mm[2]);}
+      else if(score===null && st.match(/\d/)){score=num(st.match(/\d+(?:\.\d+)?/)[0]); var tm=tt.match(/\/\s*(\d+(?:\.\d+)?)/)||tt.match(/(\d+(?:\.\d+)?)\s*marks/i); if(tm) total=num(tm[1]);}
+    }catch(e){}
+    if(total===null || !total) total=100;
+    if(score===null) score=0;
+    var percent=Math.round((score/total)*100);
+    return {score:score,total:total,percent:percent};
+  }
+  function looksSubmitted(){
+    if(window.submitted===true) return true;
+    var ids=['results-screen','results','result','reviewPage','review-section','scoreText','portalScoreBox'];
+    for(var i=0;i<ids.length;i++){var el=qs(ids[i]); if(visible(el) && text(el).match(/\d|complete|submit|score/i)) return true;}
+    var b=text(document.body); return /Quiz Complete|Submitted Successfully|Exam Submitted|Your Score|Score\s*:/i.test(b) && !/Begin Quiz/i.test(b.substring(0,500));
+  }
+  function signal(){
+    try{
+      if(sent) return;
+      if(!looksSubmitted()) return;
+      sent=true;
+      var eid=getExamId();
+      var r=compute();
+      var rec={type:'ashrafScore',examId:eid,score:r.score,total:r.total,percent:r.percent,percentage:r.percent,completed:true,time:new Date().toLocaleString(),timestamp:Date.now()};
+      try{ if(eid) localStorage.setItem('ar_link_done_'+eid,JSON.stringify(rec)); }catch(e){}
+      try{ if(window.parent && window.parent!==window) window.parent.postMessage(rec,'*'); }catch(e){}
+      try{ if(window.opener && !window.opener.closed) window.opener.postMessage(rec,'*'); }catch(e){}
+      try{ new BroadcastChannel('alrams_results').postMessage({type:'exam_complete',record:rec}); }catch(e){}
+    }catch(e){}
+  }
+  function hook(fn){
+    try{ if(typeof window[fn]==='function' && !window[fn].__alramsHooked){ var old=window[fn]; window[fn]=function(){ var ret=old.apply(this,arguments); setTimeout(signal,500); setTimeout(signal,1500); return ret; }; window[fn].__alramsHooked=true; }}catch(e){}
+  }
+  ['submitExam','submitTest','finishExam','submitQuiz','showResults'].forEach(hook);
+  document.addEventListener('click',function(e){try{var t=e.target; if(t && /submit|finish|complete/i.test(t.textContent||t.value||'')){setTimeout(signal,700);setTimeout(signal,1800);}}catch(x){}},true);
+  setInterval(function(){ if(!sent) signal(); },2000);
+})();
+</script>
+
+</body>
+</html>
