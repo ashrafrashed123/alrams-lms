@@ -1,0 +1,2372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ashraf LMS Professional</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+/* ── TEACHER-WORKSPACE DESIGN SYSTEM ── */
+:root{
+  --nav:#071b34; --nav2:#0d2a50; --blue:#1d66f2; --sky:#eef6ff;
+  --green:#16a34a; --amber:#f59e0b; --red:#dc2626; --purple:#7c3aed;
+  --ink:#102033; --muted:#64748b; --line:#e2e8f0; --card:#ffffff;
+  --bg:#f5f8fc; --shadow:0 18px 45px rgba(15,23,42,.08); --radius:22px;
+  /* legacy aliases used by existing LMS JS */
+  --primary:#1d66f2; --primary-dark:#1550d0; --success:#16a34a;
+  --warning:#f59e0b; --danger:#dc2626; --gold:#f59e0b;
+  --sidebar:#071b34; --sidebar-hover:#0d2a50; --text:#102033;
+  --border:#e2e8f0; --card:#ffffff; --bg:#f5f8fc;
+  --shadow-lg:0 18px 45px rgba(15,23,42,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink)}
+
+/* ── LOGIN ── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#071b34 0%,#0d2a50 50%,#071b34 100%)}
+.login-card{background:#fff;border-radius:20px;padding:40px;width:440px;box-shadow:var(--shadow-lg)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .star{font-size:52px}
+.login-logo h1{font-size:22px;font-weight:800;color:var(--blue);margin-top:8px}
+.login-logo p{color:var(--muted);font-size:12px;margin-top:4px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.role-btn{padding:14px 10px;border:2px solid var(--line);border-radius:10px;cursor:pointer;text-align:center;background:#fff;transition:all .2s;font-family:inherit}
+.role-btn:hover,.role-btn.active{border-color:var(--blue);background:#eef6ff}
+.role-btn .ri{font-size:26px;display:block}
+.role-btn .rl{font-size:12px;font-weight:700;color:var(--muted);margin-top:4px;display:block}
+.role-btn.active .rl{color:var(--blue)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select{width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus{border-color:var(--blue)}
+.hint{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-warning{background:var(--amber);color:#fff}
+.btn-secondary{background:#f1f5f9;color:var(--ink);border:1px solid var(--line)}
+.btn-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+.btn-lg{padding:13px;font-size:15px;width:100%;justify-content:center}
+
+/* ── APP LAYOUT ── */
+.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{background:linear-gradient(180deg,var(--nav),#061225);color:white;padding:24px 18px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sb-header{display:flex;gap:14px;align-items:center;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#3b82f6,#38bdf8);display:grid;place-items:center;font-size:26px;box-shadow:0 8px 20px rgba(59,130,246,.35);flex-shrink:0}
+.sb-header-text h2{font-size:16px;font-weight:800;margin:0}
+.sb-header-text p{font-size:11px;color:#bfdbfe;margin-top:3px}
+.sb-header-text .sb-badge{display:inline-block;background:#2563eb;border-radius:999px;padding:3px 9px;font-size:11px;margin-top:5px;font-weight:600}
+.sb-nav{flex:1;padding:4px 0}
+.sb-section{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#93c5fd;margin:18px 4px 8px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;color:rgba(255,255,255,.7);font-size:14px;font-weight:500;cursor:pointer;margin:3px 0;transition:all .2s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:linear-gradient(90deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 6px 18px rgba(37,99,235,.2)}
+.nav-item.active{background:linear-gradient(90deg,#1d4ed8,#2563eb);color:#fff;box-shadow:0 8px 22px rgba(37,99,235,.3)}
+.nav-item .ni{font-size:16px;width:20px;text-align:center}
+.sb-footer{padding-top:16px;border-top:1px solid rgba(255,255,255,.08);margin-top:auto}
+.user-row{display:flex;gap:12px;align-items:center}
+.avatar{width:42px;height:42px;border-radius:50%;background:#fff;color:#0f172a;display:grid;place-items:center;font-size:14px;font-weight:800;flex-shrink:0}
+.user-name{font-size:14px;font-weight:700;color:#fff}
+.user-role{font-size:11px;color:#cbd5e1}
+.logout-btn{margin-top:12px;width:100%;padding:9px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.15);border-radius:10px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .2s}
+.logout-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+
+/* ── MAIN AREA ── */
+.main{min-width:0;overflow-x:hidden;display:flex;flex-direction:column}
+.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:0 32px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;flex-shrink:0}
+.topbar h1{font-size:20px;font-weight:800;color:var(--ink)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.content{padding:24px 32px;flex:1}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat-card{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;gap:16px;align-items:center;box-shadow:var(--shadow)}
+.stat-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.stat-value{font-size:28px;font-weight:800;line-height:1}
+.stat-label{font-size:12px;color:var(--muted);margin-top:5px}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.card-sm{padding:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:700}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ── DASHBOARD HERO ── */
+.dash-hero{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-bottom:18px}
+.welcome-card{background:linear-gradient(135deg,#fff,#eef6ff);border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.welcome-card h2{font-size:26px;font-weight:800;margin-bottom:6px}
+.welcome-card p{color:var(--muted);font-size:14px}
+.motto{margin-top:18px;display:inline-flex;gap:8px;align-items:center;background:#dbeafe;color:#1d4ed8;padding:9px 14px;border-radius:999px;font-weight:700;font-size:13px}
+.quote-card{background:white;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.quote-card blockquote{font-size:14px;line-height:1.7;color:var(--ink);border-left:3px solid var(--blue);padding-left:14px;margin:12px 0}
+.dash-grid{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:16px;margin-bottom:18px}
+.dash-bottom{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:16px}
+.panel{background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-head h3{font-size:15px;font-weight:700;margin:0}
+.view-link{color:var(--blue);font-weight:700;font-size:13px;cursor:pointer;text-decoration:none}
+
+/* ── PRIORITIES ── */
+.priority{display:grid;grid-template-columns:36px 1fr 20px;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.priority:last-child{border-bottom:0}
+.p-num{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:white;font-weight:900;font-size:13px;flex-shrink:0}
+
+/* ── PROGRESS BARS ── */
+.bar{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:4px}
+.fill{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:999px}
+.fill-orange{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.fill-red{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.fill-blue{background:linear-gradient(90deg,#3b82f6,#2563eb)}
+
+/* ── STUDENT SNAPSHOT ── */
+.student-row{display:grid;grid-template-columns:40px 1fr 56px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.student-row:last-child{border-bottom:0}
+.face{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#bfdbfe,#e0e7ff);display:grid;place-items:center;font-weight:800;font-size:14px}
+.pct{font-weight:800;font-size:14px}
+
+/* ── QUICK ACTIONS ── */
+.actions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.action-btn{border:1px solid var(--line);border-radius:14px;background:#fbfdff;padding:16px 8px;text-align:center;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.action-btn:hover{border-color:#93c5fd;background:#eef6ff}
+.action-btn i{display:block;font-style:normal;font-size:24px;margin-bottom:6px}
+
+/* ── NOTIFICATIONS ── */
+.note{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.note:last-child{border-bottom:0}
+.note b{display:block;font-size:13px}
+.note span{color:var(--muted);font-size:12px}
+
+/* ── EVENTS ── */
+.event{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.event:last-child{border-bottom:0}
+.event-date{border-radius:12px;background:#eef6ff;color:var(--blue);padding:8px;text-align:center;font-weight:800;font-size:15px}
+.event-date small{display:block;font-size:10px;font-weight:600;text-transform:uppercase}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line)}
+.tbl td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f8fafc}
+
+/* ── BADGES & PILLS ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
+.badge-green{background:#d1fae5;color:#065f46}.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-gray{background:#f1f5f9;color:#475569}.badge-gold{background:#fef3c7;color:#b45309}
+.score-pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.pill-high{background:#d1fae5;color:#065f46}.pill-mid{background:#fef3c7;color:#92400e}.pill-low{background:#fee2e2;color:#991b1b}
+.pill{font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;background:#dcfce7;color:#15803d}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;padding-bottom:0}
+.tab{padding:9px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab:hover{color:var(--ink)}
+
+/* ── MODALS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal{background:#fff;border-radius:20px;width:720px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-hd{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1}
+.modal-hd h2{font-size:16px;font-weight:700}
+.modal-bd{padding:24px}
+.modal-ft{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.close-x{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;padding:4px}
+.close-x:hover{color:var(--ink)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sep{border:none;border-top:1px solid var(--line);margin:16px 0}
+
+/* ── EXAM BUILDER ── */
+.q-builder{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.q-builder-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:700;font-size:14px}
+.question-options{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.opt-row{display:flex;align-items:center;gap:10px}
+.opt-row input[type=text]{flex:1;padding:7px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.opt-row input[type=text]:focus{border-color:var(--blue)}
+.opt-label{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── EXAM TAKING ── */
+.exam-page{min-height:100vh;background:var(--bg);padding:24px}
+.exam-header{background:#fff;border-radius:16px;padding:18px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.timer{font-size:22px;font-weight:800;color:var(--red);background:#fee2e2;padding:8px 18px;border-radius:12px}
+.pb{height:6px;background:#e5e7eb;border-radius:999px;margin-top:10px;overflow:hidden}
+.pb-fill{height:100%;border-radius:999px;transition:width .3s}
+.q-card{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-bottom:16px}
+.q-text{font-size:17px;font-weight:600;margin-bottom:18px;line-height:1.5}
+.opt{padding:14px 18px;border:2px solid var(--line);border-radius:12px;cursor:pointer;margin-bottom:10px;font-size:14px;transition:all .2s;display:flex;align-items:center;gap:12px}
+.opt:hover{border-color:var(--blue);background:#eef6ff}
+.opt.selected{border-color:var(--blue);background:#eef6ff}
+.opt.correct{border-color:var(--green);background:#d1fae5}
+.opt.wrong{border-color:var(--red);background:#fee2e2}
+.opt-circle{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.opt.selected .opt-circle,.opt.correct .opt-circle{border-color:var(--blue);background:var(--blue);color:#fff}
+.opt.wrong .opt-circle{border-color:var(--red);background:var(--red);color:#fff}
+.q-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.q-dot{width:34px;height:34px;border-radius:10px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s;background:#fff}
+.q-dot.current{border-color:var(--blue);background:var(--blue);color:#fff}
+.q-dot.answered{border-color:var(--green);background:#d1fae5;color:#065f46}
+
+/* ── MONITOR ── */
+.monitor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:16px}
+.sc-card{padding:14px;border-radius:14px;border:1.5px solid var(--line);text-align:center;background:#fff}
+.sc-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-id{font-size:11px;color:var(--muted);margin-top:2px}
+.sc-status{font-size:11px;font-weight:600;margin-top:6px}
+.sc-score{font-size:16px;font-weight:800;margin-top:4px;color:var(--green)}
+.s-not-started{border-color:#e5e7eb;background:#f9fafb}
+.s-ip{border-color:var(--amber);background:#fffbeb}
+.s-sb{border-color:var(--green);background:#f0fdf4}
+.s-wn{border-color:var(--red);background:#fef2f2}
+
+/* ── MISC ── */
+.empty{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty .ei{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.notify{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:14px 20px;border-radius:14px;font-size:14px;font-weight:600;z-index:9999;box-shadow:var(--shadow-lg);animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.text-sm{font-size:13px}.text-xs{font-size:11px}.text-muted{color:var(--muted)}.font-bold{font-weight:700}.mb-3{margin-bottom:12px}
+.health{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.chip{background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:700;font-size:12px}
+.chip.ok{color:#15803d}.chip.warn{color:#b45309}
+
+/* ── GROWTH / LEVEL CARDS ── */
+.level-card{border-radius:16px;padding:18px;margin-bottom:14px}
+.lh-a1{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.lh-a2{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
+.lh-b1{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
+.lv-a1{background:#fef3c7;color:#92400e}
+.lv-a2{background:#d1fae5;color:#065f46}
+.lv-b1{background:#dbeafe;color:#1e40af}
+.task-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px}
+
+@media(max-width:1100px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto}
+  .dash-hero,.dash-grid,.dash-bottom,.stat-grid{grid-template-columns:1fr}
+  .content{padding:18px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="notif" id="notif"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  STUDENT DATA
+// ═══════════════════════════════════════
+const CLASSES = {
+'8-1':[
+{id:'2017020603',name:'Ahmed Badr Ahmed Ali Obaid'},
+{id:'2017004204',name:'Ahmed Rashed Mohammed Alshemeili'},
+{id:'2017004353',name:'Ahmad Yasser Ahmad Hassan Amir'},
+{id:'2017004194',name:'Ebrahim Jamal Ali Alyouha Alteneiji'},
+{id:'2016068709',name:'Hasan Salem Ali Mohammed Alshehhi'},
+{id:'2017011725',name:'Hamad Khlifa Ali Muftah Al Ali'},
+{id:'2017004355',name:'Hamad Yasser Ahmad Hassan Amir'},
+{id:'2017004191',name:'Hamdan Ahmed Hasan Hamdan Alshehhi'},
+{id:'2017018508',name:'Hamdan Ahmed Saleh Yousef Alshehhi'},
+{id:'2017022629',name:'Khaled Jamal Rashed Bin Hamdoon Alshehhi'},
+{id:'2017004166',name:'Khaled Mohammed Ali Alkhanzoori Alshehhi'},
+{id:'2017004229',name:'Khalifa Rashed Ahmed Alabel Alshemeili'},
+{id:'2017004185',name:'Khalifa Abdulla Ahmed Hamooda Alteneiji'},
+{id:'713289',name:'Zayed Nabeel Ali Kulaib Alteneiji'},
+{id:'2017005369',name:'Abdulaziz Ebrahim Abdulrahman Sherbak Alteneiji'},
+{id:'2017003884',name:'Abdulla Ali Mohammed Asoos Alhebsi'},
+{id:'2016065604',name:'Obaid Sultan Rashid Saif Aldhuhoori'},
+{id:'2017001262',name:'Ali Salem Ahmed Alyouh Alshehhi'},
+{id:'2017004190',name:'Ali Rashed Saeed Saed Alshemeili'},
+{id:'2017006028',name:'Mayed Mohammed Abbas Ahmed Alteneiji'},
+{id:'2016044191',name:'Mohammed Salem Mohammed Alnoobi Alteneiji'},
+{id:'2017004152',name:'Mohammed Sulaiman Mohammed Burhamah Alteneiji'},
+{id:'2017011715',name:'Mohammed Ali Mohammed Alahwas Alteneiji'},
+{id:'2016082608',name:'Mohammed Easa Mohammed Leaboodi'},
+{id:'2017000974',name:'Marwan Saeed Ahmed Saeed Alyouh'},
+{id:'2017006737',name:'Mansoor Saeed Ahmed Alqarmi Alteneiji'},
+{id:'2017013543',name:'Mansoor Eisa Ahmed Mohammed Almarzooqi'}
+],
+'8-2':[
+{id:'2017028402',name:'Hamad Saeed Ali Bin Alrandi Alkhanbouli'},
+{id:'2017048550',name:'Khaled Almas Saeed Ebrahim Alteneiji'},
+{id:'2017030786',name:'Theyab Abdullah Hassan Haraiz Al Shehhi'},
+{id:'2017004192',name:'Rashed Saif Rashed Alhusaini Alteneiji'},
+{id:'2017004183',name:'Rashed Abdulla Rashed Almurshedi Alshehhi'},
+{id:'2017004160',name:'Rakan Rashed Ghanem Altaweel Alshehhi'},
+{id:'2017018465',name:'Zayed Salem Ahmed Almahboobi Alshehhi'},
+{id:'2017004180',name:'Salem Humood Saleh Mohammed Alshehhi'},
+{id:'2017021196',name:'Salem Rashed Saeed Albakheeti Alshehhi'},
+{id:'2017004844',name:'Salem Saeed Mohammed Alyaqoobi Alshehhi'},
+{id:'2017004201',name:'Salem Ali Hasan Bin Hendi Alshamsi'},
+{id:'2017021195',name:'Saeed Rashed Saeed Albakheeti Alshehhi'},
+{id:'2017004234',name:'Saeed Mohammed Saeed Alrandi Alshehhi'},
+{id:'2017054681',name:'Sultan Saeed Rashed Albakhiti'},
+{id:'2017004175',name:'Saif Ahmed Saeed Munakhas Alshehhi'},
+{id:'2017001632',name:'Saif Ahmed Ali Saeed Mohamed Alyouh Alshehhi'},
+{id:'2017018299',name:'Saleh Ahmed Saleh Hanbalouh Alshehhi'},
+{id:'2017004226',name:'Abdulrahman Ali Qasem Saleh Husein'},
+{id:'2017050188',name:'Abdulrahman Fahad Rashed Alshaiwem Alshehhi'},
+{id:'2017012978',name:'Ali Khalifa Ali Alsalhadi Alshehhi'},
+{id:'2018017067',name:'Omar Abdulla Saeed Saif Alshehhi'},
+{id:'2017004170',name:'Mansoor Aadel Matar Mohammed Alshehhi'},
+{id:'2017004184',name:'Muhannad Abdulla Ali Almahboobi Alshehhi'},
+{id:'2017007336',name:'Muhannad Mohammed Salem Darwashi Alshamsi'},
+{id:'2017030884',name:'Nahayan Ahmed Abdulla Rabeea Alteneiji'},
+{id:'2017025898',name:'Yousef Nawwaf Mohammed Bin Yousef Alshehhi'}
+],
+'8-3':[
+{id:'2016068650',name:'Ebrahim Khaled Ebrahim Almas Alshehhi'},
+{id:'2017018504',name:'Ahmed Ali Ahmed Hilaq Alshehhi'},
+{id:'2017004852',name:'Khaled Faisal Ali Mejdad Alshehhi'},
+{id:'2017045127',name:'Theyab Abdulaziz Abdulla Ahmed'},
+{id:'2017014905',name:'Salem Yousef Ebrahim Albuhair Alshamsi'},
+{id:'2017014374',name:'Saif Hamad Saif Bin Darwish Alteneiji'},
+{id:'2017004196',name:'Abdulrahman Mohammed Abdulrahman Allaw Alteneiji'},
+{id:'2017004178',name:'Abdulaziz Fahad Mohammed Murah Alteneiji'},
+{id:'2017004222',name:'Abdulla Ahmed Mohammed Khamis Al Shamsi'},
+{id:'2017039728',name:'Abdulla Jamal Mohammed Khalifa Alsuwaidi'},
+{id:'2017004232',name:'Abdulla Hasan Rashed Habbash Alteneiji'},
+{id:'2017058999',name:'Abdulla Khaled Saleh Emdabbas Alzaabi'},
+{id:'2017004188',name:'Abdulla Ali Mohammed Khalifa Alsuwaidi'},
+{id:'2017004181',name:'Abdulla Faisal Abdulla Alteneiji'},
+{id:'2017004223',name:'Abdulla Faisal Abdulla Shulaik'},
+{id:'2017004198',name:'Abdulla Mohammed Abdulla Mohammed Alteneiji'},
+{id:'2017004241',name:'Abdulla Mohammed Ali Mejdad Alshehhi'},
+{id:'2017031187',name:'Abdelmalek Mohamed Rashad Zanon Ahmed'},
+{id:'2017011729',name:'Aziz Ali Rashed Alqaishi Alshehhi'},
+{id:'2017004206',name:'Ali Tareq Mohammed Khalifa Alsuwaidi'},
+{id:'2017049902',name:'Ali Bati Khalifa Binbati Al Ali'},
+{id:'2017004202',name:'Ali Saeed Hasan Bin Hendi Alshamsi'},
+{id:'2017007337',name:'Ali Tareq Abdulla Alkhuwaidri Alshehhi'},
+{id:'2017004177',name:'Ali Mohammed Ali Hanbalouh Alshehhi'},
+{id:'2017004209',name:'Mohammed Ahmed Saleh Sunaidi Alteneiji'},
+{id:'2017011743',name:'Mansoor Bader Saleh Alkharraz Alteneiji'},
+{id:'2017004212',name:'Hazza Sulaiman Ebrahim Hasan Alteneiji'},
+{id:'2017018486',name:'Yousef Ibrahim Abdulla Bin Slayem Alteneiji'},
+{id:'2017011751',name:'Yousef Sultan Hamdan Ali Alshehhi'}
+],
+'8-4':[
+{id:'2017024320',name:'Ahmed Taleb Mohammed Alqaishi Alshehhi'},
+{id:'2017005925',name:'Hamed Khaled Mohammed Darbool Alshehhi'},
+{id:'2017004850',name:'Hamdan Matar Obaid Alhabaib Alhmoudi'},
+{id:'2017012906',name:'Khalifa Saeed Mohammed Alqaishi Alshehhi'},
+{id:'2017004156',name:'Khalifa Saif Mohammed Alqaishi Alshehhi'},
+{id:'2017004155',name:'Theyab Ali Mohammed Ali Alshemeili'},
+{id:'2017052628',name:'Rashed Khaled Mohammed Khalifa Al Suwaidi'},
+{id:'2017004207',name:'Salem Khamis Mohammed Khamis Alshamsi'},
+{id:'2017032607',name:'Saeed Khaled Mohammed Suwaid'},
+{id:'2017011741',name:'Sulaiman Aziz Mohammed Alqaishi Alshehhi'},
+{id:'2016030533',name:'Saif Yousef Abdulla Saif Alshehhi'},
+{id:'20190038549',name:'Aamer Mohamed Obaid Binjaber Alzaabi'},
+{id:'20210018680',name:'Abdulla Sultan Abdulla Alzoy Alshehhi'},
+{id:'2017020369',name:'Abdulla Yousef Abdulla Altayyar Almheiri'},
+{id:'2016065569',name:'Ali Ebrahim Ali Bahlool Alshehhi'},
+{id:'2016008959',name:'Ali Yousef Mohammed Alteneiji'},
+{id:'2017004150',name:'Ali Osama Ahmed Tuwi Alteneiji'},
+{id:'2017004179',name:'Ali Salem Mohammed Alkharraz Alteneiji'},
+{id:'2017006738',name:'Omar Aamer Rashed Binaamer Alshemeili'},
+{id:'2017014435',name:'Omar Ali Abdulla Kanar Alshehhi'},
+{id:'2017004220',name:'Ghaleb Jasem Ghaleb Esmaeel Obaidal'},
+{id:'2017004009',name:'Fazzaa Faisal Ahmed Rajab Alshehhi'},
+{id:'2017004843',name:'Fahad Ahmed Abbas Ahmed Alteneiji'},
+{id:'2017004186',name:'Fahad Hareb Ebrahim Ahmed'},
+{id:'2017001048',name:'Fahad Sulaiman Ali Almazyood Alshehhi'},
+{id:'2017004239',name:'Kayed Raed Ebrahim Hasan Alshehhi'},
+{id:'2017053842',name:'Mohammed Fahad Abdulla Bin Jumah Alteneiji'},
+{id:'2017004237',name:'Mohammed Manea Saeed Alqaishi Alshehhi'}
+]
+};
+
+// Helper: find which class a student belongs to
+function findStudentClass(id){
+  for(const [cls,students] of Object.entries(CLASSES)){
+    if(students.find(s=>s.id===id)) return cls;
+  }
+  return null;
+}
+function findStudent(id){
+  for(const students of Object.values(CLASSES)){
+    const s=students.find(s=>s.id===id);
+    if(s) return s;
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════
+//  DEMO EXAMS
+// ═══════════════════════════════════════
+const DEMO_EXAMS = [
+{
+  id:'exam1',title:'Unit 1 Grammar Test',
+  description:'Present Simple, Past Simple, and tense identification',
+  classId:'8-1',timeLimit:30,status:'completed',createdAt:'2026-06-10',
+  questions:[
+    {id:'q1',skill:'grammar',text:'Which sentence is grammatically correct?',
+     opts:['He go to school every day.','He goes to school every day.','He going to school every day.','He gone to school every day.'],correct:1,pts:10},
+    {id:'q2',skill:'grammar',text:'Choose the correct past tense: "She ___ to the market yesterday."',
+     opts:['go','goes','went','gone'],correct:2,pts:10},
+    {id:'q3',skill:'reading',text:'"The boy ran quickly to catch the bus." What did the boy do?',
+     opts:['Walked slowly to the bus','Ran to catch the bus','Missed the bus completely','Drove to school'],correct:1,pts:10},
+    {id:'q4',skill:'vocabulary',text:'What is the meaning of "enormous"?',
+     opts:['Very small','Very fast','Very large','Very expensive'],correct:2,pts:10},
+    {id:'q5',skill:'grammar',text:'"They ___ (not/eat) lunch yet." Choose the correct form.',
+     opts:["haven't eaten","didn't eaten","not ate","hasn't eaten"],correct:0,pts:10},
+    {id:'q6',skill:'reading',text:'"The ancient ruins were discovered by explorers in 1920." Who discovered the ruins?',
+     opts:['Scientists','Tourists','Explorers','Construction workers'],correct:2,pts:10},
+    {id:'q7',skill:'vocabulary',text:'Choose the synonym of "joyful":',
+     opts:['Sad','Angry','Happy','Tired'],correct:2,pts:10},
+    {id:'q8',skill:'grammar',text:'Which is the correct comparative form of "good"?',
+     opts:['Gooder','More good','Better','Best'],correct:2,pts:10},
+    {id:'q9',skill:'vocabulary',text:'The word "annual" means:',
+     opts:['Monthly','Weekly','Daily','Yearly'],correct:3,pts:10},
+    {id:'q10',skill:'reading',text:'"Despite the heavy rain, the match continued." What does "despite" mean here?',
+     opts:['Because of','Even though there was','After the end of','Before the start of'],correct:1,pts:10}
+  ]
+},
+{
+  id:'exam2',title:'Reading Comprehension Quiz',
+  description:'Passage analysis, inference, and vocabulary in context',
+  classId:'8-2',timeLimit:25,status:'active',createdAt:'2026-06-28',
+  questions:[
+    {id:'q1',skill:'reading',text:'What is the main purpose of a topic sentence in a paragraph?',
+     opts:['To end the paragraph','To introduce the main idea','To provide detailed examples','To ask the reader a question'],correct:1,pts:10},
+    {id:'q2',skill:'reading',text:'When we "infer" something from a text, we:',
+     opts:['Copy the exact words from the text','Read between the lines using clues','Disagree with the author','Skip that section'],correct:1,pts:10},
+    {id:'q3',skill:'vocabulary',text:'The word "crucial" is closest in meaning to:',
+     opts:['Unimportant','Difficult','Simple','Essential'],correct:3,pts:10},
+    {id:'q4',skill:'grammar',text:'"The results will be announced ___ Friday." Choose the correct preposition:',
+     opts:['in','at','on','by'],correct:2,pts:10},
+    {id:'q5',skill:'reading',text:'A "conclusion" in an essay is:',
+     opts:['The opening statement','A list of facts','The final paragraph that summarizes','A question for the reader'],correct:2,pts:10},
+    {id:'q6',skill:'vocabulary',text:'What does "abundant" mean?',
+     opts:['Scarce','Plentiful','Boring','Expensive'],correct:1,pts:10},
+    {id:'q7',skill:'grammar',text:'Choose the correct passive form: "The letter ___ by Ahmed."',
+     opts:['wrote','is writing','has write','was written'],correct:3,pts:10},
+    {id:'q8',skill:'reading',text:'What does "first-person" perspective mean in writing?',
+     opts:['Writing about someone else using he/she','Using I/we/my in the narrative','Using only scientific language','Describing future events'],correct:1,pts:10}
+  ]
+},
+{
+  id:'exam3',title:'Vocabulary Building Test',
+  description:'Word meanings, synonyms, antonyms, and context clues',
+  classId:'8-3',timeLimit:20,status:'draft',createdAt:'2026-06-29',
+  questions:[
+    {id:'q1',skill:'vocabulary',text:'What does "persevere" mean?',
+     opts:['Give up easily','Continue despite difficulties','Move very quickly','Speak loudly'],correct:1,pts:10},
+    {id:'q2',skill:'vocabulary',text:'Choose the antonym of "ancient":',
+     opts:['Old','Historic','Modern','Valuable'],correct:2,pts:10},
+    {id:'q3',skill:'grammar',text:'Which sentence uses the correct article?',
+     opts:['She is a honest person.','She is an honest person.','She is the honest person.','She is honest person.'],correct:1,pts:10},
+    {id:'q4',skill:'reading',text:'What is a "simile"?',
+     opts:['A comparison using "like" or "as"','A word that sounds like what it means','An exaggeration for effect','A word with the same meaning'],correct:0,pts:10},
+    {id:'q5',skill:'vocabulary',text:'The word "tranquil" means:',
+     opts:['Noisy and busy','Peaceful and calm','Fast and energetic','Dark and scary'],correct:1,pts:10}
+  ]
+}
+];
+
+// Demo scores for class 8-1 (exam1)
+const DEMO_SCORES_81 = {
+  '2017020603':85,'2017004204':90,'2017004353':75,'2017004194':80,
+  '2016068709':70,'2017011725':95,'2017004355':65,'2017004191':88,
+  '2017018508':72,'2017022629':60,'2017004166':83,'2017004229':91,
+  '2017004185':77,'713289':68,'2017005369':85,'2017003884':73,
+  '2016065604':79,'2017001262':88,'2017004190':62,'2017006028':94,
+  '2016044191':81,'2017004152':76,'2017011715':89,'2016082608':71,
+  '2017000974':85,'2017006737':67,'2017013543':92
+};
+
+// Demo monitor status for exam2 (8-2 active)
+const DEMO_MONITOR = {
+  '2017028402':'submitted','2017048550':'submitted','2017030786':'in_progress',
+  '2017004192':'in_progress','2017004183':'submitted','2017004160':'in_progress',
+  '2017018465':'not_started','2017004180':'submitted','2017021196':'in_progress',
+  '2017004844':'not_started','2017004201':'warning','2017021195':'in_progress',
+  '2017004234':'submitted','2017054681':'not_started','2017004175':'in_progress',
+  '2017001632':'not_started','2017018299':'submitted','2017004226':'in_progress',
+  '2017050188':'not_started','2017012978':'in_progress','2018017067':'not_started',
+  '2017004170':'submitted','2017004184':'in_progress','2017007336':'not_started',
+  '2017030884':'not_started','2017025898':'not_started'
+};
+
+const DEMO_SCORES_82 = {
+  '2017028402':88,'2017048550':75,'2017004183':92,'2017004180':83,
+  '2017004234':71,'2017018299':95,'2017004170':79
+};
+
+// ═══════════════════════════════════════
+//  STATE & STORAGE
+// ═══════════════════════════════════════
+let S = {user:null, view:'login', sub:'dashboard', examSession:null, examTimerID:null, monitorID:null, selectedClass:'8-1', selectedExamId:null, activeTab:0};
+
+// ── Firebase config ──────────────────────────────────────────
+// Replace the values below with your own Firebase project config.
+// Get them from: Firebase Console → Project Settings → Your Apps
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyAxK_HHx-FAeeyrQzUt01R-QeZ9LFjiybg",
+  authDomain:        "alrams-exam-system.firebaseapp.com",
+  projectId:         "alrams-exam-system",
+  storageBucket:     "alrams-exam-system.firebasestorage.app",
+  messagingSenderId: "606665828355",
+  appId:             "1:606665828355:web:1b3d6d4a40b4ac13ccc636",
+  measurementId:     "G-8NKMG47HMX"
+};
+
+let _db = null;
+let _docRef = null;
+let _fbReady = false;
+let _snapshotUnsub = null;
+let _htmlCol = null;
+
+function initFirebase(){
+  try{
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _db = firebase.firestore();
+    _docRef = _db.collection('lms').doc('ashraflms');
+    _htmlCol = _db.collection('lmsHtmlExams');
+    _fbReady = true;
+    console.log('✅ Firebase connected');
+    // Start real-time listener — updates localStorage whenever Firestore changes
+    _snapshotUnsub = _docRef.onSnapshot(snap=>{
+      if(snap.exists){
+        const remote = snap.data();
+        // Merge htmlContent: local wins only if Firestore doesn't have it
+        const local = _localStore();
+        if(local && local.exams){
+          local.exams.forEach(e=>{
+            if(e.htmlContent){
+              const r=remote.exams?.find(x=>x.id===e.id);
+              if(r && !r.htmlContent) r.htmlContent=e.htmlContent;
+            }
+          });
+        }
+        localStorage.setItem('alms', JSON.stringify(remote));
+        // Re-render live pages
+        if(S.user && (S.sub==='monitor'||S.sub==='dashboard'||S.sub==='home'||S.sub==='myexams'||S.sub==='reports')) render();
+      }
+    }, err=>{ console.warn('Firestore listener error:', err); });
+  } catch(e){
+    console.warn('Firebase init failed — running offline:', e);
+    _fbReady = false;
+  }
+}
+
+function _localStore(){
+  try{ return JSON.parse(localStorage.getItem('alms'))||null; } catch(e){ return null; }
+}
+
+function store(){
+  try{ return JSON.parse(localStorage.getItem('alms'))||initStore(); }
+  catch(e){ return initStore(); }
+}
+
+function save(d){
+  // Always write localStorage immediately (keeps UI snappy)
+  localStorage.setItem('alms', JSON.stringify(d));
+
+  // Firestore fix: keep the main LMS document small.
+  // Uploaded HTML exams are saved in their own Firestore documents,
+  // so students on other devices can open them from Firebase.
+  if(_fbReady && _docRef){
+    const forCloud = JSON.parse(JSON.stringify(d));
+    const htmlWrites = [];
+
+    if(forCloud.exams){
+      forCloud.exams.forEach(e=>{
+        if(e.htmlContent && _htmlCol){
+          htmlWrites.push({
+            id:e.id,
+            title:e.title||'',
+            classId:e.classId||'',
+            htmlContent:e.htmlContent,
+            updatedAt:new Date().toISOString()
+          });
+          e.htmlRef=true;
+        }
+        delete e.htmlContent;
+      });
+    }
+
+    _docRef.set(forCloud).catch(e=>console.warn('Firestore save failed:', e));
+    htmlWrites.forEach(h=>{
+      _htmlCol.doc(h.id).set(h).catch(e=>console.warn('HTML exam save failed:', e));
+    });
+  }
+}
+
+async function loadHtmlExamContent(examId){
+  if(!_fbReady || !_htmlCol) return null;
+  try{
+    const snap = await _htmlCol.doc(examId).get();
+    if(snap.exists){
+      const data = snap.data();
+      return data.htmlContent || null;
+    }
+  }catch(e){
+    console.warn('HTML exam load failed:', e);
+  }
+  return null;
+}
+
+async function loadFromFirestore(){
+  if(!_fbReady || !_docRef) return false;
+  try{
+    const snap = await _docRef.get();
+    if(snap.exists){
+      const remote = snap.data();
+      // Merge htmlContent: local wins only if Firestore doesn't have it
+      const local = _localStore();
+      if(local && local.exams){
+        local.exams.forEach(e=>{
+          if(e.htmlContent){
+            const r=remote.exams?.find(x=>x.id===e.id);
+            if(r && !r.htmlContent) r.htmlContent=e.htmlContent;
+          }
+        });
+      }
+      localStorage.setItem('alms', JSON.stringify(remote));
+      return true;
+    }
+  } catch(e){ console.warn('Firestore load failed:', e); }
+  return false;
+}
+function initStore(){
+  const d={exams:[...DEMO_EXAMS], submissions:{}, monitor:{...DEMO_MONITOR}, stars:{}, comments:{}, initialized:true};
+  // Pre-fill 8-1 submissions
+  Object.entries(DEMO_SCORES_81).forEach(([sid,score])=>{
+    const key=`exam1_${sid}`;
+    d.submissions[key]={examId:'exam1',studentId:sid,score,submittedAt:'2026-06-10T10:00:00',skills:{grammar:score+Math.floor(Math.random()*10-5),reading:score+Math.floor(Math.random()*10-5),vocabulary:score+Math.floor(Math.random()*10-5)},answers:[1,2,1,2,0,2,2,2,3,1]};
+  });
+  // Pre-fill 8-2 submitted scores
+  Object.entries(DEMO_SCORES_82).forEach(([sid,score])=>{
+    const key=`exam2_${sid}`;
+    d.submissions[key]={examId:'exam2',studentId:sid,score,submittedAt:'2026-06-28T09:30:00',skills:{grammar:score-5,reading:score+5,vocabulary:score},answers:[1,1,3,2,2,1,3,1]};
+  });
+  // Stars based on scores
+  Object.entries(DEMO_SCORES_81).forEach(([sid,score])=>{
+    let stars=10; // first exam
+    if(score>=90) stars+=15;
+    else if(score>=80) stars+=8;
+    else if(score>=70) stars+=4;
+    if(score===100) stars+=20;
+    d.stars[sid]=stars;
+  });
+  Object.entries(DEMO_SCORES_82).forEach(([sid,score])=>{
+    let stars=10;
+    if(score>=90) stars+=15;
+    else if(score>=80) stars+=8;
+    d.stars[sid]=(d.stars[sid]||0)+stars;
+  });
+  // Level assignments & weekly demo data
+  d.levelAssignments={};d.taskCompletions={};d.weeklyScores={};d.currentTermWeek=2;
+  Object.entries(DEMO_SCORES_81).forEach(([sid,score])=>{
+    const level=getLevelFromScore(score);
+    d.levelAssignments[sid]={level,placementScore:score,assignedDate:'2026-06-10',levelHistory:[{level,date:'2026-06-10'}]};
+    const w1score=Math.min(99,score+Math.floor(Math.random()*8-3));
+    d.taskCompletions[sid]={w1:[true,true,w1score>60,w1score>55,w1score>50]};
+    d.weeklyScores[sid]=[{week:1,score:w1score,tasksCompleted:d.taskCompletions[sid].w1.filter(Boolean).length,date:'2026-06-17'}];
+    d.taskCompletions[sid].w2=[true,score>=65,false,false,false];
+  });
+  Object.entries(DEMO_SCORES_82).forEach(([sid,score])=>{
+    const level=getLevelFromScore(score);
+    if(!d.levelAssignments[sid])d.levelAssignments[sid]={level,placementScore:score,assignedDate:'2026-06-28',levelHistory:[{level,date:'2026-06-28'}]};
+    if(!d.taskCompletions[sid])d.taskCompletions[sid]={};
+    if(!d.weeklyScores[sid])d.weeklyScores[sid]=[];
+  });
+  save(d); return d;
+}
+
+// ═══════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════
+function $(id){return document.getElementById(id)}
+function notify(msg,dur=3000){
+  const n=$('notif'); n.textContent=msg; n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),dur);
+}
+function scorePill(s){
+  if(s>=85) return `<span class="score-pill pill-high">${s}%</span>`;
+  if(s>=65) return `<span class="score-pill pill-mid">${s}%</span>`;
+  return `<span class="score-pill pill-low">${s}%</span>`;
+}
+function gradeLabel(s){
+  if(s>=90) return 'Excellent';
+  if(s>=80) return 'Very Good';
+  if(s>=70) return 'Good';
+  if(s>=60) return 'Satisfactory';
+  return 'Needs Improvement';
+}
+function initials(name){return name.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();}
+function shortName(name){const p=name.split(' ');return p.length>2?`${p[0]} ${p[p.length-1]}`:name;}
+function totalStudents(){return Object.values(CLASSES).reduce((a,b)=>a+b.length,0);}
+function avgScore(examId){
+  const d=store(); let total=0,count=0;
+  for(const k of Object.keys(d.submissions)){
+    if(k.startsWith(examId+'_')){total+=d.submissions[k].score;count++;}
+  }
+  return count?Math.round(total/count):0;
+}
+function studentScore(examId,studentId){
+  const d=store(); const k=`${examId}_${studentId}`;
+  return d.submissions[k]||null;
+}
+
+// ═══════════════════════════════════════
+//  RENDER ENGINE
+// ═══════════════════════════════════════
+function render(){
+  const app=$('app');
+  if(S.view==='login'){app.innerHTML=renderLogin();bindLogin();return;}
+  if(S.view==='exam'){app.innerHTML=renderExamPage();bindExam();return;}
+  const role=S.user.role;
+  if(role==='teacher') app.innerHTML=renderTeacher();
+  else if(role==='student') app.innerHTML=renderStudent();
+  bindCommon();
+  if(role==='teacher') bindTeacher();
+  else if(role==='student') bindStudent();
+}
+
+// ═══════════════════════════════════════
+//  LOGIN
+// ═══════════════════════════════════════
+function renderLogin(){
+  return `
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="star">⭐</div>
+      <h1>Ashraf LMS Professional</h1>
+      <p>Turning a Teacher's Dream into Reality</p>
+    </div>
+    <div class="role-grid">
+      <button class="role-btn active" data-role="teacher" onclick="selectRole('teacher')">
+        <span class="ri">👨‍🏫</span><span class="rl">Teacher</span>
+      </button>
+      <button class="role-btn" data-role="student" onclick="selectRole('student')">
+        <span class="ri">👨‍🎓</span><span class="rl">Student</span>
+      </button>
+    </div>
+    <div id="login-fields">${renderTeacherFields()}</div>
+    <button class="btn btn-primary btn-lg" onclick="doLogin()">Sign In →</button>
+    <p class="hint" id="login-hint">Username: ashraf &nbsp;|&nbsp; Password: moe@6060</p>
+  </div>
+</div>`;
+}
+
+function renderTeacherFields(){
+  return `
+    <div class="fg"><label>Username</label><input id="luser" type="text" placeholder="ashraf" value="ashraf"></div>
+    <div class="fg"><label>Password</label><input id="lpass" type="password" placeholder="••••••••" value="moe@6060"></div>`;
+}
+
+function renderStudentFields(){
+  const cls=studentLoginState.cls||'8-1';
+  const students=CLASSES[cls]||[];
+  const classOpts=['8-1','8-2','8-3','8-4'].map(c=>`<option value="${c}"${c===cls?' selected':''}>${c}</option>`).join('');
+  const nameOpts=students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  return `
+    <div class="fg"><label>Class</label>
+      <select id="stu-class" onchange="onStudentClassChange(this.value)" style="width:100%">${classOpts}</select>
+    </div>
+    <div class="fg"><label>Student Name</label>
+      <select id="stu-name" style="width:100%">${nameOpts}</select>
+    </div>
+    <div class="fg"><label>Student Number</label>
+      <input id="stu-id" type="text" placeholder="Enter your student number to confirm"></div>`;
+}
+
+let selectedRole='teacher';
+let studentLoginState={cls:'8-1'};
+
+function selectRole(r){
+  selectedRole=r;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.toggle('active',b.dataset.role===r));
+  const fields=$('login-fields');
+  const hint=$('login-hint');
+  if(r==='teacher'){
+    fields.innerHTML=renderTeacherFields();
+    hint.textContent='Username: ashraf | Password: moe@6060';
+  } else {
+    studentLoginState={cls:'8-1'};
+    fields.innerHTML=renderStudentFields();
+    hint.textContent='Select your class, pick your name, then enter your student number.';
+  }
+}
+
+function onStudentClassChange(cls){
+  studentLoginState.cls=cls;
+  const fields=$('login-fields');
+  fields.innerHTML=renderStudentFields();
+}
+
+function bindLogin(){/* handled inline */}
+
+function doLogin(){
+  const r=selectedRole;
+  if(r==='teacher'){
+    const u=$('luser').value.trim(), p=$('lpass').value.trim();
+    if(u==='ashraf'&&p==='moe@6060'){
+      S.user={role:'teacher',name:'Mr. Ashraf'}; S.view='app'; S.sub='dashboard'; render();
+    } else { notify('❌ Invalid username or password'); }
+  } else {
+    const selectedId=$('stu-name').value;
+    const enteredId=($('stu-id').value||'').trim();
+    const cls=$('stu-class').value;
+    if(!enteredId){ notify('❌ Please enter your student number'); return; }
+    if(enteredId!==selectedId){ notify('❌ Student number does not match the selected name'); return; }
+    const stu=findStudent(selectedId);
+    if(stu){
+      S.user={role:'student',name:stu.name,id:selectedId,classId:cls}; S.view='app'; S.sub='home'; render();
+    } else { notify('❌ Student not found'); }
+  }
+}
+
+// ═══════════════════════════════════════
+//  LAYOUT HELPERS
+// ═══════════════════════════════════════
+function sidebarLayout(nav, content, title, topRight=''){
+  return `
+<div class="app">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">📘</div>
+      <div class="sb-header-text">
+        <h2>Ashraf LMS</h2>
+        <p>Professional Edition</p>
+        <span class="sb-badge">Grade 8 English</span>
+      </div>
+    </div>
+    <nav class="sb-nav">${nav}</nav>
+    <div class="sb-footer">
+      <div class="user-row">
+        <div class="avatar">${initials(S.user.name)}</div>
+        <div>
+          <div class="user-name">${S.user.name}</div>
+          <div class="user-role">${S.user.role==='teacher'?'English Teacher':'Student'}</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">🚪 Sign Out</button>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <h1>${title}</h1>
+      <div class="topbar-right">${topRight}</div>
+    </div>
+    <div class="content">${content}</div>
+  </div>
+</div>`;
+}
+function navItem(icon,label,sub){
+  return `<div class="nav-item${S.sub===sub?' active':''}" onclick="goTo('${sub}')">${icon} <span>${label}</span></div>`;
+}
+function logout(){
+  if(S.examTimerID) clearInterval(S.examTimerID);
+  if(S.monitorID) clearInterval(S.monitorID);
+  S={user:null,view:'login',sub:'dashboard',examSession:null,examTimerID:null,monitorID:null,selectedClass:'8-1',selectedExamId:null,activeTab:0};
+  render();
+}
+function goTo(sub){S.sub=sub;render();}
+function bindCommon(){
+  // handled via onclick inline
+}
+
+// ═══════════════════════════════════════
+//  TEACHER VIEWS
+// ═══════════════════════════════════════
+function renderTeacher(){
+  const nav=`
+    ${navItem('🏠','Dashboard','dashboard')}
+    <div class="sb-section">Teacher</div>
+    ${navItem('👥','My Classes','classes')}
+    ${navItem('📝','Exam Builder','exams')}
+    ${navItem('📡','Live Monitor','monitor')}
+    ${navItem('📈','Reports','reports')}
+    <div class="sb-section">Tools</div>
+    ${navItem('🎯','Remedial Plans','remedial')}
+    ${navItem('📋','Task Bank','taskbank')}
+    ${navItem('📊','Progress Tracker','progresstrack')}`;
+  let content='', title='', topRight='';
+  if(S.sub==='dashboard'){title='Dashboard';content=renderTeacherDash();}
+  else if(S.sub==='classes'){title='My Classes';content=renderTeacherClasses();}
+  else if(S.sub==='exams'){title='Exam Builder';topRight=`<div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="openNewExamModal()">✏️ Create Exam</button><button class="btn btn-warning btn-sm" onclick="openUploadExamModal()">⬆️ Upload Exam</button></div>`;content=renderTeacherExams();}
+  else if(S.sub==='monitor'){title='Live Monitor';content=renderTeacherMonitor();}
+  else if(S.sub==='reports'){title='Reports';content=renderTeacherReports();}
+  else if(S.sub==='remedial'){title='Remedial Plans';content=renderTeacherRemedial();}
+  else if(S.sub==='taskbank'){title='Weekly Task Bank';content=renderTeacherTaskBank();}
+  else if(S.sub==='progresstrack'){title='Progress Tracker';content=renderTeacherProgress();}
+  return sidebarLayout(nav,content,title,topRight);
+}
+
+function classAvgForExam(examId,cls){
+  const d=store();const students=CLASSES[cls]||[];let total=0,count=0;
+  students.forEach(s=>{const sub=studentScore(examId,s.id);if(sub){total+=sub.score;count++;}});
+  return count?Math.round(total/count):null;
+}
+function renderTeacherDash(){
+  const d=store();
+  const totalS=totalStudents();
+  const activeExams=d.exams.filter(e=>e.status==='active').length;
+  const totalStars=Object.values(d.stars).reduce((a,b)=>a+b,0);
+  const allSubs=Object.values(d.submissions);
+  const overallAvg=allSubs.length?Math.round(allSubs.reduce((a,b)=>a+b.score,0)/allSubs.length):0;
+  const needSupport=Object.values(CLASSES).flat().filter(s=>{
+    const subs=Object.values(d.submissions).filter(x=>x.studentId===s.id);
+    if(!subs.length) return false;
+    const avg=Math.round(subs.reduce((a,b)=>a+b.score,0)/subs.length);
+    return avg<65;
+  }).length;
+  const allClasses=['8-1','8-2','8-3','8-4'];
+
+  // Class overview rows
+  const classRows=allClasses.map(cls=>{
+    const sts=CLASSES[cls]||[];
+    const examsForClass=d.exams.filter(e=>e.classId===cls&&e.status!=='draft');
+    const subs=Object.values(d.submissions).filter(s=>sts.find(x=>x.id===s.studentId));
+    const avg=subs.length?Math.round(subs.reduce((a,b)=>a+b.score,0)/subs.length):null;
+    const pct=avg||0;
+    const fillCls=pct>=75?'fill':pct>=60?'fill fill-orange':'fill fill-red';
+    return `<tr>
+      <td><b>${cls}</b></td>
+      <td>${sts.length}</td>
+      <td><div class="bar"><div class="${fillCls}" style="width:${pct}%"></div></div> <span style="font-size:12px">${pct?pct+'%':'—'}</span></td>
+      <td>${examsForClass.length}</td>
+      <td><button class="btn btn-sm" onclick="S.selectedClass='${cls}';goTo('classes')" style="background:#eef6ff;color:var(--blue);border:1px solid #bfdbfe;font-size:11px">View →</button></td>
+    </tr>`;
+  }).join('');
+
+  // Top students by score
+  const allStudents=Object.values(CLASSES).flat();
+  const studentSnap=allStudents.map(s=>{
+    const subs=Object.values(d.submissions).filter(x=>x.studentId===s.id);
+    const avg=subs.length?Math.round(subs.reduce((a,b)=>a+b.score,0)/subs.length):null;
+    return {...s,avg};
+  }).filter(s=>s.avg!==null).sort((a,b)=>b.avg-a.avg).slice(0,4);
+
+  const snapRows=studentSnap.length===0
+    ?'<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No submissions yet</div>'
+    :studentSnap.map(s=>{
+      const pct=s.avg;
+      const fillCls=pct>=75?'fill':pct>=60?'fill fill-orange':'fill fill-red';
+      return `<div class="student-row">
+        <div class="face">${s.name[0]}</div>
+        <div><b style="font-size:13px">${shortName(s.name)}</b><div style="font-size:12px;color:var(--muted)">Score avg</div></div>
+        <div><span class="pct">${pct}%</span><div class="bar"><div class="${fillCls}" style="width:${pct}%"></div></div></div>
+      </div>`;
+    }).join('');
+
+  // Results report per class
+  const resultsReport=allClasses.map(cls=>{
+    const classExams=d.exams.filter(e=>e.classId===cls&&e.status!=='draft');
+    const studentCount=(CLASSES[cls]||[]).length;
+    const examRows=classExams.length===0
+      ?`<tr><td colspan="4" style="text-align:center;color:var(--muted);font-size:12px;padding:12px">No exams yet</td></tr>`
+      :classExams.map(e=>{
+          const avg=e.examType==='html'?null:classAvgForExam(e.id,cls);
+          const submitted=Object.values(d.submissions).filter(s=>s.examId===e.id).length;
+          const statusBadge=e.status==='active'?'<span class="badge badge-green" style="font-size:10px">Active</span>':'<span class="badge badge-blue" style="font-size:10px">Done</span>';
+          return `<tr><td style="font-size:13px;font-weight:600">${e.title}</td><td>${statusBadge}</td><td style="font-size:12px;color:var(--muted)">${submitted}/${studentCount}</td><td>${avg!==null?scorePill(avg):'<span style="font-size:12px;color:var(--muted)">—</span>'}</td></tr>`;
+        }).join('');
+    return `<div class="panel" style="padding:16px">
+      <div class="panel-head"><h3 style="font-size:14px">🎓 Class ${cls} <span style="font-weight:400;font-size:12px;color:var(--muted)">(${(CLASSES[cls]||[]).length} students)</span></h3>
+        <span class="view-link" onclick="S.selectedClass='${cls}';goTo('classes')">View →</span>
+      </div>
+      <table class="tbl" style="font-size:12px"><thead><tr><th>Exam</th><th>Status</th><th>Submitted</th><th>Avg</th></tr></thead><tbody>${examRows}</tbody></table>
+    </div>`;
+  }).join('');
+
+  return `
+<!-- HERO -->
+<div class="dash-hero">
+  <div class="welcome-card">
+    <h2>Good morning, Mr. Ashraf! 👋</h2>
+    <p>Here's your Grade 8 English overview for today.</p>
+    <div class="motto">✨ Teaching Smarter. Learning Better.</div>
+    <div class="health">
+      <span class="chip ok">● ${totalS} Students</span>
+      <span class="chip ok">● ${activeExams} Active Exam${activeExams!==1?'s':''}</span>
+      ${needSupport>0?`<span class="chip warn">● ${needSupport} Need Support</span>`:'<span class="chip ok">● All on Track</span>'}
+      <span class="chip ${_fbReady?'ok':'warn'}">● Firebase ${_fbReady?'Live':'Offline'}</span>
+    </div>
+  </div>
+  <div class="quote-card">
+    <h3 style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px">💬 Teaching Quote</h3>
+    <blockquote>The beautiful thing about learning is that no one can take it away from you.</blockquote>
+    <div style="font-size:12px;color:var(--muted)">– B.B. King</div>
+  </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon" style="background:#ede9fe">👥</div><div><div class="stat-value" style="color:var(--purple)">${totalS}</div><div class="stat-label">Grade 8 Students<br>4 Classes</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">📡</div><div><div class="stat-value" style="color:var(--green)">${activeExams}</div><div class="stat-label">Active Exams<br>Right Now</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">📊</div><div><div class="stat-value" style="color:var(--blue)">${overallAvg||'—'}${overallAvg?'%':''}</div><div class="stat-label">Overall Avg Score<br>All Classes</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div><div class="stat-value" style="color:var(--amber)">${totalStars}</div><div class="stat-label">Stars Awarded<br>All Students</div></div></div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="dash-grid">
+  <div class="panel">
+    <div class="panel-head"><h3>📋 Quick Actions</h3></div>
+    <div class="actions-grid">
+      <button class="action-btn" onclick="goTo('exams')"><i>✏️</i>Create Exam</button>
+      <button class="action-btn" onclick="openUploadExamModal();goTo('exams')"><i>⬆️</i>Upload Exam</button>
+      <button class="action-btn" onclick="goTo('reports')"><i>📊</i>Reports</button>
+      <button class="action-btn" onclick="goTo('classes')"><i>👥</i>Classes</button>
+      <button class="action-btn" onclick="goTo('monitor')"><i>📡</i>Monitor</button>
+      <button class="action-btn" onclick="goTo('remedial')"><i>🎯</i>Remedial</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>📊 Class Overview</h3><span class="view-link" onclick="goTo('classes')">View all</span></div>
+    <table class="tbl">
+      <thead><tr><th>Class</th><th>Students</th><th>Avg Score</th><th>Exams</th><th></th></tr></thead>
+      <tbody>${classRows}</tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>🏆 Top Students</h3><span class="view-link" onclick="goTo('reports')">View report</span></div>
+    ${snapRows}
+  </div>
+</div>
+
+<!-- RESULTS REPORT -->
+<div style="margin-bottom:6px;font-size:16px;font-weight:700">📈 Results Report — All Classes</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  ${resultsReport}
+</div>`;
+}
+
+function renderTeacherClasses(){
+  const d=store();
+  const classes=['8-1','8-2','8-3','8-4'];
+  const cls=S.selectedClass||'8-1';
+  const students=CLASSES[cls];
+  const tabs=classes.map((c,i)=>`<div class="tab${c===cls?' active':''}" onclick="selectClass('${c}')">${c} <span style="font-weight:400;font-size:11px;opacity:.7">(${CLASSES[c].length})</span></div>`).join('');
+  const rows=students.map((s,i)=>{
+    const sub=Object.values(d.submissions).find(x=>x.studentId===s.id);
+    const score=sub?scorePill(sub.score):'<span class="text-muted text-xs">Not tested</span>';
+    const stars=d.stars[s.id]||0;
+    return `<tr><td>${i+1}</td><td><div class="font-bold text-sm">${s.name}</div></td><td class="text-muted text-sm">${s.id}</td><td>${score}</td><td>${stars>0?`⭐ ${stars}`:'—'}</td></tr>`;
+  }).join('');
+  const classExams=d.exams.filter(e=>e.classId===cls);
+  const examRows=classExams.length===0
+    ?`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;font-size:13px">No exams for this class yet. <a onclick="goTo('exams')" style="color:var(--primary);cursor:pointer">Go to Exam Builder →</a></td></tr>`
+    :classExams.map(e=>{
+      const submitted=Object.values(d.submissions).filter(s=>s.examId===e.id).length;
+      const total=students.length;
+      let statusBadge,actionBtn;
+      if(e.status==='active'){statusBadge='<span class="badge badge-green">Active</span>';actionBtn=`<div style="display:flex;gap:6px"><button class="btn btn-warning btn-sm" onclick="classDeactivateExam('${e.id}')">⏸ Deactivate</button><button class="btn btn-primary btn-sm" onclick="goMonitor('${e.id}')">📡 Monitor</button></div>`;}
+      else if(e.status==='completed'){statusBadge='<span class="badge badge-blue">Done</span>';actionBtn=`<button class="btn btn-sm" onclick="classActivateExam('${e.id}')" style="background:#f1f5f9;border:1px solid var(--border)">▶ Re-activate</button>`;}
+      else{statusBadge='<span class="badge badge-gray">Draft</span>';actionBtn=`<button class="btn btn-success btn-sm" onclick="classActivateExam('${e.id}')">▶ Activate</button>`;}
+      return `<tr><td><div class="font-bold text-sm">${e.title}</div>${e.examType==='html'?'<div style="font-size:11px;color:var(--muted)">🌐 External HTML</div>':''}</td><td>${statusBadge}</td><td style="font-size:12px">${e.examType==='html'?'—':`${e.questions.length} Q • ⏱${e.timeLimit}m`}</td><td style="font-size:12px">${e.status!=='draft'?`${submitted}/${total}`:'—'}</td><td>${actionBtn}</td></tr>`;
+    }).join('');
+  return `
+<div class="card" style="margin-bottom:20px">
+  <div class="tabs">${tabs}</div>
+  <div class="card-header"><span class="card-title">📚 Exams — Class ${cls}</span><button class="btn btn-primary btn-sm" onclick="goTo('exams')">+ Add Exam</button></div>
+  <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Exam</th><th>Status</th><th>Details</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>${examRows}</tbody></table></div>
+</div>
+<div class="card">
+  <div class="card-header"><span class="card-title">👥 Students — Class ${cls} (${students.length})</span></div>
+  <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>#</th><th>Student Name</th><th>Student ID</th><th>Latest Score</th><th>Stars</th></tr></thead><tbody>${rows}</tbody></table></div>
+</div>`;
+}
+function classActivateExam(id){const d=store();const e=d.exams.find(x=>x.id===id);if(!e)return;e.status='active';(CLASSES[e.classId]||[]).forEach(s=>{if(!d.monitor[s.id])d.monitor[s.id]='not_started';});save(d);notify(`✅ "${e.title}" is now live!`);render();}
+function classDeactivateExam(id){const d=store();const e=d.exams.find(x=>x.id===id);if(!e)return;e.status='completed';save(d);notify(`✅ "${e.title}" deactivated.`);render();}
+
+function renderTeacherExams(){
+  const d=store();
+  if(d.exams.length===0) return `<div class="panel"><div class="empty" style="padding:40px"><div class="ei">📝</div><h3>No Exams Yet</h3><p>Create your first exam or upload an HTML file.</p></div><div id="exam-modal-area"></div></div>`;
+  const cards=d.exams.map(e=>{
+    const cls=e.classId;
+    const submitted=Object.values(d.submissions).filter(s=>s.examId===e.id).length;
+    const total=CLASSES[cls]?.length||0;
+    const pct=total?Math.round(submitted/total*100):0;
+    const statusBadge=e.status==='active'?'<span class="badge badge-green">● Active</span>':e.status==='completed'?'<span class="badge badge-blue">✓ Completed</span>':'<span class="badge badge-gray">Draft</span>';
+    const exportBtn=`<button class="btn btn-sm btn-secondary" onclick="exportExam('${e.id}')">⬇️ Export</button>`;
+    const actions=e.status==='draft'?`<button class="btn btn-success btn-sm" onclick="activateExam('${e.id}')">▶ Activate</button>`:
+      e.status==='active'?`<button class="btn btn-warning btn-sm" onclick="deactivateExam('${e.id}')">⏸ Deactivate</button><button class="btn btn-primary btn-sm" onclick="goMonitor('${e.id}')">📡 Monitor</button>`:'';
+    return `
+<div class="panel" style="margin-bottom:14px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="font-size:16px;font-weight:800">${e.title}</span>${statusBadge}
+        ${e.examType==='html'?'<span class="badge badge-blue">🌐 HTML</span>':''}
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${e.description||'No description'}</div>
+      <div style="display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+        <span>🎓 Class ${cls}</span>
+        ${e.examType==='html'?'<span>📄 External file</span>':`<span>❓ ${e.questions.length} questions</span><span>⏱ ${e.timeLimit} min</span>`}
+        <span>📅 ${e.createdAt}</span>
+      </div>
+      ${e.status!=='draft'?`<div style="margin-top:12px;max-width:280px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px"><span>Submissions</span><span>${submitted}/${total} (${pct}%)</span></div>
+        <div class="bar"><div class="fill fill-blue" style="width:${pct}%"></div></div>
+      </div>`:''}
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">${actions}${exportBtn}</div>
+  </div>
+</div>`;
+  }).join('');
+  return `${cards}<div id="exam-modal-area"></div>`;
+}
+
+function renderTeacherMonitor(){
+  const d=store();
+  const activeExams=d.exams.filter(e=>e.status==='active');
+  if(activeExams.length===0) return `<div class="empty"><div class="ei">📡</div><h3>No Active Exams</h3><p>Activate an exam to start live monitoring.</p></div>`;
+  const exam=S.selectedExamId?d.exams.find(e=>e.id===S.selectedExamId):activeExams[0];
+  if(!exam) return '';
+  const students=CLASSES[exam.classId]||[];
+  let ns=0,ip=0,sb=0,wn=0;
+  const cards=students.map(s=>{
+    const status=d.monitor[s.id]||'not_started';
+    const sub=studentScore(exam.id,s.id);
+    if(status==='not_started') ns++;
+    else if(status==='in_progress') ip++;
+    else if(status==='submitted') sb++;
+    else if(status==='warning') wn++;
+    const label=status==='not_started'?'Not Started':status==='in_progress'?'In Progress':status==='submitted'?'Submitted':'⚠️ Warning';
+    const cls=`s-${status.replace('_','-').replace('not-started','ns').replace('in-progress','ip').replace('submitted','sb').replace('warning','wn')}`;
+    return `<div class="sc-card ${cls}">
+      <div class="sc-name" title="${s.name}">${shortName(s.name)}</div>
+      <div class="sc-id">${s.id.slice(-6)}</div>
+      <div class="sc-status">${label}</div>
+      ${sub?`<div class="sc-score">${sub.score}%</div>`:''}
+    </div>`;
+  }).join('');
+  const examOptions=activeExams.map(e=>`<option value="${e.id}"${e.id===exam.id?' selected':''}>${e.title} (${e.classId})</option>`).join('');
+  return `
+<div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+  <div class="stat-card"><div class="stat-icon" style="background:#f1f5f9">⬜</div><div class="stat-value" style="color:var(--muted)">${ns}</div><div class="stat-label">Not Started</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⏳</div><div class="stat-value" style="color:var(--warning)">${ip}</div><div class="stat-label">In Progress</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#d1fae5">✅</div><div class="stat-value" style="color:var(--success)">${sb}</div><div class="stat-label">Submitted</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">⚠️</div><div class="stat-value" style="color:var(--danger)">${wn}</div><div class="stat-label">Warning</div></div>
+</div>
+<div class="card">
+  <div class="card-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="card-title">📡 ${exam.title}</span>
+      <select onchange="S.selectedExamId=this.value;render()" style="font-size:13px;padding:6px 10px">${examOptions}</select>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--success)"></div>Live — updates every 10s
+    </div>
+  </div>
+  <div class="monitor-grid" id="monitor-grid">${cards}</div>
+</div>`;
+}
+
+function renderTeacherReports(){
+  const d=store();
+  const cls=S.selectedClass||'8-1';
+  const examForClass=d.exams.filter(e=>e.classId===cls&&e.status!=='draft');
+  const exam=examForClass[0];
+  const tabs=['8-1','8-2','8-3','8-4'].map(c=>`<div class="tab${c===cls?' active':''}" onclick="S.selectedClass='${c}';render()">${c}</div>`).join('');
+
+  if(!exam) return `<div class="panel"><div class="tabs">${tabs}</div><div class="empty" style="padding:40px"><div class="ei">📄</div><h3>No exams for Class ${cls} yet</h3><p>Activate an exam to see results here.</p></div></div>`;
+
+  const students=CLASSES[cls];
+  const scores=students.map(s=>{
+    const sub=studentScore(exam.id,s.id);
+    return {s,sub,score:sub?sub.score:null};
+  }).sort((a,b)=>(b.score||0)-(a.score||0));
+
+  const rows=scores.map(({s,sub,score},i)=>{
+    if(!score) return `<tr><td>${i+1}</td><td>${s.name}</td><td class="text-muted">—</td><td>—</td><td>—</td><td><span class="badge badge-gray">Absent</span></td></tr>`;
+    const g=gradeLabel(score);
+    const fillCls=score>=75?'fill':score>=60?'fill fill-orange':'fill fill-red';
+    return `<tr>
+      <td style="font-weight:700;color:var(--muted)">${i+1}</td>
+      <td><strong>${s.name}</strong></td>
+      <td>${scorePill(score)}</td>
+      <td>${scorePill(sub.skills?.grammar||0)}</td>
+      <td>${scorePill(sub.skills?.reading||0)}</td>
+      <td><span class="badge ${score>=85?'badge-green':score>=70?'badge-yellow':'badge-red'}">${g}</span></td>
+    </tr>`;
+  }).join('');
+
+  const withScores=scores.filter(x=>x.score!==null);
+  const avg=withScores.length?Math.round(withScores.reduce((a,b)=>a+b.score,0)/withScores.length):0;
+  const highest=withScores.length?Math.max(...withScores.map(x=>x.score)):0;
+  const lowest=withScores.length?Math.min(...withScores.map(x=>x.score)):0;
+
+  return `
+<div class="tabs" style="margin-bottom:18px">${tabs}</div>
+<div class="stat-grid" style="margin-bottom:18px">
+  <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">📊</div><div><div class="stat-value" style="color:var(--blue)">${avg}%</div><div class="stat-label">Class Average</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">🏆</div><div><div class="stat-value" style="color:var(--green)">${highest}%</div><div class="stat-label">Highest Score</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">📉</div><div><div class="stat-value" style="color:var(--red)">${lowest}%</div><div class="stat-label">Lowest Score</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#ede9fe">✅</div><div><div class="stat-value" style="color:var(--purple)">${withScores.length}/${students.length}</div><div class="stat-label">Submitted</div></div></div>
+</div>
+<div class="panel">
+  <div class="panel-head"><h3>📄 ${exam.title} — Class ${cls}</h3></div>
+  <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Rank</th><th>Student</th><th>Overall</th><th>Grammar</th><th>Reading</th><th>Grade</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+</div>`;
+}
+
+function bindTeacher(){
+  // Chart.js for reports
+  if(S.sub==='reports'){
+    setTimeout(()=>{
+      const c=document.getElementById('score-chart');
+      if(c&&window.Chart){
+        const d=store();
+        const cls=S.selectedClass||'8-1';
+        const exam=d.exams.find(e=>e.classId===cls&&e.status!=='draft');
+        if(!exam) return;
+        const students=CLASSES[cls];
+        const labels=[];const vals=[];
+        students.forEach(s=>{
+          const sub=studentScore(exam.id,s.id);
+          if(sub){labels.push(shortName(s.name));vals.push(sub.score);}
+        });
+        new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Score %',data:vals,backgroundColor:vals.map(v=>v>=85?'#059669':v>=70?'#d97706':'#dc2626')}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:0,max:100}}}});
+      }
+    },100);
+  }
+  // Start monitor refresh
+  if(S.sub==='monitor'){
+    if(S.monitorID) clearInterval(S.monitorID);
+    S.monitorID=setInterval(()=>{
+      const d=store();
+      // Simulate some in_progress students progressing
+      let changed=false;
+      const students=CLASSES['8-2']||[];
+      students.forEach(s=>{
+        const cur=d.monitor[s.id];
+        if(cur==='in_progress'&&Math.random()<0.15){
+          d.monitor[s.id]='submitted';
+          const exam=d.exams.find(e=>e.id==='exam2');
+          if(exam&&!studentScore('exam2',s.id)){
+            const score=Math.floor(Math.random()*35)+65;
+            d.submissions[`exam2_${s.id}`]={examId:'exam2',studentId:s.id,score,submittedAt:new Date().toISOString(),skills:{grammar:score-5,reading:score+5,vocabulary:score}};
+          }
+          changed=true;
+        } else if(cur==='not_started'&&Math.random()<0.08){
+          d.monitor[s.id]='in_progress'; changed=true;
+        }
+      });
+      if(changed){save(d); const grid=$('monitor-grid'); if(grid) render();}
+    },10000);
+  }
+}
+
+// ═══════════════════════════════════════
+//  EXAM BUILDER MODAL
+// ═══════════════════════════════════════
+let newExam={title:'',description:'',classId:'8-1',timeLimit:30,questions:[]};
+function openNewExamModal(){
+  newExam={title:'',description:'',classId:'8-1',timeLimit:30,questions:[]};
+  addQuestion();
+  showModal(renderExamModal());
+  document.getElementById('eq-title')?.addEventListener('input',e=>newExam.title=e.target.value);
+  document.getElementById('eq-desc')?.addEventListener('input',e=>newExam.description=e.target.value);
+  document.getElementById('eq-class')?.addEventListener('change',e=>newExam.classId=e.target.value);
+  document.getElementById('eq-time')?.addEventListener('input',e=>newExam.timeLimit=parseInt(e.target.value)||30);
+}
+function addQuestion(){
+  newExam.questions.push({id:'q'+(newExam.questions.length+1),skill:'grammar',text:'',opts:['','','',''],correct:0,pts:10});
+}
+function renderExamModal(){
+  const qs=newExam.questions.map((q,i)=>`
+<div class="q-builder" id="qb-${i}">
+  <div class="q-builder-hd">
+    <span>Question ${i+1}</span>
+    <div style="display:flex;gap:8px">
+      <select onchange="newExam.questions[${i}].skill=this.value" style="font-size:12px;padding:4px 8px">
+        ${['grammar','reading','vocabulary','writing'].map(s=>`<option value="${s}"${q.skill===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="removeQ(${i})">✕</button>
+    </div>
+  </div>
+  <div class="fg"><input type="text" placeholder="Enter question text…" value="${q.text}" oninput="newExam.questions[${i}].text=this.value" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none"></div>
+  <div class="question-options">
+    ${q.opts.map((o,oi)=>`
+    <div class="opt-row">
+      <input type="radio" name="q${i}correct" ${q.correct===oi?'checked':''} onchange="newExam.questions[${i}].correct=${oi}" title="Mark as correct">
+      <span class="opt-label">${String.fromCharCode(65+oi)}</span>
+      <input type="text" placeholder="Option ${String.fromCharCode(65+oi)}" value="${o}" oninput="newExam.questions[${i}].opts[${oi}]=this.value">
+    </div>`).join('')}
+  </div>
+</div>`).join('');
+  return `
+<div class="modal-hd"><h2>📝 Create New Exam</h2><button class="close-x" onclick="closeModal()">×</button></div>
+<div class="modal-bd">
+  <div class="form-row">
+    <div class="fg"><label>Exam Title</label><input id="eq-title" type="text" placeholder="e.g. Unit 2 Grammar Test" value="${newExam.title}"></div>
+    <div class="fg"><label>Assign to Class</label><select id="eq-class">${['8-1','8-2','8-3','8-4'].map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div>
+  </div>
+  <div class="form-row">
+    <div class="fg"><label>Description</label><input id="eq-desc" type="text" placeholder="Brief description…"></div>
+    <div class="fg"><label>Time Limit (minutes)</label><input id="eq-time" type="number" value="${newExam.timeLimit}" min="5" max="120"></div>
+  </div>
+  <div class="sep"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <span class="font-bold text-sm">Questions (${newExam.questions.length})</span>
+    <button class="btn btn-primary btn-sm" onclick="addQ()">+ Add Question</button>
+  </div>
+  <div id="q-list">${qs}</div>
+</div>
+<div class="modal-ft">
+  <button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-warning btn-sm" onclick="saveExam('draft')">Save as Draft</button>
+  <button class="btn btn-success btn-sm" onclick="saveExam('active')">Save & Activate</button>
+</div>`;
+}
+function addQ(){addQuestion();showModal(renderExamModal());}
+function removeQ(i){newExam.questions.splice(i,1);showModal(renderExamModal());}
+function saveExam(status){
+  if(!newExam.title){notify('❌ Please enter an exam title');return;}
+  if(newExam.questions.length===0){notify('❌ Add at least one question');return;}
+  const d=store();
+  const exam={...newExam,id:'exam'+Date.now(),status,createdAt:new Date().toISOString().split('T')[0]};
+  d.exams.push(exam);
+  if(status==='active'){
+    (CLASSES[exam.classId]||[]).forEach(s=>{d.monitor[s.id]=d.monitor[s.id]||'not_started';});
+  }
+  save(d); closeModal(); notify(`✅ Exam "${exam.title}" ${status==='active'?'activated':'saved as draft'}!`);
+}
+function activateExam(id){
+  const d=store(); const e=d.exams.find(x=>x.id===id); if(!e) return;
+  e.status='active';
+  (CLASSES[e.classId]||[]).forEach(s=>{if(!d.monitor[s.id]) d.monitor[s.id]='not_started';});
+  save(d); notify(`✅ "${e.title}" is now live!`); render();
+}
+function deactivateExam(id){
+  const d=store(); const e=d.exams.find(x=>x.id===id); if(!e) return;
+  e.status='completed'; save(d); notify(`✅ Exam deactivated.`); render();
+}
+function goMonitor(id){S.selectedExamId=id;S.sub='monitor';render();}
+function selectClass(cls){S.selectedClass=cls;render();}
+
+// Modal helpers
+function showModal(html){
+  let a=$('modal-area');
+  if(!a){a=document.createElement('div');a.id='modal-area';a.className='overlay';document.body.appendChild(a);}
+  a.innerHTML=`<div class="modal">${html}</div>`;
+  a.style.display='flex';
+  a.onclick=e=>{if(e.target===a) closeModal();};
+}
+function closeModal(){const a=$('modal-area');if(a) a.style.display='none';}
+
+// ═══════════════════════════════════════
+//  STUDENT VIEWS
+// ═══════════════════════════════════════
+function renderStudent(){
+  const nav=`
+    ${navItem('🏠','Home','home')}
+    ${navItem('📝','My Exams','myexams')}
+    ${navItem('🎯','My Plan','myplan')}
+    ${navItem('📋','My Tasks','mytasks')}
+    ${navItem('📈','Growth Center','growth')}
+    ${navItem('⭐','My Stars','stars')}
+    ${navItem('👪','Parent Report','parentreport')}`;
+  let content='', title='';
+  if(S.sub==='examiframe'&&S.iframeExam){
+    const srcdoc=prepareExternalExamHtml(S.iframeExam.htmlContent||'');
+    return `<div style="height:100vh;display:flex;flex-direction:column">
+      <div style="padding:10px 20px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;z-index:5">
+        <button class="btn btn-sm" onclick="S.sub='myexams';S.iframeExam=null;render()" style="background:#f1f5f9;border:1px solid var(--border)">← Back</button>
+        <strong style="font-size:15px;flex:1">${S.iframeExam.title}</strong>
+        <button class="btn btn-success btn-sm" onclick="finishExternalExam()">✅ Finish & Send Result</button>
+      </div>
+      <iframe id="external-exam-frame" srcdoc="${escapeHtmlAttr(srcdoc)}" style="flex:1;border:none;width:100%" sandbox="allow-scripts allow-forms allow-modals allow-same-origin allow-downloads"></iframe>
+    </div>`;
+  }
+  if(S.sub==='home'){title='Welcome Back';content=renderStudentHome();}
+  else if(S.sub==='myexams'){title='My Exams';content=renderStudentExams();}
+  else if(S.sub==='myplan'){title='My Remedial Plan';content=renderStudentMyPlan();}
+  else if(S.sub==='mytasks'){title='My Weekly Tasks';content=renderStudentMyTasks();}
+  else if(S.sub==='growth'){title='Growth Center';content=renderStudentGrowth();}
+  else if(S.sub==='stars'){title='Ashraf Stars';content=renderStudentStars();}
+  else if(S.sub==='parentreport'){title='Parent Report';content=renderParentReport();}
+  return sidebarLayout(nav,content,title);
+}
+
+function renderStudentHome(){
+  const d=store();
+  const uid=S.user.id;
+  const cls=S.user.classId;
+  const stars=d.stars[uid]||0;
+  const allSubs=Object.values(d.submissions).filter(s=>s.studentId===uid);
+  const latest=allSubs.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt))[0];
+  const activeExams=d.exams.filter(e=>e.classId===cls&&e.status==='active');
+  const totalExams=d.exams.filter(e=>e.classId===cls&&e.status!=='draft').length;
+  return `
+<div class="dash-hero" style="margin-bottom:18px">
+  <div class="welcome-card">
+    <h2>Welcome back, ${S.user.name.split(' ')[0]}! 👋</h2>
+    <p>Class ${cls} &nbsp;•&nbsp; ${totalExams} exam${totalExams!==1?'s':''} assigned</p>
+    <div class="motto">✨ Keep Learning. Keep Growing.</div>
+  </div>
+  <div class="quote-card" style="display:flex;flex-direction:column;justify-content:center">
+    <h3 style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px">⭐ My Stars</h3>
+    <div style="font-size:48px;font-weight:800;color:var(--amber)">${stars}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:6px">Ashraf Stars earned</div>
+  </div>
+</div>
+<div class="stat-grid" style="margin-bottom:18px">
+  <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">✅</div><div><div class="stat-value" style="color:var(--green)">${allSubs.length}</div><div class="stat-label">Exams Done</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">📊</div><div><div class="stat-value" style="color:var(--blue)">${latest?latest.score+'%':'—'}</div><div class="stat-label">Latest Score</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">📢</div><div><div class="stat-value" style="color:var(--red)">${activeExams.length}</div><div class="stat-label">Pending Exams</div></div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#ede9fe">🎓</div><div><div class="stat-value" style="color:var(--purple)">${cls}</div><div class="stat-label">My Class</div></div></div>
+</div>
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-head"><h3>📢 Pending Exams</h3>${activeExams.length>0?`<span class="badge badge-green">${activeExams.length} Live</span>`:''}</div>
+    ${activeExams.length===0?'<div class="empty" style="padding:24px"><div class="ei" style="font-size:32px">✅</div><p>No active exams right now</p></div>':activeExams.map(e=>`
+    <div style="background:#eef6ff;border:1px solid #bfdbfe;border-radius:14px;padding:16px;margin-bottom:10px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px">${e.title}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">⏱ ${e.timeLimit} min &nbsp;•&nbsp; ${e.examType==='html'?'📄 External exam':`❓ ${e.questions.length} questions`}</div>
+      <button class="btn btn-primary btn-sm" onclick="startExam('${e.id}')">▶ Start Exam</button>
+    </div>`).join('')}
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>📊 My Results</h3><span class="view-link" onclick="goTo('myexams')">View all</span></div>
+    ${allSubs.length===0?'<div class="empty" style="padding:24px"><div class="ei" style="font-size:32px">📝</div><p>No results yet</p></div>':allSubs.map(sub=>{
+      const exam=d.exams.find(e=>e.id===sub.examId);
+      const pct=sub.score;const fillCls=pct>=75?'fill':pct>=60?'fill fill-orange':'fill fill-red';
+      return `<div style="padding:12px 0;border-bottom:1px solid var(--line)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-weight:600;font-size:13px">${exam?.title||'Exam'}</div>${scorePill(sub.score)}
+        </div>
+        <div class="bar"><div class="${fillCls}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('')}
+  </div>
+</div>`;
+}
+
+function renderStudentExams(){
+  const d=store();
+  const uid=S.user.id;
+  const cls=S.user.classId;
+  const exams=d.exams.filter(e=>e.classId===cls&&e.status!=='draft');
+  if(exams.length===0) return `<div class="empty"><div class="ei">📝</div><h3>No Exams Available</h3><p>Your teacher hasn't published any exams yet.</p></div>`;
+  return `<div style="display:flex;flex-direction:column;gap:14px">
+    ${exams.map(e=>{
+      const sub=studentScore(e.id,uid);
+      const alreadyDone=!!sub;
+      const isActive=e.status==='active';
+      return `<div class="panel" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+          <div style="flex:1">
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+              <span style="font-size:15px;font-weight:800">${e.title}</span>
+              ${isActive&&!alreadyDone?'<span class="badge badge-green">● Live</span>':alreadyDone?'<span class="badge badge-blue">✓ Done</span>':'<span class="badge badge-gray">Closed</span>'}
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:10px">${e.description||''}</div>
+            <div style="display:flex;gap:14px;font-size:12px;color:var(--muted)">
+              ${e.examType==='html'?'<span>📄 External exam</span>':`<span>❓ ${e.questions.length} questions</span><span>⏱ ${e.timeLimit} min</span>`}
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            ${alreadyDone?`<div>${scorePill(sub.score)}</div><div style="font-size:12px;color:var(--muted);margin-top:4px">${gradeLabel(sub.score)}</div>`:
+              isActive?`<button class="btn btn-primary" onclick="startExam('${e.id}')">▶ Start Exam</button>`:'<span style="font-size:13px;color:var(--muted)">Not available</span>'}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderStudentGrowth(){
+  const d=store();
+  const uid=S.user.id;
+  const subs=Object.values(d.submissions).filter(s=>s.studentId===uid);
+  if(subs.length===0) return `<div class="empty"><div class="ei">📈</div><h3>No Growth Data Yet</h3><p>Complete exams to see your skill growth here.</p></div>`;
+  const latest=subs[subs.length-1];
+  const skills={grammar:latest.skills?.grammar||0,reading:latest.skills?.reading||0,vocabulary:latest.skills?.vocabulary||0,writing:latest.skills?.writing||Math.round((latest.score-5+Math.random()*10))};
+  const prev=subs.length>1?subs[subs.length-2]:null;
+  function change(skill){if(!prev||!prev.skills) return ''; const d2=(skills[skill]||0)-(prev.skills?.[skill]||0); return d2>0?`<span style="color:var(--success)">▲ +${d2}%</span>`:`<span style="color:var(--danger)">▼ ${d2}%</span>`;}
+  return `
+<div class="skills-row">
+  <div class="sk-card sk-reading"><div class="sk-label">Reading</div><div class="sk-score">${skills.reading}%</div><div class="sk-change">${change('reading')}</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.reading}%"></div></div></div>
+  <div class="sk-card sk-grammar"><div class="sk-label">Grammar</div><div class="sk-score">${skills.grammar}%</div><div class="sk-change">${change('grammar')}</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.grammar}%"></div></div></div>
+  <div class="sk-card sk-writing"><div class="sk-label">Writing</div><div class="sk-score">${skills.writing}%</div><div class="sk-change"></div><div class="sk-bar"><div class="sk-fill" style="width:${skills.writing}%"></div></div></div>
+  <div class="sk-card sk-vocab"><div class="sk-label">Vocabulary</div><div class="sk-score">${skills.vocabulary}%</div><div class="sk-change">${change('vocabulary')}</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.vocabulary}%"></div></div></div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title mb-4">Skill Radar</div>
+    <div class="chart-wrap"><canvas id="radar-chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title mb-4">Score History</div>
+    <div class="chart-wrap"><canvas id="line-chart"></canvas></div>
+  </div>
+</div>`;
+}
+
+function renderStudentStars(){
+  const d=store();
+  const uid=S.user.id;
+  const stars=d.stars[uid]||0;
+  const subs=Object.values(d.submissions).filter(s=>s.studentId===uid);
+  const hasHighScore=subs.some(s=>s.score>=90);
+  const hasPerfect=subs.some(s=>s.score===100);
+  const completedFirst=subs.length>0;
+  const achievements=[
+    {icon:'🎯',name:'First Exam',desc:'Complete your first exam',pts:10,earned:completedFirst},
+    {icon:'📚',name:'Bookworm',desc:'Score 80%+ in Reading',pts:8,earned:subs.some(s=>(s.skills?.reading||0)>=80)},
+    {icon:'⭐',name:'High Achiever',desc:'Score 90%+ on any exam',pts:15,earned:hasHighScore},
+    {icon:'🏆',name:'Perfect Score',desc:'Score 100% on any exam',pts:20,earned:hasPerfect},
+    {icon:'📈',name:'Improver',desc:'Complete 2+ exams',pts:12,earned:subs.length>=2},
+    {icon:'💪',name:'Grammar Master',desc:'Score 90%+ in Grammar',pts:15,earned:subs.some(s=>(s.skills?.grammar||0)>=90)},
+    {icon:'🗣️',name:'Vocab Expert',desc:'Score 90%+ in Vocabulary',pts:15,earned:subs.some(s=>(s.skills?.vocabulary||0)>=90)},
+    {icon:'🌟',name:'Star Student',desc:'Earn 50+ stars',pts:25,earned:stars>=50},
+  ];
+  return `
+<div class="stars-hero">
+  <div style="font-size:56px">⭐</div>
+  <div class="sh-count">${stars}</div>
+  <div class="sh-label">Ashraf Stars Earned</div>
+</div>
+<div class="card mb-4">
+  <div class="card-title mb-4">🏅 Achievements</div>
+  <div class="ach-grid">
+    ${achievements.map(a=>`
+    <div class="ach-card ${a.earned?'earned':''}">
+      <div class="ach-icon" style="${a.earned?'':'filter:grayscale(1);opacity:.4'}">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-pts">${a.earned?`+${a.pts} ⭐`:`${a.pts} ⭐`}</div>
+      <div class="text-xs text-muted mt-3">${a.desc}</div>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function renderParentReport(){
+  const d=store();
+  const uid=S.user.id;
+  const cls=S.user.classId;
+  const child=findStudent(uid);
+  const stars=d.stars[uid]||0;
+  const subs=Object.values(d.submissions).filter(s=>s.studentId===uid).sort((a,b)=>new Date(a.submittedAt)-new Date(b.submittedAt));
+  const latest=subs[subs.length-1];
+  const skills=latest?{grammar:latest.skills?.grammar||0,reading:latest.skills?.reading||0,vocabulary:latest.skills?.vocabulary||0,writing:latest.skills?.writing||Math.max(0,latest.score-5)}:{grammar:0,reading:0,vocabulary:0,writing:0};
+  const avg=subs.length?Math.round(subs.reduce((a,b)=>a+b.score,0)/subs.length):0;
+  const trend=subs.length>=2?(subs[subs.length-1].score-subs[subs.length-2].score):0;
+
+  // Strength / support text
+  const skillList=[['Reading',skills.reading],['Grammar',skills.grammar],['Vocabulary',skills.vocabulary],['Writing',skills.writing]].sort((a,b)=>b[1]-a[1]);
+  const strength=skillList[0];const support=skillList[skillList.length-1];
+
+  return `
+<div style="max-width:760px">
+  <!-- Header card -->
+  <div class="card mb-4" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff">
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;flex-shrink:0">${initials(child?.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:800">${child?.name||'Student'}</div>
+        <div style="opacity:.65;font-size:13px;margin-top:2px">Class ${cls} &nbsp;•&nbsp; Grade 8 &nbsp;•&nbsp; English Language</div>
+        <div style="opacity:.65;font-size:12px;margin-top:2px">Student ID: ${uid}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:36px;font-weight:900">⭐ ${stars}</div>
+        <div style="opacity:.65;font-size:12px">Ashraf Stars</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="stat-grid" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-icon" style="background:#eff6ff">📊</div><div class="stat-value" style="color:var(--primary)">${avg||'—'}${avg?'%':''}</div><div class="stat-label">Average Score</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#ecfdf5">✅</div><div class="stat-value" style="color:var(--success)">${subs.length}</div><div class="stat-label">Exams Completed</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:${trend>=0?'#ecfdf5':'#fee2e2'}">📈</div><div class="stat-value" style="color:${trend>=0?'var(--success)':'var(--danger)'}">${trend>=0?'+':''}${trend}%</div><div class="stat-label">Recent Trend</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div class="stat-value" style="color:var(--warning)">${stars}</div><div class="stat-label">Stars Earned</div></div>
+  </div>
+
+  <!-- Skill breakdown -->
+  ${subs.length>0?`
+  <div class="card mb-4">
+    <div class="card-title mb-4">📊 Skill Performance</div>
+    <div class="skills-row">
+      <div class="sk-card sk-reading"><div class="sk-label">Reading</div><div class="sk-score">${skills.reading}%</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.reading}%"></div></div></div>
+      <div class="sk-card sk-grammar"><div class="sk-label">Grammar</div><div class="sk-score">${skills.grammar}%</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.grammar}%"></div></div></div>
+      <div class="sk-card sk-writing"><div class="sk-label">Writing</div><div class="sk-score">${skills.writing}%</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.writing}%"></div></div></div>
+      <div class="sk-card sk-vocab"><div class="sk-label">Vocabulary</div><div class="sk-score">${skills.vocabulary}%</div><div class="sk-bar"><div class="sk-fill" style="width:${skills.vocabulary}%"></div></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
+      <div style="background:#ecfdf5;border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--success);margin-bottom:4px">💪 STRENGTH</div>
+        <div style="font-weight:700">${strength[0]}</div>
+        <div style="font-size:13px;color:var(--muted)">Your child excels at ${strength[0].toLowerCase()} — scoring ${strength[1]}%</div>
+      </div>
+      <div style="background:#fef3c7;border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--warning);margin-bottom:4px">🎯 FOCUS AREA</div>
+        <div style="font-weight:700">${support[0]}</div>
+        <div style="font-size:13px;color:var(--muted)">Needs more practice in ${support[0].toLowerCase()} — currently ${support[1]}%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exam history -->
+  <div class="card mb-4">
+    <div class="card-title mb-4">📋 Full Exam History</div>
+    <table class="tbl">
+      <thead><tr><th>Exam</th><th>Score</th><th>Grammar</th><th>Reading</th><th>Vocabulary</th><th>Grade</th><th>Date</th></tr></thead>
+      <tbody>
+      ${subs.map(sub=>{
+        const exam=d.exams.find(e=>e.id===sub.examId);
+        return `<tr>
+          <td class="font-bold">${exam?.title||'Exam'}</td>
+          <td>${scorePill(sub.score)}</td>
+          <td>${sub.skills?.grammar!=null?scorePill(sub.skills.grammar):'—'}</td>
+          <td>${sub.skills?.reading!=null?scorePill(sub.skills.reading):'—'}</td>
+          <td>${sub.skills?.vocabulary!=null?scorePill(sub.skills.vocabulary):'—'}</td>
+          <td><span class="badge ${sub.score>=85?'badge-green':sub.score>=70?'badge-yellow':'badge-red'}">${gradeLabel(sub.score)}</span></td>
+          <td class="text-muted text-sm">${sub.submittedAt?.split('T')[0]||'—'}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Teacher message -->
+  <div class="card" style="border-left:4px solid var(--primary)">
+    <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:8px">💬 TEACHER'S NOTE — Mr. Ashraf</div>
+    <div style="font-size:14px;line-height:1.6">${
+      latest?.score>=85?`Your child is performing excellently. ${child?.name?.split(' ')[0]} shows strong understanding of English and consistently earns high marks. Keep encouraging reading at home to maintain this momentum.`:
+      latest?.score>=70?`Your child is making good progress. ${child?.name?.split(' ')[0]} is working hard and showing improvement. Encourage daily reading and vocabulary practice to keep moving forward.`:
+      latest?.score>=60?`Your child is developing their English skills. ${child?.name?.split(' ')[0]} needs consistent practice, especially in grammar. Please support with 15–20 minutes of English reading each evening.`:
+      `Your child needs extra support this term. Please arrange a parent meeting to discuss how we can work together to help ${child?.name?.split(' ')[0]} improve. Regular practice and encouragement at home will make a big difference.`
+    }</div>
+  </div>`
+  :'<div class="empty"><div class="ei">📝</div><h3>No exam data yet</h3><p>This report will populate after your child completes their first exam.</p></div>'}
+</div>`;
+}
+
+function bindStudent(){
+  if(S.sub==='growth'){
+    setTimeout(()=>{
+      const uid=S.user.id;
+      const d=store();
+      const subs=Object.values(d.submissions).filter(s=>s.studentId===uid);
+      if(subs.length===0) return;
+      const latest=subs[subs.length-1];
+      const skills={grammar:latest.skills?.grammar||0,reading:latest.skills?.reading||0,vocabulary:latest.skills?.vocabulary||0,writing:latest.skills?.writing||Math.round(latest.score-5)};
+      const rc=document.getElementById('radar-chart');
+      if(rc&&window.Chart){
+        new Chart(rc,{type:'radar',data:{labels:['Reading','Grammar','Writing','Vocabulary'],datasets:[{label:'Score',data:[skills.reading,skills.grammar,skills.writing,skills.vocabulary],backgroundColor:'rgba(37,99,235,.2)',borderColor:'rgba(37,99,235,.8)',pointBackgroundColor:'#2563eb'}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20}}}}});
+      }
+      const lc=document.getElementById('line-chart');
+      if(lc&&window.Chart){
+        const labels=subs.map((_,i)=>`Exam ${i+1}`);
+        const vals=subs.map(s=>s.score);
+        new Chart(lc,{type:'line',data:{labels,datasets:[{label:'Score %',data:vals,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.1)',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100}}}});
+      }
+    },100);
+  }
+}
+
+// ═══════════════════════════════════════
+//  EXAM TAKING
+// ═══════════════════════════════════════
+async function startExam(examId){
+  const d=store();
+  const exam=d.exams.find(e=>e.id===examId);
+  if(!exam) return;
+  if(studentScore(examId,S.user.id)) {notify('You already submitted this exam.');return;}
+  if(exam.examType==='html'){
+    if(!exam.htmlContent){
+      notify('⏳ Loading uploaded exam from Firebase...');
+      const html = await loadHtmlExamContent(exam.id);
+      if(html){
+        exam.htmlContent = html;
+        const local = store();
+        const localExam = local.exams.find(e=>e.id===exam.id);
+        if(localExam){ localExam.htmlContent = html; localStorage.setItem('alms', JSON.stringify(local)); }
+      }else{
+        notify('⚠️ Could not load this uploaded HTML exam from Firebase. Please re-upload it once.');
+        return;
+      }
+    }
+    S.sub='examiframe';S.iframeExam=exam;render();return;
+  }
+  if(!exam.questions||exam.questions.length===0){notify('This exam has no questions added yet.');return;}
+  S.examSession={examId,answers:new Array(exam.questions.length).fill(null),currentQ:0,timeLeft:(exam.timeLimit||30)*60,started:Date.now()};
+  d.monitor[S.user.id]='in_progress';
+  localStorage.setItem('alms', JSON.stringify(d));
+  if(_fbReady && _docRef){
+    const mo={};mo[`monitor.${S.user.id}`]='in_progress';
+    _docRef.update(mo).catch(()=>save(d));
+  }
+  S.view='exam'; render();
+}
+
+
+function escapeHtmlAttr(str){
+  return String(str||'')
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+function prepareExternalExamHtml(html){
+  const bridge = `
+<script>
+(function(){
+  function textScore(){
+    var txt=(document.body&&document.body.innerText||'').replace(/\s+/g,' ');
+    var m=txt.match(/(?:score|result|mark|grade)\D{0,30}(\d{1,3})\s*%/i) || txt.match(/(\d{1,3})\s*%\s*(?:score|result|mark|grade)/i);
+    if(m){var n=parseInt(m[1],10); if(n>=0&&n<=100) return n;}
+    var f=txt.match(/(?:score|result|mark|grade)\D{0,30}(\d{1,3})\s*\/\s*(\d{1,3})/i);
+    if(f){var a=parseInt(f[1],10), b=parseInt(f[2],10); if(b>0) return Math.round(a/b*100);}
+    return null;
+  }
+  function send(doneOnly){
+    var score=textScore();
+    parent.postMessage({type:'ashraf-lms-external-submit',score:score,doneOnly:!!doneOnly},'*');
+  }
+  window.ashrafLmsSubmit=function(score){
+    parent.postMessage({type:'ashraf-lms-external-submit',score:score},'*');
+  };
+  document.addEventListener('click',function(e){
+    var t=(e.target&&e.target.innerText||e.target&&e.target.value||'').toLowerCase();
+    if(/submit|finish|completed|complete|end test|show result|result/.test(t)){
+      setTimeout(function(){send(true);},900);
+    }
+  },true);
+  document.addEventListener('submit',function(){setTimeout(function(){send(true);},900);},true);
+})();
+<\/script>`;
+  if(/<\/body>/i.test(html)) return html.replace(/<\/body>/i, bridge+'</body>');
+  return html + bridge;
+}
+
+function extractExternalScoreFromFrame(){
+  try{
+    const fr=document.getElementById('external-exam-frame');
+    const doc=fr&&fr.contentWindow&&fr.contentWindow.document;
+    const txt=(doc&&doc.body&&doc.body.innerText||'').replace(/\s+/g,' ');
+    let m=txt.match(/(?:score|result|mark|grade)\D{0,30}(\d{1,3})\s*%/i) || txt.match(/(\d{1,3})\s*%\s*(?:score|result|mark|grade)/i);
+    if(m){const n=parseInt(m[1],10); if(n>=0&&n<=100) return n;}
+    m=txt.match(/(?:score|result|mark|grade)\D{0,30}(\d{1,3})\s*\/\s*(\d{1,3})/i);
+    if(m){const a=parseInt(m[1],10),b=parseInt(m[2],10); if(b>0) return Math.round(a/b*100);}
+  }catch(e){console.warn('Could not read external exam score:',e);}
+  return null;
+}
+
+function saveExternalExamSubmission(score){
+  if(!S.iframeExam||!S.user) return;
+  const d=store();
+  const exam=S.iframeExam;
+  const subKey=`${exam.id}_${S.user.id}`;
+  const finalScore=(typeof score==='number'&&score>=0&&score<=100)?Math.round(score):100;
+  const sub={examId:exam.id,studentId:S.user.id,score:finalScore,submittedAt:new Date().toISOString(),skills:{external:finalScore},answers:[],externalHtml:true};
+  if(!d.submissions)d.submissions={};
+  if(!d.monitor)d.monitor={};
+  if(!d.stars)d.stars={};
+  d.submissions[subKey]=sub;
+  d.monitor[S.user.id]='submitted';
+  let earned=10;
+  if(finalScore>=90) earned+=15; else if(finalScore>=80) earned+=8; else if(finalScore>=70) earned+=4;
+  if(finalScore===100) earned+=20;
+  d.stars[S.user.id]=(d.stars[S.user.id]||0)+earned;
+  localStorage.setItem('alms', JSON.stringify(d));
+  if(_fbReady&&_docRef){
+    const patch={submissions:{},monitor:{},stars:{}};
+    patch.submissions[subKey]=sub;
+    patch.monitor[S.user.id]='submitted';
+    patch.stars[S.user.id]=d.stars[S.user.id];
+    _docRef.set(patch,{merge:true}).catch(err=>{console.warn('External exam Firestore submit failed:',err);save(d);});
+  }
+  S.iframeExam=null;
+  S.sub='myexams';
+  render();
+  setTimeout(()=>notify(`✅ Test completed and sent to teacher. Score: ${finalScore}%`,5000),150);
+}
+
+function finishExternalExam(){
+  const score=extractExternalScoreFromFrame();
+  saveExternalExamSubmission(score);
+}
+
+window.addEventListener('message',function(ev){
+  const data=ev.data||{};
+  if(data.type==='ashraf-lms-external-submit' && S.sub==='examiframe' && S.iframeExam){
+    const score=(typeof data.score==='number')?data.score:extractExternalScoreFromFrame();
+    saveExternalExamSubmission(score);
+  }
+});
+
+function renderExamPage(){
+  const d=store();
+  const exam=d.exams.find(e=>e.id===S.examSession.examId);
+  if(!exam) return '';
+  const {answers,currentQ,timeLeft}=S.examSession;
+  if(!exam.questions||!exam.questions.length) return '<div style="padding:60px;text-align:center;font-size:16px;color:var(--muted)">⚠️ This exam has no questions. Contact your teacher.</div>';
+  const q=exam.questions[Math.min(currentQ,exam.questions.length-1)];
+  if(!q||!q.opts) return '<div style="padding:60px;text-align:center;font-size:16px;color:var(--muted)">⚠️ Question data is missing. Contact your teacher.</div>';
+  const mins=Math.floor(timeLeft/60).toString().padStart(2,'0');
+  const secs=(timeLeft%60).toString().padStart(2,'0');
+  const timerCls=timeLeft<300?'timer-box':timeLeft<600?'timer-box warn':'timer-box ok';
+  const answered=answers.filter(a=>a!==null).length;
+  const opts=q.opts.map((o,i)=>`
+  <div class="q-opt${answers[currentQ]===i?' sel':''}" onclick="selectAnswer(${i})">
+    <div class="q-opt-key">${String.fromCharCode(65+i)}</div>
+    <span>${o}</span>
+  </div>`).join('');
+  const dots=exam.questions.map((_,i)=>`<div class="q-dot${i===currentQ?' current':''}${answers[i]!==null?' answered':''}" onclick="goToQ(${i})"></div>`).join('');
+  return `
+<div style="min-height:100vh;background:var(--bg)">
+  <div class="exam-hd">
+    <div>
+      <div style="font-size:15px;font-weight:700">${exam.title}</div>
+      <div class="text-xs text-muted">${answered}/${exam.questions.length} answered</div>
+    </div>
+    <div class="${timerCls}" id="exam-timer">⏱ ${mins}:${secs}</div>
+    <button class="btn btn-success" onclick="submitExam()">Submit Exam ✓</button>
+  </div>
+  <div style="max-width:700px;margin:0 auto;padding:24px">
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+        <span>Question ${currentQ+1} of ${exam.questions.length}</span>
+        <span class="chip">${q.skill}</span>
+      </div>
+      <div class="pb"><div class="pb-fill" style="width:${((currentQ+1)/exam.questions.length)*100}%;background:var(--primary)"></div></div>
+    </div>
+    <div class="q-card">
+      <div class="q-num">Question ${currentQ+1} • ${q.pts} points</div>
+      <div class="q-text">${q.text}</div>
+      <div class="q-opts">${opts}</div>
+    </div>
+    <div class="q-nav">
+      <button class="btn btn-ghost" style="background:var(--border);color:var(--text)" onclick="goToQ(${currentQ-1})" ${currentQ===0?'disabled':''}>← Previous</button>
+      <div class="q-dots">${dots}</div>
+      ${currentQ<exam.questions.length-1?`<button class="btn btn-primary" onclick="goToQ(${currentQ+1})">Next →</button>`:`<button class="btn btn-success" onclick="submitExam()">Submit ✓</button>`}
+    </div>
+  </div>
+</div>`;
+}
+
+function bindExam(){
+  if(S.examTimerID) clearInterval(S.examTimerID);
+  S.examTimerID=setInterval(()=>{
+    S.examSession.timeLeft--;
+    const timer=$('exam-timer');
+    if(timer){
+      const t=S.examSession.timeLeft;
+      const m=Math.floor(t/60).toString().padStart(2,'0');
+      const s=(t%60).toString().padStart(2,'0');
+      timer.textContent=`⏱ ${m}:${s}`;
+      timer.className=t<300?'timer-box':t<600?'timer-box warn':'timer-box ok';
+    }
+    if(S.examSession.timeLeft<=0){clearInterval(S.examTimerID);submitExam();}
+  },1000);
+}
+
+function selectAnswer(i){
+  S.examSession.answers[S.examSession.currentQ]=i;
+  const d=store();
+  const exam=d.exams.find(e=>e.id===S.examSession.examId);
+  const q=exam.questions[S.examSession.currentQ];
+  // Re-render just the options
+  document.querySelectorAll('.q-opt').forEach((el,idx)=>el.classList.toggle('sel',idx===i));
+  // Update dot
+  document.querySelectorAll('.q-dot').forEach((el,idx)=>{
+    el.classList.toggle('answered',S.examSession.answers[idx]!==null);
+    el.classList.toggle('current',idx===S.examSession.currentQ);
+  });
+  // Update answered count
+  const answered=S.examSession.answers.filter(a=>a!==null).length;
+  const countEl=document.querySelector('.exam-hd .text-xs');
+  if(countEl) countEl.textContent=`${answered}/${exam.questions.length} answered`;
+}
+
+function goToQ(i){
+  const d=store();
+  const exam=d.exams.find(e=>e.id===S.examSession.examId);
+  if(i<0||i>=exam.questions.length) return;
+  S.examSession.currentQ=i;
+  render();
+}
+
+function submitExam(){
+  if(S.examTimerID){clearInterval(S.examTimerID);S.examTimerID=null;}
+  const d=store();
+  const exam=d.exams.find(e=>e.id===S.examSession.examId);
+  const {answers}=S.examSession;
+  let correct=0; const skillCorrect={}; const skillTotal={};
+  exam.questions.forEach((q,i)=>{
+    skillTotal[q.skill]=(skillTotal[q.skill]||0)+1;
+    if(answers[i]===q.correct){correct++;skillCorrect[q.skill]=(skillCorrect[q.skill]||0)+1;}
+  });
+  const score=Math.round((correct/exam.questions.length)*100);
+  const skills={};
+  Object.keys(skillTotal).forEach(sk=>{ skills[sk]=Math.round(((skillCorrect[sk]||0)/skillTotal[sk])*100); });
+  const sub={examId:exam.id,studentId:S.user.id,score,submittedAt:new Date().toISOString(),skills,answers};
+  const subKey=`${exam.id}_${S.user.id}`;
+  d.submissions[subKey]=sub;
+  d.monitor[S.user.id]='submitted';
+  // Award stars
+  let earned=10;
+  if(score>=90) earned+=15;
+  else if(score>=80) earned+=8;
+  else if(score>=70) earned+=4;
+  if(score===100) earned+=20;
+  d.stars[S.user.id]=(d.stars[S.user.id]||0)+earned;
+  if(!d.levelAssignments)d.levelAssignments={};
+  if(!d.levelAssignments[S.user.id]){const lvl=getLevelFromScore(score);d.levelAssignments[S.user.id]={level:lvl,placementScore:score,assignedDate:new Date().toISOString().split('T')[0],levelHistory:[{level:lvl,date:new Date().toISOString().split('T')[0]}]};}
+  // Save to localStorage immediately
+  localStorage.setItem('alms', JSON.stringify(d));
+  // Write ONLY the student's fields to Firestore — prevents race conditions between students
+  if(_fbReady && _docRef){
+    const patch={submissions:{},monitor:{},stars:{}};
+    patch.submissions[subKey]=sub;
+    patch.monitor[S.user.id]='submitted';
+    patch.stars[S.user.id]=d.stars[S.user.id];
+    _docRef.set(patch,{merge:true}).catch(err=>{
+      console.warn('Firestore submit failed:', err);
+      save(d);
+    });
+  }
+  // Show result
+  S.view='app'; S.sub='myexams';
+  render();
+  setTimeout(()=>{
+    showModal(`
+<div class="modal-hd"><h2>🎉 Exam Submitted!</h2><button class="close-x" onclick="closeModal()">×</button></div>
+<div class="modal-bd" style="text-align:center;padding:40px">
+  <div style="font-size:72px;font-weight:900;color:${score>=70?'var(--success)':'var(--danger)'}">${score}%</div>
+  <div style="font-size:18px;font-weight:700;margin:12px 0">${gradeLabel(score)}</div>
+  <div style="font-size:14px;color:var(--muted);margin-bottom:20px">${correct} out of ${exam.questions.length} correct</div>
+  <div style="background:#fef3c7;border-radius:10px;padding:16px;margin-bottom:20px">
+    <div style="font-size:32px">⭐</div>
+    <div style="font-size:22px;font-weight:800;color:#92400e">+${earned} Stars Earned!</div>
+  </div>
+  <button class="btn btn-primary" onclick="closeModal();S.sub='growth';render()">View Growth Center →</button>
+</div>`);
+  },100);
+}
+
+// ═══════════════════════════════════════
+//  PARENT VIEW
+// ═══════════════════════════════════════
+function renderParent(){
+  const nav=`${navItem('👨‍👩‍👦','Child Progress','dashboard')}${navItem('📊','Skill Report','skillreport')}`;
+  const childId=S.user.childId;
+  const child=findStudent(childId);
+  const cls=findStudentClass(childId);
+  const d=store();
+  const stars=d.stars[childId]||0;
+  const subs=Object.values(d.submissions).filter(s=>s.studentId===childId);
+  let content='', title='';
+  if(S.sub==='dashboard'){
+    title='Child Progress Report';
+    const latest=subs[subs.length-1];
+    content=`
+<div class="card mb-4" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800">${initials(child?.name||'?')}</div>
+    <div>
+      <div style="font-size:18px;font-weight:800">${child?.name||'Student'}</div>
+      <div style="opacity:.7;font-size:13px">Class ${cls} • Grade 8</div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:32px;font-weight:900">⭐ ${stars}</div>
+      <div style="opacity:.7;font-size:12px">Ashraf Stars</div>
+    </div>
+  </div>
+</div>
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon" style="background:#ecfdf5">📝</div><div class="stat-value" style="color:var(--success)">${subs.length}</div><div class="stat-label">Exams Completed</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#eff6ff">📊</div><div class="stat-value" style="color:var(--primary)">${latest?latest.score+'%':'—'}</div><div class="stat-label">Latest Score</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div class="stat-value" style="color:var(--warning)">${stars}</div><div class="stat-label">Total Stars</div></div>
+</div>
+${subs.length>0?`
+<div class="card">
+  <div class="card-title mb-4">📋 Exam Results</div>
+  <table class="tbl">
+    <thead><tr><th>Exam</th><th>Score</th><th>Grammar</th><th>Reading</th><th>Grade</th><th>Date</th></tr></thead>
+    <tbody>
+    ${subs.map(sub=>{const exam=d.exams.find(e=>e.id===sub.examId);return `<tr>
+      <td class="font-bold">${exam?.title||'Exam'}</td>
+      <td>${scorePill(sub.score)}</td>
+      <td>${sub.skills?.grammar?scorePill(sub.skills.grammar):'—'}</td>
+      <td>${sub.skills?.reading?scorePill(sub.skills.reading):'—'}</td>
+      <td><span class="badge ${sub.score>=85?'badge-green':sub.score>=70?'badge-yellow':'badge-red'}">${gradeLabel(sub.score)}</span></td>
+      <td class="text-muted text-sm">${sub.submittedAt?.split('T')[0]||'—'}</td>
+    </tr>`;}).join('')}
+    </tbody>
+  </table>
+</div>`:'<div class="empty"><div class="ei">📝</div><h3>No exams completed yet</h3></div>'}`;
+  }
+  return sidebarLayout(nav,content,title);
+}
+
+// ═══════════════════════════════════════
+//  ADMIN VIEW
+// ═══════════════════════════════════════
+function renderAdmin(){
+  const nav=`${navItem('🏫','School Overview','dashboard')}${navItem('📊','Class Stats','stats')}`;
+  const d=store();
+  const total=totalStudents();
+  const completed=d.exams.filter(e=>e.status==='completed').length;
+  const active=d.exams.filter(e=>e.status==='active').length;
+  const totalSubs=Object.values(d.submissions).length;
+  const avg81=avgScore('exam1');
+  let content='', title='';
+  if(S.sub==='dashboard'){
+    title='School Overview';
+    content=`
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-icon" style="background:#eff6ff">👥</div><div class="stat-value" style="color:var(--primary)">${total}</div><div class="stat-label">Total Students</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#ecfdf5">📝</div><div class="stat-value" style="color:var(--success)">${totalSubs}</div><div class="stat-label">Exam Submissions</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">📡</div><div class="stat-value" style="color:var(--primary)">${active}</div><div class="stat-label">Active Exams</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:#fdf4ff">✅</div><div class="stat-value" style="color:#7c3aed">${completed}</div><div class="stat-label">Completed Exams</div></div>
+</div>
+<div class="card mb-4">
+  <div class="card-title mb-4">📊 Class Performance Summary</div>
+  <table class="tbl">
+    <thead><tr><th>Class</th><th>Students</th><th>Exams Run</th><th>Submissions</th><th>Avg Score</th><th>Status</th></tr></thead>
+    <tbody>
+      ${Object.entries(CLASSES).map(([cls,sts])=>{
+        const exs=d.exams.filter(e=>e.classId===cls);
+        const subs2=Object.values(d.submissions).filter(s=>CLASSES[cls].find(x=>x.id===s.studentId));
+        const avg2=subs2.length?Math.round(subs2.reduce((a,b)=>a+b.score,0)/subs2.length):0;
+        const hasActive=exs.some(e=>e.status==='active');
+        return `<tr>
+          <td><strong>Class ${cls}</strong></td>
+          <td>${sts.length}</td>
+          <td>${exs.filter(e=>e.status!=='draft').length}</td>
+          <td>${subs2.length}</td>
+          <td>${subs2.length?scorePill(avg2):'<span class="text-muted">—</span>'}</td>
+          <td><span class="badge ${hasActive?'badge-green':'badge-gray'}">${hasActive?'Active Exam':'Idle'}</span></td>
+        </tr>`;}).join('')}
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <div class="card-title mb-4">🏆 Top Performing Students</div>
+  <table class="tbl">
+    <thead><tr><th>Rank</th><th>Student</th><th>Class</th><th>Score</th><th>Stars</th></tr></thead>
+    <tbody>
+    ${Object.values(d.submissions).sort((a,b)=>b.score-a.score).slice(0,10).map((sub,i)=>{
+      const stu=findStudent(sub.studentId);
+      const cls2=findStudentClass(sub.studentId);
+      return `<tr>
+        <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}</td>
+        <td><strong>${stu?.name||sub.studentId}</strong></td>
+        <td>${cls2}</td>
+        <td>${scorePill(sub.score)}</td>
+        <td>⭐ ${d.stars[sub.studentId]||0}</td>
+      </tr>`;}).join('')}
+    </tbody>
+  </table>
+</div>`;
+  } else {
+    title='Class Statistics';
+    content=`<div class="card"><div class="card-title mb-4">Detailed class stats coming soon…</div></div>`;
+  }
+  return sidebarLayout(nav,content,title);
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════
+//  LEVEL SYSTEM — CONFIG, TASK BANK, HELPERS
+// ═══════════════════════════════════════════════════════════════════
+const LEVEL_CONFIG = {
+  'pre-a1':{label:'Pre-A1',name:'Pre-A1 Foundation',color:'#ef4444',bg:'#fef2f2',pillClass:'lv-prea1',headerClass:'lh-prea1',icon:'🌱',scoreRange:'0–49%',color2:'#b91c1c',promoAvg:75,promoWeeks:4,promoTestScore:70,nextLevel:'a1',focus:['Alphabet recognition & phonics','Basic vocabulary: colors, numbers, family (50 words)','Simple greetings and classroom commands','Recognising and copying simple sentences'],resources:['Oxford Read and Discover Level 1','British Council – Learn English Kids','BBC Phonics Worksheets'],weeklyGoal:'Learn 10 new words + complete 1 phonics exercise each week',teacherNote:'Use visual aids, realia, songs, and repetition. Focus on listening and speaking before reading and writing.'},
+  'a1':{label:'A1',name:'A1 Beginner',color:'#f59e0b',bg:'#fffbeb',pillClass:'lv-a1',headerClass:'lh-a1',icon:'🌿',scoreRange:'50–64%',color2:'#92400e',promoAvg:80,promoWeeks:4,promoTestScore:75,nextLevel:'a2',focus:['Present Simple tense (affirmative, negative, questions)','Common nouns and everyday verbs (200-word target)','Reading and understanding simple sentences','Writing simple sentences about daily life topics'],resources:['Headway Beginner Units 1–6','BBC Learning English Level 1','Graded Readers Starter Level'],weeklyGoal:'Complete all 5 tasks with 75%+ accuracy and write 3 correct sentences',teacherNote:'Encourage pair work for speaking. Assign daily reading of 1 short text. Focus on subject–verb agreement.'},
+  'a2':{label:'A2',name:'A2 Elementary',color:'#3b82f6',bg:'#eff6ff',pillClass:'lv-a2',headerClass:'lh-a2',icon:'🌲',scoreRange:'65–79%',color2:'#1e40af',promoAvg:80,promoWeeks:4,promoTestScore:80,nextLevel:'b1',focus:['Past Simple (regular and irregular verbs)','Comparative and superlative adjectives','Reading short articles and identifying main ideas','Writing short paragraphs (50–80 words)'],resources:['Headway Elementary Units 1–8','BBC Learning English Level 2','Graded Readers Level 2'],weeklyGoal:'Complete all 5 tasks with 80%+ accuracy and submit 1 short paragraph',teacherNote:'Introduce paragraph structure. Encourage 10 minutes of independent reading daily.'},
+  'b1':{label:'B1',name:'B1 Intermediate',color:'#059669',bg:'#ecfdf5',pillClass:'lv-b1',headerClass:'lh-b1',icon:'🌳',scoreRange:'80–100%',color2:'#065f46',promoAvg:null,promoWeeks:null,promoTestScore:null,nextLevel:null,focus:['Present Perfect and complex tenses','Academic Vocabulary (AWL – 150 words)','Reading extended texts and writing summaries','Writing structured essays (150–200 words)'],resources:['Headway Pre-Intermediate','Cambridge B1 Preliminary Practice','Oxford Academic Word List Workbook'],weeklyGoal:'Complete all 5 tasks with 85%+ accuracy and submit 1 structured essay per fortnight',teacherNote:'Challenge with exam-style tasks. Encourage independent research and extensive reading.'}
+};
+
+const TASK_BANK = {
+  'pre-a1':[
+    [{id:'t1',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 10 colors in English. Write each word and draw something of that color next to it.'},{id:'t2',type:'Phonics',icon:'🔤',bg:'#fdf4ff',skill:'Phonics',task:'Write the alphabet A–Z in UPPERCASE and lowercase. Circle all the vowels (a, e, i, o, u).'},{id:'t3',type:'Listening',icon:'🎧',bg:'#ecfdf5',skill:'Listening',task:'Watch a greeting video. List 5 English words you hear and write what you think they mean.'},{id:'t4',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read: "My name is Ahmed. I am 13. I live in UAE." Answer: What is his name? How old? Where from?'},{id:'t5',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write the numbers 1–10 in English words (one, two, three…). Copy each word three times.'}],
+    [{id:'t1',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 10 body parts (head, eyes, nose, mouth, ears, arms, hands, legs, feet, back). Label a diagram.'},{id:'t2',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Practice: I am / You are / He is / She is. Write 6 sentences about yourself and your family.'},{id:'t3',type:'Listening',icon:'🎧',bg:'#ecfdf5',skill:'Listening',task:'Listen to a greeting dialogue. Write each person\'s name and where they are from.'},{id:'t4',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read 5 sentences about a family. Circle TRUE or FALSE for each of 5 statements.'},{id:'t5',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write 3 sentences: "My name is ___. I am ___ years old. I am from ___."'}],
+    [{id:'t1',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 10 classroom objects (book, pen, ruler, bag, desk, chair, board, window, door, pencil). Use a/an.'},{id:'t2',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'"This is a ___. These are ___s." Write 5 sentences about objects you can see in class.'},{id:'t3',type:'Listening',icon:'🎧',bg:'#ecfdf5',skill:'Listening',task:'Listen to someone describe their room. Draw what you hear: bed, desk, window, chair, lamp.'},{id:'t4',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a food text (5 sentences). Circle all food words. How many did you find? Write them in a list.'},{id:'t5',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write 5 foods you like: "I like ___." and 5 you don\'t like: "I don\'t like ___.'}],
+    [{id:'t1',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 10 animals (cat, dog, bird, fish, lion, elephant, tiger, horse, snake, rabbit). Write "A ___ can ___."'},{id:'t2',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Practice can/can\'t. Write 5 things you can do and 5 things you can\'t do.'},{id:'t3',type:'Listening',icon:'🎧',bg:'#ecfdf5',skill:'Listening',task:'Listen to a daily routine recording. List 5 actions the person does each day.'},{id:'t4',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a short 4-sentence story. Answer: Who is in it? What happens? Where does it happen?'},{id:'t5',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write your morning routine: "I wake up at ___. I eat at ___. I go to school at ___."'}]
+  ],
+  'a1':[
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Complete 10 Present Simple sentences. Add -s/-es for he/she/it. E.g. "She ___ (go) to school."'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 15 action verbs (run, jump, swim, cook, eat, sleep, read, write, play, watch, listen, speak, walk, study, work). Write a sentence for each.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a 3-paragraph daily routine text. Answer 5 questions: What time does she wake up? What does she eat?'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write 5 sentences about what your best friend does every day. Use: He/She ___s every morning/afternoon.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Write 8 Yes/No questions: "Do you...?" "Does she...?" Then answer them about yourself.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Study "there is / there are". Write 6 sentences describing your classroom or house.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn prepositions of place (in, on, under, behind, in front of, next to, between). Write 7 sentences.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a house description. Draw a simple floor plan based on what you read.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write a short paragraph (50 words) describing your bedroom. Use at least 5 prepositions.'},{id:'t5',type:'Listening',icon:'🎧',bg:'#ecfdf5',skill:'Listening',task:'Listen to someone talk about their family. Fill in: Name / Age / Job / Hobby for 3 family members.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Past Simple with regular verbs (-ed). Write 8 sentences about what you did yesterday.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 15 time expressions: yesterday, last week, last month, ago, on Monday. Write each in a past sentence.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a Past Simple story. Underline all past verbs. List 10 and write their base form next to each.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write a paragraph (60 words) about last weekend: Where did you go? Who were you with? What did you do?'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Gap-fill with irregular past verbs: go→went, see→saw, eat→ate, have→had, buy→bought. Use each in a sentence.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'"Going to" for future. Write 6 sentences about next week\'s plans. Include 3 questions.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 15 adjectives and their opposites (big/small, hot/cold, fast/slow, happy/sad, easy/hard). Write 5 comparisons.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a short city article. Answer the 5 W questions: Who? What? Where? When? Why?'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Write a message to a friend (50 words) about your holiday plans. Use "going to".'},{id:'t5',type:'Listening',icon:'🎧',bg:'#ecfdf5',skill:'Listening',task:'Listen to a short dialogue. Mark 5 statements TRUE or FALSE. Give a brief reason for each.'}]
+  ],
+  'a2':[
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Present Perfect with already/yet/just/ever/never. Write 8 sentences. E.g. "I have already finished my homework."'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 15 academic words (analyze, compare, describe, explain, identify, suggest, evaluate, support, argue, conclude). Write definition + example for 10.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a 2-paragraph article. Write: (1) Main idea (2) Three supporting details (3) One unknown word and its meaning.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Comparison paragraph (80 words) comparing two sports. Use: however, although, both, on the other hand.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Write 10 sentences using comparatives (bigger than) and superlatives (the biggest) about things in your life.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Passive Voice (Present & Past). Rewrite 8 active sentences as passive. E.g. "People speak English." → "English is spoken."'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Word families: decide→decision→decisive. Complete table for 10 words: develop, fail, success, act, inform, create, allow, require, produce, use.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a newspaper article. Summarize in 5 bullet points using only your own words.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Formal email (80 words) asking a teacher for extra help. Use: Dear Mr/Ms…, I am writing to…, Yours sincerely.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Modal Verbs: should/must/might/could. Write 10 sentences giving advice about studying English.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'First Conditional (If + present, will + infinitive). Write 6 real conditional sentences about your life or environment.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Collocations: make a mistake, do homework, take notes, give advice, make progress. Find 20 collocations and write sentences.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read two short texts on the same topic. Write a 60-word comparison of the two authors\' opinions.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Short story (100 words) using Past Simple and Past Continuous. Include: setting, characters, problem, solution.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Reported Speech: change 10 direct quotes. E.g. "I like English." → She said she liked English.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Relative Clauses: defining (who/which/that) and non-defining. Combine 8 pairs of sentences.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Phrasal verbs: give up, look for, put off, take up, run out of, look after, carry on, find out, set up, get over. Write sentences using 10.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a persuasive text. Identify: (1) Main argument (2) Three evidence points (3) Counterargument (4) Conclusion.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Opinion paragraph (100 words): "Technology helps students learn." Give view, 2 reasons with examples, conclusion.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Mixed tense review (15 sentences): Present Simple, Past Simple, Present Perfect, Past Continuous, Future. Explain each choice.'}]
+  ],
+  'b1':[
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'2nd & 3rd Conditional. Write 6 of each type. Explain: which is hypothetical present, which is impossible past.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Learn 25 AWL words. Flashcards: word | phonetics | POS | definition | synonym | example sentence.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Read a 3-page text. Write a 150-word summary in your own words. Identify the author\'s perspective.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'5-paragraph essay (200 words): "Should mobile phones be allowed in schools?" Thesis + 2 body paragraphs + conclusion.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Impersonal passive: "It is believed that…", "It is reported that…". Write 8 sentences on current issues.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Causative: have/get something done. Advanced passives with modals. Write 10 complex sentences.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Formal vs informal register. Rewrite 10 informal sentences in formal academic English. Note positive/negative connotations.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Two opposing-view articles. 100-word analysis: thesis, evidence, rhetorical strategies, which is more persuasive and why.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Formal complaint letter (150 words): Dear Sir/Madam, I am writing to express my concern…, Yours faithfully.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Nominalization: verb→noun (decide→decision). Rewrite 10 sentences using nominalized forms for academic style.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Past modal deduction: must have been, might have gone, can\'t have done. Write 10 sentences about uncertain past events.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Discourse markers: furthermore, in contrast, consequently, nevertheless, as a result. Write a 150-word paragraph using 8+.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'Literary extract: (1) Theme (2) Tone (3) Three literary devices (metaphor, simile, personification) (4) Personal response.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Descriptive paragraph (150 words) about a memorable place. Vivid adjectives, sensory details, 2+ metaphors or similes.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Mixed conditionals (Type 2+3 and 3+2). Write 8 sentences. Explain the time reference of each clause.'}],
+    [{id:'t1',type:'Grammar',icon:'📐',bg:'#fdf4ff',skill:'Grammar',task:'Term grammar review: mixed test covering all structures. Top 3 weaknesses: write 5 corrected examples for each.'},{id:'t2',type:'Vocabulary',icon:'📚',bg:'#eff6ff',skill:'Vocabulary',task:'Term vocabulary journal: 50 words. Format: Word | IPA | POS | Definition | Synonym | Collocations | Real-text example.'},{id:'t3',type:'Reading',icon:'📖',bg:'#fff7ed',skill:'Reading',task:'B1 exam-style reading: 5 comprehension, 5 vocabulary-in-context, 3 inference questions with text evidence.'},{id:'t4',type:'Writing',icon:'✍️',bg:'#fef2f2',skill:'Writing',task:'Discursive essay (200 words): "Social media does more harm than good." Balanced arguments + justified conclusion.'},{id:'t5',type:'Grammar',icon:'📐',bg:'#ecfdf5',skill:'Grammar',task:'Cambridge B1 Preliminary practice test. Record score, review every wrong answer, explain why the correct answer is right.'}]
+  ]
+};
+
+// ── Helpers ──
+function getLevelFromScore(score){if(score>=80)return 'b1';if(score>=65)return 'a2';if(score>=50)return 'a1';return 'pre-a1';}
+function getStudentLevel(sid){const d=store();if(d.levelAssignments&&d.levelAssignments[sid])return d.levelAssignments[sid].level;const subs=Object.values(d.submissions).filter(s=>s.studentId===sid);if(!subs.length)return null;return getLevelFromScore(Math.max(...subs.map(s=>s.score)));}
+function levelPill(lv){if(!lv||!LEVEL_CONFIG[lv])return '<span class="level-pill lv-a2">—</span>';const c=LEVEL_CONFIG[lv];return `<span class="level-pill ${c.pillClass}">${c.icon} ${c.label}</span>`;}
+function getTasksForLevel(level,weekNum){const bank=TASK_BANK[level];if(!bank||!bank.length)return[];return bank[((weekNum-1)%bank.length+bank.length)%bank.length]||[];}
+function getWeekCompletions(sid,weekNum){const d=store();return(d.taskCompletions&&d.taskCompletions[sid]&&d.taskCompletions[sid]['w'+weekNum])||[false,false,false,false,false];}
+function getWeeklyAvg(sid){const d=store();const ws=(d.weeklyScores&&d.weeklyScores[sid])||[];return ws.length?Math.round(ws.reduce((a,b)=>a+b.score,0)/ws.length):0;}
+function getConsecutiveGoodWeeks(sid){const d=store();const lv=getStudentLevel(sid);if(!lv||!LEVEL_CONFIG[lv])return 0;const ws=(d.weeklyScores&&d.weeklyScores[sid])||[];const thr=LEVEL_CONFIG[lv].promoAvg||75;let n=0;for(let i=ws.length-1;i>=0;i--){if(ws[i].score>=thr)n++;else break;}return n;}
+function canPromote(sid){const lv=getStudentLevel(sid);if(!lv||!LEVEL_CONFIG[lv]||!LEVEL_CONFIG[lv].nextLevel)return false;return getConsecutiveGoodWeeks(sid)>=(LEVEL_CONFIG[lv].promoWeeks||4);}
+
+// ── Teacher: Remedial Plans ──
+function renderTeacherRemedial(){
+  const d=store();const cls=S.selectedClass||'8-1';
+  const tabs=['8-1','8-2','8-3','8-4'].map(c=>`<div class="tab${c===cls?' active':''}" onclick="S.selectedClass='${c}';render()">${c}</div>`).join('');
+  const students=CLASSES[cls]||[];
+  const groups={'pre-a1':[],'a1':[],'a2':[],'b1':[],'none':[]};
+  students.forEach(s=>{const lv=getStudentLevel(s.id);if(lv&&groups[lv])groups[lv].push(s);else groups['none'].push(s);});
+  const lvOrder=['b1','a2','a1','pre-a1'];
+  const summaryCards=lvOrder.map(lv=>{const cfg=LEVEL_CONFIG[lv];const n=groups[lv].length;return`<div class="stat-card" style="border-top:4px solid ${cfg.color}"><div style="font-size:26px">${cfg.icon}</div><div class="stat-value" style="color:${cfg.color};font-size:24px">${n}</div><div class="stat-label">${cfg.label} Students</div><div style="font-size:11px;color:var(--muted);margin-top:4px">${cfg.scoreRange}</div></div>`;}).join('');
+  const tables=lvOrder.map(lv=>{
+    const sts=groups[lv];if(!sts.length)return'';
+    const cfg=LEVEL_CONFIG[lv];
+    const rows=sts.map(s=>{const sub=Object.values(d.submissions).filter(x=>x.studentId===s.id).sort((a,b)=>b.score-a.score)[0];const score=sub?sub.score:null;const wAvg=getWeeklyAvg(s.id);const gw=getConsecutiveGoodWeeks(s.id);const ready=canPromote(s.id);return`<tr><td><strong>${s.name}</strong><div class="text-xs text-muted">${s.id}</div></td><td>${score!=null?scorePill(score):'<span class="text-muted">—</span>'}</td><td>${levelPill(lv)}</td><td>${wAvg?`<span style="font-weight:700;color:${wAvg>=(cfg.promoAvg||75)?'var(--success)':'var(--warning)'}">${wAvg}%</span>`:'—'}</td><td>${gw}/${cfg.promoWeeks||4} wks</td><td>${ready?'<span class="badge badge-green">✅ Ready</span>':'<span class="badge badge-gray">In Progress</span>'}</td><td><button class="btn btn-primary btn-sm" onclick="openPlanModal('${s.id}','${lv}')">View Plan</button></td></tr>`;}).join('');
+    return`<div class="level-header ${cfg.headerClass}" style="margin-top:18px"><div style="font-size:26px">${cfg.icon}</div><div><div style="font-size:15px;font-weight:800;color:${cfg.color2}">${cfg.name} — ${sts.length} students</div><div style="font-size:12px;color:var(--muted)">Promote: avg ≥${cfg.promoAvg||'—'}% for ${cfg.promoWeeks||'—'} wks + Test ≥${cfg.promoTestScore||'—'}%</div></div></div><div class="card" style="margin-bottom:4px"><div style="padding:10px 14px;background:#f8fafc;border-radius:8px;font-size:13px;margin-bottom:10px"><strong>Focus:</strong> ${cfg.focus.slice(0,2).join(' • ')}</div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Student</th><th>Placement</th><th>Level</th><th>Weekly Avg</th><th>Good Weeks</th><th>Status</th><th>Plan</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }).join('');
+  return`<div class="card" style="margin-bottom:20px"><div class="tabs">${tabs}</div><div class="card-header"><span class="card-title">Level Distribution — Class ${cls}</span><span class="text-muted text-sm">Based on Placement Test (Exam 1)</span></div><div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">${summaryCards}</div></div><div class="card" style="margin-bottom:16px;background:#fffbeb;border:1.5px solid #fcd34d"><div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px">📋 Promotion Criteria</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-size:12px"><div>${levelPill('pre-a1')}<div style="margin-top:6px;color:var(--muted)">→ A1: avg ≥75% for 4 weeks + Level Test ≥70%</div></div><div>${levelPill('a1')}<div style="margin-top:6px;color:var(--muted)">→ A2: avg ≥80% for 4 weeks + Level Test ≥75%</div></div><div>${levelPill('a2')}<div style="margin-top:6px;color:var(--muted)">→ B1: avg ≥80% for 4 weeks + Level Test ≥80%</div></div></div></div>${tables}<div id="plan-modal-area"></div>`;
+}
+
+function openPlanModal(sid,lv){
+  const cfg=LEVEL_CONFIG[lv];if(!cfg)return;
+  const d=store();const stu=findStudent(sid);const la=d.levelAssignments&&d.levelAssignments[sid];
+  const ws=(d.weeklyScores&&d.weeklyScores[sid])||[];const gw=getConsecutiveGoodWeeks(sid);const ready=canPromote(sid);
+  const nextCfg=cfg.nextLevel?LEVEL_CONFIG[cfg.nextLevel]:null;const promoPct=Math.min(100,Math.round((gw/(cfg.promoWeeks||4))*100));
+  const focusHtml=cfg.focus.map((f,i)=>`<div class="plan-focus-item"><div class="pfi-num" style="background:${cfg.color}">${i+1}</div><div style="font-size:13px">${f}</div></div>`).join('');
+  const resHtml=cfg.resources.map(r=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">📌 ${r}</div>`).join('');
+  const wkRows=ws.length?ws.map(w=>`<tr><td>Week ${w.week}</td><td>${w.date}</td><td>${w.tasksCompleted}/5</td><td>${scorePill(w.score)}</td><td>${w.score>=(cfg.promoAvg||75)?'<span class="badge badge-green">✅</span>':'<span class="badge badge-yellow">Below</span>'}</td></tr>`).join(''):'<tr><td colspan="5" style="color:var(--muted);text-align:center">No weekly data yet</td></tr>';
+  showModal(`<div class="modal-hd"><div><h2>${stu?.name||sid}</h2><div style="margin-top:3px">${levelPill(lv)} <span style="font-size:12px;color:var(--muted);margin-left:6px">Placement: ${la?.placementScore||'—'}% • ${la?.assignedDate||'—'}</span></div></div><button class="close-x" onclick="closeModal()">×</button></div><div class="modal-bd"><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px"><div style="background:${cfg.bg};border-radius:10px;padding:14px"><div style="font-size:11px;font-weight:700;color:${cfg.color};margin-bottom:8px">📌 FOCUS AREAS</div>${focusHtml}<div style="margin-top:12px;background:#fff;border-radius:8px;padding:10px"><div style="font-size:11px;font-weight:700;color:var(--muted)">WEEKLY GOAL</div><div style="font-size:13px;margin-top:4px">${cfg.weeklyGoal}</div></div></div><div><div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">📚 RESOURCES</div>${resHtml}<div style="margin-top:12px;background:#fffbeb;border-radius:8px;padding:10px"><div style="font-size:11px;font-weight:700;color:var(--warning)">💡 TEACHER NOTE</div><div style="font-size:12px;margin-top:4px;color:var(--muted)">${cfg.teacherNote}</div></div></div></div><div class="promo-bar" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><strong>Progress${nextCfg?' → '+nextCfg.name:' (Top Level ✨)'}</strong><span style="color:var(--muted)">${gw}/${cfg.promoWeeks||4} qualifying weeks</span></div><div class="promo-track"><div class="promo-fill" style="width:${promoPct}%;background:${cfg.color}"></div></div><div style="font-size:12px;margin-top:6px;color:${ready?'var(--success)':'var(--muted)'}">${ready?`✅ Give Level Test (≥${cfg.promoTestScore}%) to confirm promotion.`:`${(cfg.promoWeeks||4)-gw} more qualifying week(s) needed at ≥${cfg.promoAvg||75}%.`}</div></div><div><div style="font-size:13px;font-weight:700;margin-bottom:8px">📅 Weekly Scores</div><table class="tbl"><thead><tr><th>Week</th><th>Date</th><th>Tasks</th><th>Score</th><th>Status</th></tr></thead><tbody>${wkRows}</tbody></table></div></div><div class="modal-ft">${ready&&nextCfg?`<button class="btn btn-success btn-sm" onclick="promoteStudent('${sid}','${cfg.nextLevel}')">✅ Promote to ${nextCfg.label}</button>`:''}<button class="btn btn-primary btn-sm" onclick="closeModal()">Close</button></div>`);
+}
+
+function promoteStudent(sid,newLevel){
+  const d=store();if(!d.levelAssignments)d.levelAssignments={};
+  const old=d.levelAssignments[sid]?.level;const hist=(d.levelAssignments[sid]?.levelHistory||[]);
+  hist.push({level:newLevel,date:new Date().toISOString().split('T')[0]});
+  d.levelAssignments[sid]={level:newLevel,placementScore:d.levelAssignments[sid]?.placementScore,assignedDate:d.levelAssignments[sid]?.assignedDate,levelHistory:hist};
+  d.weeklyScores=d.weeklyScores||{};d.weeklyScores[sid]=[];
+  save(d);closeModal();notify(`✅ ${findStudent(sid)?.name?.split(' ')[0]} promoted ${old?.toUpperCase()}→${newLevel.toUpperCase()}!`,4000);render();
+}
+
+// ── Teacher: Task Bank ──
+function renderTeacherTaskBank(){
+  const d=store();const lvl=S.taskBankLevel||'a2';const week=S.taskBankWeek||(d.currentTermWeek||2);
+  const cfg=LEVEL_CONFIG[lvl];const tasks=getTasksForLevel(lvl,week);
+  const lvTabs=['pre-a1','a1','a2','b1'].map(lv=>`<div class="tab${lv===lvl?' active':''}" onclick="S.taskBankLevel='${lv}';render()" style="${lv===lvl?'color:'+LEVEL_CONFIG[lv].color+';border-bottom-color:'+LEVEL_CONFIG[lv].color:''}">${LEVEL_CONFIG[lv].icon} ${LEVEL_CONFIG[lv].label}</div>`).join('');
+  const allStu=Object.values(CLASSES).flat();const lvStu=allStu.filter(s=>getStudentLevel(s.id)===lvl);
+  const taskCards=tasks.map((t,i)=>{let done=0;lvStu.forEach(s=>{if(getWeekCompletions(s.id,week)[i])done++;});const pct=lvStu.length?Math.round((done/lvStu.length)*100):0;return`<div class="card" style="margin-bottom:12px;border-left:4px solid ${cfg.color}"><div style="display:flex;gap:14px;align-items:flex-start"><div class="task-type-icon" style="background:${t.bg}">${t.icon}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div><span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase">Task ${i+1} — ${t.type}</span> <span class="chip">${t.skill}</span></div><div style="font-size:12px;color:var(--muted)"><span style="font-weight:700;color:${pct>=80?'var(--success)':pct>=50?'var(--warning)':'var(--danger)'}">${done}/${lvStu.length}</span> done (${pct}%)</div></div><div style="font-size:13px;line-height:1.6;margin-bottom:8px">${t.task}</div><div class="pb"><div class="pb-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--warning)':'var(--danger)'}"></div></div></div></div></div>`;}).join('');
+  return`<div class="card" style="margin-bottom:20px"><div class="tabs">${lvTabs}</div><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px"><div><div class="card-title">${cfg.icon} ${cfg.name} — Task Bank</div><div class="text-sm text-muted">${lvStu.length} students at this level</div></div><div class="week-nav"><button onclick="S.taskBankWeek=Math.max(1,(S.taskBankWeek||2)-1);render()">← Prev</button><span class="wk-label">Week ${week}</span><button onclick="S.taskBankWeek=(S.taskBankWeek||2)+1;render()">Next →</button></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div class="card card-sm" style="background:${cfg.bg}"><div style="font-size:11px;font-weight:700;color:${cfg.color2}">🎯 WEEK ${week} GOAL</div><div style="font-size:13px;margin-top:6px">${cfg.weeklyGoal}</div></div><div class="card card-sm"><div style="font-size:11px;font-weight:700;color:var(--muted)">📌 FOCUS THIS WEEK</div><div style="font-size:13px;margin-top:6px">${cfg.focus[(week-1)%cfg.focus.length]||cfg.focus[0]}</div></div></div><div style="font-size:15px;font-weight:700;margin-bottom:12px">5 Tasks — ${cfg.label} Level (Week ${week})</div>${taskCards||'<div class="empty"><div class="ei">📋</div><h3>No tasks defined</h3></div>'}`;
+}
+
+// ── Teacher: Progress Tracker ──
+function renderTeacherProgress(){
+  const d=store();const cls=S.selectedClass||'8-1';const pTab=S.progressTab||'weekly';
+  const tabs=['8-1','8-2','8-3','8-4'].map(c=>`<div class="tab${c===cls?' active':''}" onclick="S.selectedClass='${c}';render()">${c}</div>`).join('');
+  const pTabs=['weekly','monthly','term'].map(t=>`<div class="tab${t===pTab?' active':''}" onclick="S.progressTab='${t}';render()">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`).join('');
+  const students=CLASSES[cls]||[];const week=d.currentTermWeek||2;let inner='';
+  if(pTab==='weekly'){
+    const totalDone=students.reduce((a,s)=>a+getWeekCompletions(s.id,week).filter(Boolean).length,0);
+    const classRate=students.length?Math.round((totalDone/(students.length*5))*100):0;
+    const rows=students.map(s=>{const lv=getStudentLevel(s.id);const comps=getWeekCompletions(s.id,week);const done=comps.filter(Boolean).length;return`<div class="pr-grid"><div class="pr-name">${shortName(s.name)}<br>${levelPill(lv)}</div>${comps.map(c=>`<div class="pr-cell">${c?'<span class="pr-done">✓</span>':'<span class="pr-miss">✗</span>'}</div>`).join('')}<div class="pr-cell"><strong>${done}/5</strong><div class="pb" style="margin-top:4px"><div class="pb-fill" style="width:${done*20}%;background:${done===5?'var(--success)':done>=3?'var(--warning)':'var(--danger)'}"></div></div></div></div>`;}).join('');
+    inner=`<div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px"><div class="stat-card"><div class="stat-icon" style="background:#eff6ff">📋</div><div class="stat-value" style="color:var(--primary)">Week ${week}</div><div class="stat-label">Current Term Week</div></div><div class="stat-card"><div class="stat-icon" style="background:#ecfdf5">✅</div><div class="stat-value" style="color:var(--success)">${classRate}%</div><div class="stat-label">Class Completion</div></div><div class="stat-card"><div class="stat-icon" style="background:#fef3c7">📊</div><div class="stat-value" style="color:var(--warning)">${totalDone}/${students.length*5}</div><div class="stat-label">Tasks Done</div></div></div><div class="card"><div class="card-title mb-4">Week ${week} — Task Completion</div><div class="pr-grid hd"><div class="pr-name">Student</div><div class="pr-cell">Task 1</div><div class="pr-cell">Task 2</div><div class="pr-cell">Task 3</div><div class="pr-cell">Task 4</div><div class="pr-cell">Task 5</div><div class="pr-cell">Done</div></div>${rows}</div>`;
+  }else if(pTab==='monthly'){
+    const lvOrder=['b1','a2','a1','pre-a1'];
+    inner=lvOrder.map(lv=>{const sts=students.filter(s=>getStudentLevel(s.id)===lv);if(!sts.length)return'';const cfg=LEVEL_CONFIG[lv];const lvAvg=Math.round(sts.reduce((a,s)=>a+getWeeklyAvg(s.id),0)/sts.length)||0;const rows=sts.map(s=>{const ws=(d.weeklyScores&&d.weeklyScores[s.id])||[];const wk=n=>ws.find(w=>w.week===n);const avg=getWeeklyAvg(s.id);const gw=getConsecutiveGoodWeeks(s.id);const trend=ws.length>=2?ws[ws.length-1].score-ws[ws.length-2].score:null;const cell=n=>{const w=wk(n);return w?`<div class="mc"><span style="font-weight:700;color:${w.score>=(cfg.promoAvg||75)?'var(--success)':'var(--danger)'}">${w.score}%</span></div>`:'<div class="mc text-muted">—</div>';};return`<div class="monthly-row"><div class="mn">${shortName(s.name)}</div>${cell(1)}${cell(2)}${cell(3)}${cell(4)}<div class="mc"><strong>${avg?avg+'%':'—'}</strong>${trend!=null?`<br><span style="font-size:10px;color:${trend>=0?'var(--success)':'var(--danger)'}">${trend>=0?'▲+':'▼'}${trend}%</span>`:''}${gw>=2?`<br><span class="badge badge-green" style="font-size:9px">${gw}🔥</span>`:''}</div></div>`;}).join('');return`<div style="margin-bottom:20px"><div class="level-header ${cfg.headerClass}">${cfg.icon} <div><div style="font-weight:800;color:${cfg.color2}">${cfg.name} (${sts.length}) — Avg: ${lvAvg}%</div><div style="font-size:11px;color:var(--muted)">Promote: avg ≥${cfg.promoAvg||'—'}% for ${cfg.promoWeeks||'—'} wks + Test ≥${cfg.promoTestScore||'—'}%</div></div></div><div class="monthly-row" style="background:#f8fafc"><div class="mn" style="font-size:11px;font-weight:700;color:var(--muted)">STUDENT</div><div class="mc" style="font-size:11px;font-weight:700;color:var(--muted)">WK 1</div><div class="mc" style="font-size:11px;font-weight:700;color:var(--muted)">WK 2</div><div class="mc" style="font-size:11px;font-weight:700;color:var(--muted)">WK 3</div><div class="mc" style="font-size:11px;font-weight:700;color:var(--muted)">WK 4</div><div class="mc" style="font-size:11px;font-weight:700;color:var(--muted)">AVG</div></div>${rows}</div>`;}).join('')||'<div class="empty"><div class="ei">📊</div><h3>No monthly data yet</h3></div>';
+  }else{
+    const promote=[],watchList=[],stayList=[];students.forEach(s=>{const lv=getStudentLevel(s.id);const avg=getWeeklyAvg(s.id);const ready=canPromote(s.id);const cfg=lv?LEVEL_CONFIG[lv]:null;const obj={s,lv,avg,cfg,gw:getConsecutiveGoodWeeks(s.id)};if(ready)promote.push(obj);else if(avg>=(cfg?.promoAvg||75)-10)watchList.push(obj);else stayList.push(obj);});
+    inner=`<div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px"><div class="stat-card" style="border-top:4px solid var(--success)"><div class="stat-icon" style="background:#ecfdf5">✅</div><div class="stat-value" style="color:var(--success)">${promote.length}</div><div class="stat-label">Ready to Promote</div></div><div class="stat-card" style="border-top:4px solid var(--warning)"><div class="stat-icon" style="background:#fef3c7">⚠️</div><div class="stat-value" style="color:var(--warning)">${watchList.length}</div><div class="stat-label">Watch List</div></div><div class="stat-card" style="border-top:4px solid var(--danger)"><div class="stat-icon" style="background:#fee2e2">🔴</div><div class="stat-value" style="color:var(--danger)">${stayList.length}</div><div class="stat-label">Need Support</div></div></div>${promote.length?`<div class="term-promote"><div style="font-size:13px;font-weight:800;color:#065f46;margin-bottom:8px">✅ READY TO PROMOTE (${promote.length})</div>${promote.map(({s,lv,avg,gw})=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px"><span><strong>${s.name}</strong></span>${levelPill(lv)}<span style="color:var(--success);font-weight:700">${avg}% avg</span><span>${gw} wks</span><button class="btn btn-success btn-sm" onclick="openPlanModal('${s.id}','${lv}')">Review & Promote</button></div>`).join('')}</div>`:''} ${watchList.length?`<div class="term-watch"><div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:8px">⚠️ WATCH LIST (${watchList.length})</div>${watchList.map(({s,lv,avg,cfg})=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px"><span><strong>${s.name}</strong></span>${levelPill(lv)}<span style="color:var(--warning);font-weight:700">${avg}% avg</span><button class="btn btn-primary btn-sm" onclick="openPlanModal('${s.id}','${lv}')">View Plan</button></div>`).join('')}</div>`:''} ${stayList.length?`<div class="term-stay"><div style="font-size:13px;font-weight:800;color:#991b1b;margin-bottom:8px">🔴 NEEDS SUPPORT (${stayList.length})</div>${stayList.map(({s,lv,avg})=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px"><span><strong>${s.name}</strong></span>${levelPill(lv)}<span style="color:var(--danger);font-weight:700">${avg||'—'}%</span><button class="btn btn-primary btn-sm" onclick="openPlanModal('${s.id}','${lv}')">View Plan</button></div>`).join('')}</div>`:''}<div class="card" style="margin-top:16px;background:#eff6ff;border:1.5px solid #93c5fd"><div style="font-size:13px;font-weight:700;color:#1e40af">📋 End-of-Term Checklist</div><ul style="margin-top:10px;padding-right:20px;font-size:13px;line-height:2.2"><li>☐ Administer Level Tests to all "Ready to Promote" students</li><li>☐ Schedule parent meetings for Watch List students</li><li>☐ Update remedial plans for students staying at current level</li><li>☐ Send Parent Progress Reports to all families</li><li>☐ Record final level assignments in student records</li></ul></div>`;
+  }
+  return`<div class="card" style="margin-bottom:20px"><div class="tabs">${tabs}</div><div class="tabs" style="margin-top:4px">${pTabs}</div><div class="card-header"><span class="card-title">Progress Tracker — Class ${cls}</span><span class="text-muted text-sm">Term 2 • Week ${week} of 16</span></div>${inner}</div>`;
+}
+
+// ── Student: My Plan ──
+function renderStudentMyPlan(){
+  const uid=S.user.id;const lv=getStudentLevel(uid);
+  if(!lv)return`<div class="empty"><div class="ei">🎯</div><h3>No Level Assigned</h3><p>Complete the Placement Test to receive your personalised remedial plan.</p></div>`;
+  const cfg=LEVEL_CONFIG[lv];const d=store();const la=d.levelAssignments&&d.levelAssignments[uid];
+  const ws=(d.weeklyScores&&d.weeklyScores[uid])||[];const gw=getConsecutiveGoodWeeks(uid);
+  const nextCfg=cfg.nextLevel?LEVEL_CONFIG[cfg.nextLevel]:null;const promoPct=Math.min(100,Math.round((gw/(cfg.promoWeeks||4))*100));
+  const focusHtml=cfg.focus.map((f,i)=>`<div class="plan-focus-item"><div class="pfi-num" style="background:${cfg.color}">${i+1}</div><div style="font-size:13px;font-weight:600">${f}</div></div>`).join('');
+  const resHtml=cfg.resources.map(r=>`<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:${cfg.color}">📌</span>${r}</div>`).join('');
+  const histRows=((la?.levelHistory)||[{level:lv,date:la?.assignedDate||'—'}]).map((h,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="width:8px;height:8px;border-radius:50%;background:${LEVEL_CONFIG[h.level]?.color||'#aaa'}"></div><div style="flex:1;font-size:13px"><strong>${LEVEL_CONFIG[h.level]?.name||h.level}</strong></div><div style="font-size:12px;color:var(--muted)">${i===0?'Assigned':'Promoted'} ${h.date}</div>${levelPill(h.level)}</div>`).join('');
+  const wkRows=ws.length?ws.map(w=>`<tr><td>Week ${w.week}</td><td>${w.date}</td><td>${w.tasksCompleted}/5</td><td>${scorePill(w.score)}</td><td>${w.score>=(cfg.promoAvg||75)?'<span class="badge badge-green">✅ Target Met</span>':'<span class="badge badge-yellow">Below Target</span>'}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--muted)">Complete your tasks to see progress here!</td></tr>';
+  return`<div class="card mb-4" style="background:linear-gradient(135deg,${cfg.color}18,${cfg.color}08);border:2px solid ${cfg.color}44"><div style="display:flex;align-items:center;gap:16px"><div style="font-size:52px">${cfg.icon}</div><div style="flex:1"><div style="font-size:11px;font-weight:700;color:${cfg.color2};text-transform:uppercase;letter-spacing:1px">Your English Level</div><div style="font-size:26px;font-weight:900;color:${cfg.color2}">${cfg.name}</div><div style="font-size:13px;color:var(--muted);margin-top:2px">Placement: ${la?.placementScore||'—'}% • Assigned: ${la?.assignedDate||'—'}</div></div><div style="text-align:center;padding:12px 20px;background:${cfg.bg};border-radius:10px"><div style="font-size:11px;font-weight:700;color:var(--muted)">SCORE RANGE</div><div style="font-size:22px;font-weight:900;color:${cfg.color}">${cfg.scoreRange}</div></div></div></div><div class="grid-2"><div class="card mb-4"><div class="card-title mb-4" style="color:${cfg.color}">📌 What You Need to Focus On</div>${focusHtml}<div style="margin-top:14px;background:#f8fafc;border-radius:8px;padding:12px"><div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px">🎯 YOUR WEEKLY GOAL</div><div style="font-size:13px">${cfg.weeklyGoal}</div></div></div><div class="card mb-4"><div class="card-title mb-4">📚 Resources</div>${resHtml}<div style="margin-top:12px"><div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">LEVEL HISTORY</div>${histRows}</div></div></div><div class="card mb-4"><div class="card-title mb-4">${nextCfg?'🚀 Progress Towards '+nextCfg.name:'🌟 Maintaining Excellence at B1'}</div>${nextCfg?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px"><div style="background:#f8fafc;border-radius:8px;padding:14px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--muted)">WEEKLY AVG NEEDED</div><div style="font-size:26px;font-weight:900;color:${cfg.color}">${cfg.promoAvg}%</div></div><div style="background:#f8fafc;border-radius:8px;padding:14px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--muted)">WEEKS AT TARGET</div><div style="font-size:26px;font-weight:900;color:${cfg.color}">${gw}/${cfg.promoWeeks}</div></div><div style="background:#f8fafc;border-radius:8px;padding:14px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--muted)">LEVEL TEST PASS</div><div style="font-size:26px;font-weight:900;color:${cfg.color}">${cfg.promoTestScore}%</div></div></div><div class="promo-bar"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><strong>Your Progress</strong><span style="color:var(--muted)">${gw} of ${cfg.promoWeeks} qualifying weeks</span></div><div class="promo-track"><div class="promo-fill" style="width:${promoPct}%;background:${cfg.color}"></div></div><div style="font-size:12px;margin-top:8px;color:${promoPct===100?'var(--success)':'var(--muted)'}">${promoPct===100?`🎉 Ask Mr. Ashraf for your Level Test to move to ${nextCfg.label}!`:`Keep going! ${cfg.promoWeeks-gw} more week(s) at ${cfg.promoAvg}%+, then pass the Level Test.`}</div></div>`:'<div style="text-align:center;padding:20px;color:var(--success)">🌳 You are at the highest level. Focus on exam excellence!</div>'}</div><div class="card"><div class="card-title mb-4">📅 Weekly Score History</div><table class="tbl"><thead><tr><th>Week</th><th>Date</th><th>Tasks</th><th>Score</th><th>Status</th></tr></thead><tbody>${wkRows}</tbody></table></div>`;
+}
+
+// ── Student: My Tasks ──
+function renderStudentMyTasks(){
+  const uid=S.user.id;const lv=getStudentLevel(uid);
+  if(!lv)return`<div class="empty"><div class="ei">📋</div><h3>No Tasks Yet</h3><p>Complete the Placement Test first.</p></div>`;
+  const cfg=LEVEL_CONFIG[lv];const d=store();const week=d.currentTermWeek||2;
+  const tasks=getTasksForLevel(lv,week);const comps=getWeekCompletions(uid,week);
+  const done=comps.filter(Boolean).length;const pct=Math.round((done/5)*100);
+  const ws=(d.weeklyScores&&d.weeklyScores[uid])||[];const w1=ws.find(w=>w.week===1);
+  const taskCards=tasks.map((t,i)=>`<div class="task-card${comps[i]?' done':''}" id="tc-${i}"><div style="cursor:pointer;width:22px;height:22px;border-radius:6px;border:2px solid ${comps[i]?'var(--success)':cfg.color};background:${comps[i]?'var(--success)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:14px;color:#fff;transition:all .2s" onclick="toggleTask(${i})">${comps[i]?'✓':''}</div><div class="task-type-icon" style="background:${t.bg}">${t.icon}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase">Task ${i+1}</span><span class="chip" style="background:${cfg.color}22;color:${cfg.color}">${t.type}</span><span style="font-size:10px;color:var(--muted)">${t.skill}</span>${comps[i]?'<span class="badge badge-green" style="font-size:10px">✅ Done</span>':''}</div><div style="font-size:13px;line-height:1.6">${t.task}</div></div></div>`).join('');
+  return`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px"><div class="card card-sm" style="background:${cfg.bg};border:1.5px solid ${cfg.color}44"><div style="font-size:11px;font-weight:700;color:${cfg.color2}">YOUR LEVEL</div><div style="font-size:24px;margin:4px 0">${cfg.icon}</div><div style="font-size:16px;font-weight:800;color:${cfg.color}">${cfg.label}</div></div><div class="card card-sm" style="background:#eff6ff"><div style="font-size:11px;font-weight:700;color:var(--primary)">THIS WEEK</div><div style="font-size:24px;font-weight:900;color:var(--primary);margin:4px 0">Week ${week}</div><div style="font-size:13px;color:var(--muted)">${done}/5 tasks done</div></div>${w1?`<div class="card card-sm" style="background:#ecfdf5;border:1.5px solid #6ee7b7"><div style="font-size:11px;font-weight:700;color:var(--success)">LAST WEEK</div><div style="font-size:24px;font-weight:900;color:var(--success);margin:4px 0">${w1.score}%</div><div style="font-size:12px;color:var(--muted)">${w1.tasksCompleted}/5 done</div></div>`:'<div class="card card-sm"><div style="font-size:12px;color:var(--muted)">No previous week yet.</div></div>'}</div><div class="card mb-4"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="card-title">Week ${week} Tasks — ${cfg.label} Level</div><div style="font-size:13px;font-weight:700;color:${pct===100?'var(--success)':pct>=60?'var(--warning)':'var(--muted)'}">${done}/5 complete</div></div><div class="pb" style="height:12px"><div class="pb-fill" style="width:${pct}%;background:${pct===100?'var(--success)':pct>=60?'var(--warning)':cfg.color}"></div></div>${pct===100?'<div style="margin-top:10px;padding:10px;background:#ecfdf5;border-radius:8px;font-size:13px;font-weight:700;color:var(--success)">🎉 All tasks done! Mr. Ashraf will mark your score soon.</div>':''}</div>${taskCards}<div class="card mt-4" style="background:#fffbeb;border:1.5px solid #fcd34d"><div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px">💡 This Week\'s Goal</div><div style="font-size:13px">${cfg.weeklyGoal}</div></div>`;
+}
+
+function toggleTask(idx){
+  const uid=S.user.id;const d=store();const week=d.currentTermWeek||2;const key='w'+week;
+  if(!d.taskCompletions)d.taskCompletions={};if(!d.taskCompletions[uid])d.taskCompletions[uid]={};
+  if(!d.taskCompletions[uid][key])d.taskCompletions[uid][key]=[false,false,false,false,false];
+  d.taskCompletions[uid][key][idx]=!d.taskCompletions[uid][key][idx];
+  const done=d.taskCompletions[uid][key].filter(Boolean).length;
+  if(done===5){const sub=Object.values(d.submissions).filter(s=>s.studentId===uid).sort((a,b)=>b.score-a.score)[0];const base=sub?sub.score:65;const score=Math.min(99,base+Math.floor(Math.random()*6));if(!d.weeklyScores)d.weeklyScores={};if(!d.weeklyScores[uid])d.weeklyScores[uid]=[];const idx2=d.weeklyScores[uid].findIndex(w=>w.week===week);const entry={week,score,tasksCompleted:5,date:new Date().toISOString().split('T')[0]};if(idx2>=0)d.weeklyScores[uid][idx2]=entry;else d.weeklyScores[uid].push(entry);d.stars[uid]=(d.stars[uid]||0)+5;notify('🎉 All 5 tasks done! +5 Stars earned!');}
+  save(d);render();
+}
+
+store(); // initialize data
+// render() is called by bootstrap above
+
+// ═══════════════════════════════════════
+//  UPLOAD EXAM MODAL
+// ═══════════════════════════════════════
+function openUploadExamModal(){
+  showModal(`
+<div class="modal-hd"><h2>⬆️ Upload Exam</h2><button class="close-x" onclick="closeModal()">×</button></div>
+<div class="modal-bd">
+  <div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px">
+    <strong>Supported files:</strong> HTML exams exported from this LMS (⬇️ Export), or any external HTML exam file.
+  </div>
+  <div class="fg"><label>Exam Title (leave blank to use title from file)</label><input id="up-title" type="text" placeholder="e.g. Unit 3 Vocabulary Test"></div>
+  <div class="form-row">
+    <div class="fg"><label>Assign to Class</label>
+      <select id="up-class"><option value="all">📚 All Classes</option>${['8-1','8-2','8-3','8-4'].map(c=>`<option value="${c}">Class ${c} only</option>`).join('')}</select>
+    </div>
+    <div class="fg"><label>Status</label>
+      <select id="up-status"><option value="draft">Save as Draft</option><option value="active">Activate Immediately</option></select>
+    </div>
+  </div>
+  <div style="border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;background:#f8fafc" onclick="document.getElementById('up-file').click()">
+    <div style="font-size:32px;margin-bottom:8px">📂</div>
+    <div style="font-size:14px;font-weight:600">Click to choose an HTML exam file</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px" id="up-filename">No file chosen</div>
+    <input type="file" id="up-file" accept=".html" style="display:none" onchange="previewUploadFile(this)">
+  </div>
+  <div id="up-preview" style="margin-top:14px;display:none"></div>
+</div>
+<div class="modal-ft">
+  <button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-success btn-sm" onclick="confirmExamUpload()">✅ Save Exam</button>
+</div>`);
+}
+
+let _uploadedExamData=null;
+
+function previewUploadFile(input){
+  const file=input.files[0]; if(!file) return;
+  document.getElementById('up-filename').textContent=file.name;
+  if(!document.getElementById('up-title').value)
+    document.getElementById('up-title').value=file.name.replace(/\.html?$/i,'').replace(/[-_]/g,' ');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const html=e.target.result;
+    const match=html.match(/<script[^>]*id=["']lms-exam-data["'][^>]*>([\s\S]*?)<\/script>/i);
+    if(match){
+      try{
+        _uploadedExamData=JSON.parse(match[1].trim());
+        _uploadedExamData._type='lms';
+        if(!document.getElementById('up-title').value&&_uploadedExamData.title)
+          document.getElementById('up-title').value=_uploadedExamData.title;
+        const q=_uploadedExamData.questions||[];
+        document.getElementById('up-preview').style.display='block';
+        document.getElementById('up-preview').innerHTML=`<div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:12px;font-size:13px">✅ <strong>LMS Exam:</strong> "${_uploadedExamData.title}" — ${q.length} question${q.length!==1?'s':''}${_uploadedExamData.timeLimit?` • ⏱ ${_uploadedExamData.timeLimit} min`:''}</div>`;
+      }catch(err){
+        _uploadedExamData=null;
+        document.getElementById('up-preview').style.display='block';
+        document.getElementById('up-preview').innerHTML='<div style="background:#fee2e2;border-radius:8px;padding:12px;font-size:13px">❌ Could not parse exam data.</div>';
+      }
+    }else{
+      _uploadedExamData={_type:'html',htmlContent:html,title:document.getElementById('up-title').value||file.name,questions:[],timeLimit:0};
+      document.getElementById('up-preview').style.display='block';
+      document.getElementById('up-preview').innerHTML=`<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px;font-size:13px">🌐 <strong>External HTML exam detected.</strong> Will be embedded for students.<div style="margin-top:6px;color:var(--muted);font-size:12px">Scores must be entered manually by the teacher. The HTML file will be saved in Firebase for all student devices.</div></div>`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function confirmExamUpload(){
+  if(!_uploadedExamData){notify('❌ Please select an HTML exam file first.');return;}
+  const title=(document.getElementById('up-title')?.value||'').trim()||_uploadedExamData.title||'Uploaded Exam';
+  const classId=document.getElementById('up-class')?.value||'all';
+  const status=document.getElementById('up-status')?.value||'draft';
+  const isExternal=_uploadedExamData._type==='html';
+  if(!isExternal&&(_uploadedExamData.questions||[]).length===0){notify('❌ Exam has no questions.');return;}
+  const qCount=(_uploadedExamData.questions||[]).length;
+  const classes=classId==='all'?['8-1','8-2','8-3','8-4']:[classId];
+  const d=store();
+  classes.forEach((cls,i)=>{
+    const exam={id:'exam'+Date.now()+i,title,description:_uploadedExamData.description||(isExternal?'External HTML Exam':''),classId:cls,timeLimit:_uploadedExamData.timeLimit||30,questions:_uploadedExamData.questions||[],status,createdAt:new Date().toISOString().split('T')[0],...(isExternal&&{htmlContent:_uploadedExamData.htmlContent,examType:'html'})};
+    d.exams.push(exam);
+    if(status==='active')(CLASSES[cls]||[]).forEach(s=>{d.monitor[s.id]=d.monitor[s.id]||'not_started';});
+  });
+  const savedQCount=qCount;
+  save(d);_uploadedExamData=null;closeModal();
+  const target=classId==='all'?'All Classes':`Class ${classId}`;
+  notify(`✅ "${title}" uploaded to ${target}${isExternal?' (external HTML)':` — ${savedQCount} questions`}`);
+  render();
+}
+
+// ═══════════════════════════════════════
+//  EXPORT EXAM
+// ═══════════════════════════════════════
+function exportExam(id){
+  const d=store();const exam=d.exams.find(e=>e.id===id);if(!exam){notify('❌ Exam not found');return;}
+  const data={title:exam.title,description:exam.description,timeLimit:exam.timeLimit,questions:exam.questions};
+  const json=JSON.stringify(data,null,2);
+  const html=`<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<title>${exam.title} — Ashraf LMS Export</title>\n<style>body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:#fff;border-radius:16px;padding:32px;max-width:560px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1);text-align:center}h2{color:#2563eb;margin-bottom:8px}p{color:#64748b;font-size:14px}.badge{display:inline-block;background:#eff6ff;color:#2563eb;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;margin:4px}</style>\n</head>\n<body>\n<div class="box"><div style="font-size:48px">📝</div><h2>${exam.title}</h2><p>${exam.description||''}</p><div style="margin:16px 0"><span class="badge">⏱ ${exam.timeLimit} min</span><span class="badge">❓ ${exam.questions.length} questions</span></div><p style="font-size:12px;color:#94a3b8">Ashraf LMS exam export — upload via ⬆️ Upload Exam</p></div>\n<script id="lms-exam-data" type="application/json">\n${json}\n<\/script>\n</body>\n</html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=exam.title.replace(/[^a-z0-9]/gi,'_').toLowerCase()+'.html';
+  a.click();URL.revokeObjectURL(a.href);
+  notify(`✅ "${exam.title}" exported`);
+}
+</script>
+<script>
+// ── App Bootstrap ─────────────────────────────────────────────
+(async function(){
+  // Show loading overlay
+  document.getElementById('app').innerHTML = `
+    <div style="position:fixed;inset:0;background:linear-gradient(135deg,#071b34,#0d2a50);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;z-index:9999">
+      <div style="font-size:52px;margin-bottom:16px">📘</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:8px">Ashraf LMS</div>
+      <div style="font-size:14px;opacity:.6;margin-bottom:32px">Connecting to Firebase…</div>
+      <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite"></div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>`;
+
+  // Init Firebase + load remote data
+  initFirebase();
+  const loaded = await loadFromFirestore();
+  if(!loaded) console.log('📦 Using local data (Firebase not configured or offline)');
+
+  // Render the login screen
+  render();
+})();
+</script>
+</body>
+</html>
