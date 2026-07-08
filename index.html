@@ -151,7 +151,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     <div class="logo">AR</div>
     <h2>Teacher Login</h2>
     <p>Enter the password to access the teacher portal.</p>
-    <input type="password" id="gatePassword" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')checkTeacherPassword()">
+    <input type="password" id="gatePassword" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkTeacherPassword()">
     <button class="btn gold" style="width:100%" onclick="checkTeacherPassword()">Unlock</button>
     <p id="gateError" class="gateError"></p>
   </div>
@@ -349,7 +349,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 <div id="warning" class="warn">Restricted action detected!</div><div class="watermark" id="watermark"></div>
 <div id="loginPage" class="wrap">
   <div class="hero"><h1>AlRams Boys' School - Cycle 2</h1><p>Student Exam Portal · Teacher: <span style="color:var(--gold);font-size:1.4em;font-weight:900">Ashraf Rashed</span></p></div>
-  <div class="card" style="text-align:center"><h2>Student Login</h2><p>Choose your class, select your full name, and enter your STUM number.</p><div class="lock" style="text-align:center;border-radius:12px;padding:12px;margin:0 0 14px">⚠️ Exam rules: No copying, screenshots, or pressing Esc / leaving the page during a test - this will auto-submit your exam.</div><select id="studentClass" onchange="populateStudentNames()"><option value="8-1">Grade 8-1</option><option value="8-2">Grade 8-2</option><option value="8-3">Grade 8-3</option><option value="8-4">Grade 8-4</option></select><br><select id="studentSelect"></select><br><input id="studentStum" type="text" inputmode="numeric" placeholder="Enter your STUM number" autocomplete="off"><br><button class="gold" onclick="studentLogin()">Login</button><br><button class="light" onclick="clearStudentCache()">Clear Old Saved Data</button><p id="loginStatus" class="small"></p></div>
+  <div class="card" style="text-align:center"><h2>Student Login</h2><p>Choose your class, select your full name, and enter your STUM number.</p><div class="lock" style="text-align:center;border-radius:12px;padding:12px;margin:0 0 14px">⚠️ Exam rules: No copying, screenshots, or pressing Esc / leaving the page during a test - this will auto-submit your exam.</div><select id="studentClass" onchange="populateStudentNames()"><option value="8-1">Grade 8-1</option><option value="8-2">Grade 8-2</option><option value="8-3">Grade 8-3</option><option value="8-4">Grade 8-4</option></select><br><select id="studentSelect"></select><br><input id="studentStum" type="text" inputmode="numeric" placeholder="Enter your STUM number" autocomplete="on"><br><button class="gold" onclick="studentLogin()">Login</button><br><button class="light" onclick="clearStudentCache()">Clear Old Saved Data</button><p id="loginStatus" class="small"></p></div>
 </div>
 <div id="studentDashboard" class="wrap hidden">
   <div class="hero"><h1 id="welcomeTitle">Welcome</h1><p>Choose an available exam. Completed exams cannot be done again.</p></div>
@@ -393,14 +393,18 @@ function lmsSelectRole(role){
   document.getElementById('landingPage').style.display='none';
   if(role==='teacher'){
     document.getElementById('teacherSection').classList.add('lms-active');
-    // No password — go straight to teacher portal
-    document.getElementById('gateOverlay').style.display='none';
-    document.getElementById('teacherApp').style.display='flex';
-    sessionStorage.setItem('teacherAuth','1');
-    if(window.loadFirebaseResults)window.loadFirebaseResults();
-    try{let _n=document.getElementById('now');if(_n)_n.textContent=new Date().toLocaleString();}catch(e){}
+    document.getElementById('gateOverlay').style.display='flex';
+    document.getElementById('teacherApp').style.display='none';
+    setTimeout(()=>{document.getElementById('gatePassword').focus();},100);
   }else{
     document.getElementById('studentSection').classList.add('lms-active');
+    setTimeout(()=>{
+      restoreSavedLogin();
+      try{
+        let saved=JSON.parse(localStorage.getItem('ar_saved_login')||'null');
+        if(saved&&saved.cls&&saved.code&&saved.stum) studentLogin();
+      }catch(e){}
+    },100);
   }
   document.getElementById('lmsBackBtn').classList.add('visible');
   window._lmsRole=role;
