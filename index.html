@@ -1220,7 +1220,14 @@ function setButtonSaving(btn, saving){
 })();
 const TEACHER_PASSWORD='moe@6060';
 function checkTeacherPassword(){
-  // Password removed — auto unlock
+  const entered=(document.getElementById('gatePassword').value||'').trim();
+  if(entered!==TEACHER_PASSWORD){
+    const el=document.getElementById('gatePassword');
+    el.style.border='2px solid red';
+    el.value='';el.placeholder='Wrong password, try again';
+    setTimeout(()=>{el.style.border='';el.placeholder='Password';},2000);
+    return;
+  }
   sessionStorage.setItem('teacherAuth','1');
   document.getElementById('landingPage').style.display='none';
   document.getElementById('teacherSection').classList.add('lms-active');
