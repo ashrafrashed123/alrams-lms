@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Talking in Class - 10 Marks</title>
+<style>
+  :root{--bg:#eef6ff;--card:#ffffff;--ink:#102033;--brand:#1d4ed8;--ok:#16a34a;--bad:#dc2626;--warn:#b45309;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#e0f2fe,#f8fafc);color:var(--ink);font-size:18px;}
+  .screen{max-width:1100px;margin:0 auto;padding:24px;}
+  .start-box{max-width:650px;margin:80px auto;background:white;border-radius:20px;padding:32px;box-shadow:0 14px 45px #0002;text-align:center;}
+  button{border:0;border-radius:14px;padding:14px 26px;font-size:20px;font-weight:700;cursor:pointer;background:var(--brand);color:white;}
+  button:disabled{background:#94a3b8;cursor:not-allowed}
+  .topbar{position:sticky;top:0;z-index:9;background:#ffffffee;backdrop-filter:blur(6px);border-bottom:1px solid #cbd5e1;padding:12px 24px;display:flex;gap:16px;align-items:center;justify-content:space-between;}
+  .progress-wrap{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;min-width:220px;}
+  .progress{height:100%;width:0%;background:#22c55e;transition:.25s}
+  .timer{font-size:22px;font-weight:800;color:#b91c1c;}
+  .panel{background:var(--card);border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 8px 25px #0001;border:1px solid #dbeafe;}
+  h1{margin:0 0 12px;text-align:center;color:#1e3a8a}
+  h2{margin:0 0 14px;color:#1e3a8a}
+  .cards{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:16px;margin-top:14px;}
+  .speech{background:#fefce8;border:2px solid #93c5fd;border-radius:18px;padding:16px;line-height:1.45;position:relative;min-height:120px;}
+  .speech b{display:block;text-align:right;margin-top:8px;color:#1e40af}
+  table{width:100%;border-collapse:collapse;margin-top:12px;background:white;}
+  th,td{border:1px solid #334155;padding:12px;vertical-align:middle;}
+  th{background:#dbeafe;text-align:center;}
+  select{width:100%;font-size:18px;padding:10px;border-radius:10px;border:2px solid #94a3b8;background:white;}
+  .message{display:none;margin:12px 0;padding:14px;border-radius:12px;font-weight:700;}
+  .warn{background:#fff7ed;color:#9a3412;border:2px solid #fdba74;}
+  .result{font-size:24px;font-weight:900;text-align:center;}
+  .correct{background:#dcfce7!important;border-color:#16a34a!important;}
+  .wrong{background:#fee2e2!important;border-color:#dc2626!important;}
+  .small{font-size:15px;color:#475569;}
+  #exam{display:none}
+  #review{display:none}
+  @media(max-width:720px){.cards{grid-template-columns:1fr}.topbar{flex-direction:column;align-items:stretch}body{font-size:16px}select{font-size:16px}}
+</style>
+</head>
+<body>
+<div id="start" class="screen">
+  <div class="start-box">
+    <h1>Talking in Class</h1>
+    <p><b>Total Marks: 10</b></p>
+    <p>Click Start to open the test in full screen.</p>
+    <button onclick="startExam()">Start Test</button>
+    <p class="small">Answer using the drop-down list of names.</p>
+  </div>
+</div>
+
+<div id="exam">
+  <div class="topbar">
+    <div><b>Talking in Class</b> | 10 Marks</div>
+    <div>Answered: <b id="answered">0</b>/7</div>
+    <div class="progress-wrap"><div id="progress" class="progress"></div></div>
+    <div class="timer" id="timer">20:00</div>
+  </div>
+  <div class="screen">
+    <div class="panel">
+      <h2>Read the students' opinions.</h2>
+      <div class="cards">
+        <div class="speech">Sometimes I don’t want to ask the teacher. I am worried that I have the wrong answer. I like asking my friends first. I think talking in class is good.<b>Omar</b></div>
+        <div class="speech">I talk with friends to see if we have the same answer. This helps me know that I understand the lesson.<b>Khadija</b></div>
+        <div class="speech">We have noisy classmates. They always talk in class. Sometimes I can’t hear the teacher. I don’t like students talking in class.<b>Ali</b></div>
+        <div class="speech">Our teacher lets us talk at the end of class. We talk about what we learned. This helps us remember all the information. I like this time.<b>Asma</b></div>
+        <div class="speech">Talking in class is great. It helps me learn how to pronounce words. The teachers give us lots of time to talk.<b>James</b></div>
+        <div class="speech">I don’t think students should talk in class. We need to think in class. It’s hard to think when there’s too much talking.<b>Mona</b></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Choose the correct name.</h2>
+      <div id="msg" class="message warn">Please answer all questions before submitting.</div>
+      <table>
+        <thead><tr><th style="width:70%">Opinion</th><th>Name</th></tr></thead>
+        <tbody id="questions"></tbody>
+      </table>
+      <p style="text-align:center;margin-top:18px"><button id="submitBtn" onclick="submitExam()">Submit</button></p>
+    </div>
+    <div id="review" class="panel"></div>
+  </div>
+</div>
+
+<script>
+const names = ['', 'Omar', 'Khadija', 'Ali', 'Asma', 'James', 'Mona'];
+const questions = [
+  {text:'Talking in class helps me remember information.', ans:'Asma'},
+  {text:'Talking in class helps us to learn new words.', ans:'James'},
+  {text:'I can’t hear my teacher because of the noise.', ans:'Ali'},
+  {text:'I talk because I don’t like to ask the teacher.', ans:'Omar'},
+  {text:'Talking in class can stop our thinking.', ans:'Mona'},
+  {text:'I talk to check my answer with my classmates.', ans:'Khadija'},
+  {text:'We only talk at the end of the class.', ans:'Asma'}
+];
+let submitted=false, seconds=20*60, timerInt, warningOpen=false, violations=0;
+function build(){
+  const tbody=document.getElementById('questions');
+  questions.forEach((q,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}. ${q.text}</td><td><select id="q${i}" onchange="updateProgress()">${names.map(n=>`<option value="${n}">${n||'Choose name'}</option>`).join('')}</select></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function startExam(){
+  document.getElementById('start').style.display='none';
+  document.getElementById('exam').style.display='block';
+  if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+  build(); updateProgress();
+  timerInt=setInterval(()=>{seconds--; updateTimer(); if(seconds<=0) submitExam(true);},1000);
+}
+function updateTimer(){
+  const m=String(Math.floor(seconds/60)).padStart(2,'0'), s=String(seconds%60).padStart(2,'0');
+  document.getElementById('timer').textContent=`${m}:${s}`;
+}
+function updateProgress(){
+  const answered=questions.filter((_,i)=>document.getElementById('q'+i).value).length;
+  document.getElementById('answered').textContent=answered;
+  document.getElementById('progress').style.width=(answered/questions.length*100)+'%';
+}
+function showMissing(){
+  warningOpen=true;
+  const msg=document.getElementById('msg'); msg.style.display='block';
+  const first=questions.findIndex((_,i)=>!document.getElementById('q'+i).value);
+  if(first>=0) document.getElementById('q'+first).scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{warningOpen=false;},1800);
+}
+function submitExam(force=false){
+  if(submitted) return;
+  const missing=questions.some((_,i)=>!document.getElementById('q'+i).value);
+  if(missing && !force){showMissing(); return;}
+  submitted=true; clearInterval(timerInt);
+  let correct=0;
+  let review='<h2>Result</h2>';
+  questions.forEach((q,i)=>{
+    const sel=document.getElementById('q'+i), row=sel.closest('tr'); sel.disabled=true;
+    if(sel.value===q.ans){correct++; row.classList.add('correct');}
+    else{row.classList.add('wrong'); review+=`<p><b>${i+1}. ${q.text}</b><br>Your answer: <span style="color:#dc2626;font-weight:900">${sel.value||'Not answered'}</span><br>Correct answer: <span style="color:#16a34a;font-weight:900">${q.ans}</span></p>`;}
+  });
+  const score=(correct*10/questions.length).toFixed(1);
+  document.getElementById('submitBtn').disabled=true;
+  document.getElementById('review').style.display='block';
+  document.getElementById('review').innerHTML=`<div class="result">Score: ${score} / 10</div>` + (correct===questions.length?'<p class="result" style="color:#16a34a">All answers are correct.</p>':review);
+  document.getElementById('review').scrollIntoView({behavior:'smooth'});
+}
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('copy',e=>e.preventDefault());
+document.addEventListener('cut',e=>e.preventDefault());
+document.addEventListener('paste',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{
+  if(e.key==='PrintScreen'||(e.ctrlKey&&['c','v','x','s','p','u'].includes(e.key.toLowerCase()))||e.key==='F12'){
+    e.preventDefault(); violations++;
+    if(violations>=2 && !submitted) submitExam(true);
+  }
+});
+document.addEventListener('visibilitychange',()=>{ if(document.hidden && !submitted && !warningOpen){violations++; if(violations>=2) submitExam(true);} });
+window.addEventListener('blur',()=>{ if(!submitted && !warningOpen){violations++; if(violations>=2) submitExam(true);} });
+</script>
+
+<script>
+/* AlRams Portal Result Bridge v2.1 - auto sends score to student/teacher portals */
+(function(){
+  if(window.__ALRAMS_PORTAL_BRIDGE_V21) return;
+  window.__ALRAMS_PORTAL_BRIDGE_V21=true;
+  var sent=false;
+  function qs(id){return document.getElementById(id);} 
+  function text(el){return (el && (el.innerText||el.textContent)||'').trim();}
+  function num(x){var n=Number(x);return isNaN(n)?0:n;}
+  function visible(el){ if(!el) return false; var s=getComputedStyle(el); return s.display!=='none' && s.visibility!=='hidden' && el.offsetParent!==null; }
+  function getExamId(){try{var p=new URLSearchParams(location.search);return p.get('eid')||p.get('examId')||p.get('id')||'';}catch(e){return ''}}
+  function compute(){
+    var score=null,total=null;
+    try{
+      if(Array.isArray(window.userAnswers) && Array.isArray(window.runtimeAnswers) && window.runtimeAnswers.length){
+        total=window.runtimeAnswers.length; score=0;
+        for(var i=0;i<window.runtimeAnswers.length;i++){ if(window.userAnswers[i]===window.runtimeAnswers[i]) score++; }
+      }
+    }catch(e){}
+    try{
+      if(score===null && window.EXAM && Array.isArray(window.EXAM.questions)){
+        score=0; total=0;
+        window.EXAM.questions.forEach(function(q){
+          var marks=num(q.marks||q.points||1); total+=marks;
+          var picked=null;
+          if(window.answers && window.answers[q.num]!==undefined) picked=window.answers[q.num];
+          var name=q.id||('q'+q.num);
+          var checked=document.querySelector('input[name="'+name+'"]:checked');
+          if(checked) picked=isNaN(Number(checked.value))?checked.value:Number(checked.value);
+          if(String(picked)===String(q.correct)) score+=marks;
+        });
+      }
+    }catch(e){}
+    try{
+      if(score===null && typeof window.calculateScore==='function'){
+        score=num(window.calculateScore());
+        if(window.TOTAL_MARKS!==undefined) total=num(window.TOTAL_MARKS);
+        else if(window.currentExam && window.currentExam.total) total=num(window.currentExam.total);
+        else if(window.EXAM && window.EXAM.total) total=num(window.EXAM.total);
+      }
+    }catch(e){}
+    try{
+      var body=text(document.body);
+      var m=body.match(/(?:Score|Your Score|Result)\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/i);
+      if(m){score=num(m[1]);total=num(m[2]);}
+    }catch(e){}
+    try{
+      var rs=qs('r-score')||qs('score')||qs('final-score')||qs('scoreText')||document.querySelector('[id*=score]');
+      var rp=qs('r-pct')||qs('total')||document.querySelector('[id*=pct],[id*=percent]');
+      var st=text(rs), tt=text(rp);
+      var mm=(st+' '+tt).match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+      if(mm){score=num(mm[1]);total=num(mm[2]);}
+      else if(score===null && st.match(/\d/)){score=num(st.match(/\d+(?:\.\d+)?/)[0]); var tm=tt.match(/\/\s*(\d+(?:\.\d+)?)/)||tt.match(/(\d+(?:\.\d+)?)\s*marks/i); if(tm) total=num(tm[1]);}
+    }catch(e){}
+    if(total===null || !total) total=100;
+    if(score===null) score=0;
+    var percent=Math.round((score/total)*100);
+    return {score:score,total:total,percent:percent};
+  }
+  function looksSubmitted(){
+    if(window.submitted===true) return true;
+    var ids=['results-screen','results','result','reviewPage','review-section','scoreText','portalScoreBox'];
+    for(var i=0;i<ids.length;i++){var el=qs(ids[i]); if(visible(el) && text(el).match(/\d|complete|submit|score/i)) return true;}
+    var b=text(document.body); return /Quiz Complete|Submitted Successfully|Exam Submitted|Your Score|Score\s*:/i.test(b) && !/Begin Quiz/i.test(b.substring(0,500));
+  }
+  function signal(){
+    try{
+      if(sent) return;
+      if(!looksSubmitted()) return;
+      sent=true;
+      var eid=getExamId();
+      var r=compute();
+      var rec={type:'ashrafScore',examId:eid,score:r.score,total:r.total,percent:r.percent,percentage:r.percent,completed:true,time:new Date().toLocaleString(),timestamp:Date.now()};
+      try{ if(eid) localStorage.setItem('ar_link_done_'+eid,JSON.stringify(rec)); }catch(e){}
+      try{ if(window.parent && window.parent!==window) window.parent.postMessage(rec,'*'); }catch(e){}
+      try{ if(window.opener && !window.opener.closed) window.opener.postMessage(rec,'*'); }catch(e){}
+      try{ new BroadcastChannel('alrams_results').postMessage({type:'exam_complete',record:rec}); }catch(e){}
+    }catch(e){}
+  }
+  function hook(fn){
+    try{ if(typeof window[fn]==='function' && !window[fn].__alramsHooked){ var old=window[fn]; window[fn]=function(){ var ret=old.apply(this,arguments); setTimeout(signal,500); setTimeout(signal,1500); return ret; }; window[fn].__alramsHooked=true; }}catch(e){}
+  }
+  ['submitExam','submitTest','finishExam','submitQuiz','showResults'].forEach(hook);
+  document.addEventListener('click',function(e){try{var t=e.target; if(t && /submit|finish|complete/i.test(t.textContent||t.value||'')){setTimeout(signal,700);setTimeout(signal,1800);}}catch(x){}},true);
+  setInterval(function(){ if(!sent) signal(); },2000);
+})();
+</script>
+
+</body>
+</html>
