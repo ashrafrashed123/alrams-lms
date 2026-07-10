@@ -1553,12 +1553,7 @@ function remPctLevel(pct){
 function teacherStudentKey(name,cls){return (String(cls||'')+'__'+String(name||'')).toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');}
 function stumKeyTeacher(st){return String(st && (st.stum||st.studentId||st.studentStum) || '').trim();}
 function resultStudentIdTeacher(r){return String(r && (r.studentId||r.studentStum||r.stum) || '').trim();}
-const DAILY_TASK_BANK={
-  Vocabulary:{icon:'📚',items:{'Pre-A1':['Learn 10 school words','Match 10 words with pictures','Copy 10 useful classroom words'],'A1':['Learn 15 daily-life words','Complete 10 vocabulary gap-fill items','Sort words by topic: food, school, family'],'A2':['Learn 12 topic words and write examples','Complete a word-family activity','Review mistakes from vocabulary questions'],'B1+':['Learn 10 academic words','Use 8 new words in sentences','Complete an enrichment vocabulary challenge']}},
-  Grammar:{icon:'✏️',items:{'Pre-A1':['Practise am / is / are','Write 5 simple present sentences','Choose the correct verb in 10 sentences'],'A1':['Practise Present Simple','Practise Past Simple regular verbs','Complete 10 grammar MCQs'],'A2':['Practise connectors and conditionals','Correct 8 grammar mistakes','Practise comparative and superlative forms'],'B1+':['Practise complex sentences','Edit a paragraph for accuracy','Complete a B1 grammar challenge']}},
-  Reading:{icon:'📖',items:{'Pre-A1':['Read an 80-word text and answer 5 questions','Read a short story and find 5 key words','Read 5 sentences and choose True / False'],'A1':['Read a 120-word text and answer 5 questions','Read a daily-life paragraph and find details','Read a short email and answer questions'],'A2':['Read a 180-word text and answer 6 questions','Read and identify main idea and details','Read a short article and complete a summary'],'B1+':['Read a B1 text and answer inference questions','Read an IELTS-style short passage','Read and write a 3-sentence summary']}},
-  Writing:{icon:'📝',items:{'Pre-A1':['Write 5 correct sentences about yourself','Write 5 sentences using today’s words','Copy and complete a short paragraph'],'A1':['Write a 50-word paragraph','Write an email of 5 sentences','Write about your school day'],'A2':['Write an opinion paragraph','Write 80 words using connectors','Rewrite your paragraph after checking mistakes'],'B1+':['Write a 150-word response','Plan and write a short essay','Write a presentation paragraph']}}
-};
+// DAILY_TASK_BANK already defined above — duplicate removed
 function estimateSkillsTeacherForStudent(st,cls,pct){
   let skills={Vocabulary:null,Grammar:null,Reading:null,Writing:null};
   let sid=stumKeyTeacher(st);
