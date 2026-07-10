@@ -1273,12 +1273,13 @@ async function renderExamFolderGrid(){
 
 function pickExamFile(filename, name){
   document.getElementById('examName').value = name;
+  const folderFileEl = document.getElementById('examFolderFile');
+  if(folderFileEl) folderFileEl.value = filename;
   // Switch type to link and show the link input
   const typeEl = document.getElementById('examType');
-  typeEl.value = 'link';
-  typeChange();
-  document.getElementById('examLink').value = 'exams/' + filename;
-  document.getElementById('examLink').focus();
+  if(typeEl){ typeEl.value = 'link'; if(typeof typeChange==='function') typeChange(); }
+  const examLinkEl = document.getElementById('examLink');
+  if(examLinkEl) examLinkEl.value = 'exams/' + filename;
   // Scroll to form
   document.querySelector('#addExam .card:last-child').scrollIntoView({behavior:'smooth'});
   if(window.showToast) showToast('✅ Exam selected: ' + name, 'success', 'Choose a class and click Save Exam');
