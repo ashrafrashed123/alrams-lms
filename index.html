@@ -2002,7 +2002,14 @@ function renderProgress(){
     let cells='';
     let studentScores=[];
     classExams.forEach((e,ci)=>{
-      let r=allResults.find(r=>norm(r.name)===norm(st.englishName)&&norm(r.exam)===norm(e.name));
+      let r=allResults.find(function(r){
+        // Primary: match by STUM/studentId (most reliable, survives name formatting differences)
+        var idMatch = r.studentId && st.stum && String(r.studentId).trim()===String(st.stum).trim();
+        // Fallback: flexible English-name match (handles full display names that include Arabic)
+        var rn=norm(r.name), en=norm(st.englishName);
+        var nameMatch = rn===en || rn.split('|')[0].trim()===en || rn.startsWith(en+' ') || rn.includes(en);
+        return (idMatch||nameMatch) && norm(r.exam)===norm(e.name);
+      });
       let total=examTotals[ci];
       if(r&&r.percentage!==''&&r.percentage!==undefined){
         let pct=Number(r.percentage);
