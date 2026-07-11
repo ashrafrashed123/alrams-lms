@@ -2561,8 +2561,8 @@ window.addEventListener('load', function(){
   var oldShowPage = window.showPage;
   window.showPage = function(id, btn){
     try{
-      document.querySelectorAll('.content section').forEach(function(s){s.classList.add('hidden');});
-      var page=byId(id); if(page) page.classList.remove('hidden');
+      document.querySelectorAll('.content section').forEach(function(s){s.classList.add('hidden');s.style.cssText='display:none!important';});
+      var page=byId(id); if(page){page.classList.remove('hidden');page.style.cssText='display:block!important';}
       document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
       if(btn) btn.classList.add('active');
       if(id==='addExam' && typeof window.renderExamFolderGrid==='function') window.renderExamFolderGrid();
