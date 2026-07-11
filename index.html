@@ -2640,6 +2640,7 @@ window.addEventListener('load', function(){
     if(now) now.textContent = new Date().toLocaleString();
     try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
     try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
+    try { if(typeof loadFirebaseExams === 'function') loadFirebaseExams(); } catch(e){ console.warn(e); }
   }
   window.checkTeacherPassword = function(){
     const input = byId('gatePassword');
