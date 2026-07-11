@@ -1415,7 +1415,7 @@ function examHTML(e){
 }
 async function teacherOpenExam(id){
   let e=exams.find(x=>x.id===id);if(!e)return;
-  if(e.type==='link'){location.href=e.link;return}
+  if(e.type==='link'){window.open(e.link,'_blank');return}
   if(e.type==='file'){let w=window.open('','_blank');w.document.open();w.document.write(e.content);w.document.close();return}
   let student=prompt('Student name:');if(!student)return;
   let score=0,total=0;
@@ -1964,7 +1964,7 @@ function printRemedial(){showPage('remedial');renderRemedial();window.print();}
 function deleteLocalResult(i){if(confirm('Delete this result?')){let r=results[i];results.splice(i,1);saveStore();renderResults();if(r&&r._fbId&&window.deleteResultFromFirebase){window.deleteResultFromFirebase(r._fbId);}}}
 function printResults(){showPage('results');window.print();}
 window.setResultsFromFirebase=function(arr){results=arr;localStorage.setItem('ar_pro_results',JSON.stringify(results));render();renderResults();if(document.getElementById('remedial'))renderRemedial();if(document.getElementById('dailyLearning'))renderDailyLearning();};
-function render(){try{const _g=id=>document.getElementById(id);const _t=(id,v)=>{var e=_g(id);if(e)e.textContent=v;};_t('stExams',exams.length);_t('stResults',results.length);_t('c81',exams.filter(e=>e.cls==='8-1').length+' Exams');_t('c82',exams.filter(e=>e.cls==='8-2').length+' Exams');_t('c83',exams.filter(e=>e.cls==='8-3').length+' Exams');_t('c84',exams.filter(e=>e.cls==='8-4').length+' Exams');var _rec=_g('recent');if(_rec){_rec.innerHTML='';exams.slice(-6).reverse().forEach(e=>_rec.innerHTML+=`<tr><td>${e.name}</td><td>Grade ${e.cls}</td><td><span class="badge ${e.type==='file'?'bFile':e.type==='link'?'bLink':'bActive'}">${e.type}</span></td><td><span class="badge bActive">Active</span></td></tr>`);}if(_g('resTable'))renderResults();var _lib=_g('library');if(_lib&&_lib.style.display!=='none'&&!_lib.classList.contains('hidden'))renderLibrary();var _cp=_g('classPage');if(currentClassView&&_cp&&_cp.style.display!=='none'&&!_cp.classList.contains('hidden'))renderClass(currentClassView);var _pr=_g('progress');if(_pr&&_pr.style.display!=='none'&&!_pr.classList.contains('hidden'))renderProgress();var _rm=_g('remedial');if(_rm&&_rm.style.display!=='none'&&!_rm.classList.contains('hidden'))renderRemedial();var _dl=_g('dailyLearning');if(_dl&&_dl.style.display!=='none'&&!_dl.classList.contains('hidden'))renderDailyLearning();}catch(e){console.error('render():',e);}}
+function render(){try{const _g=id=>document.getElementById(id);const _t=(id,v)=>{var e=_g(id);if(e)e.textContent=v;};_t('stExams',exams.length);_t('stResults',results.length);_t('c81',exams.filter(e=>e.cls==='8-1').length+' Exams');_t('c82',exams.filter(e=>e.cls==='8-2').length+' Exams');_t('c83',exams.filter(e=>e.cls==='8-3').length+' Exams');_t('c84',exams.filter(e=>e.cls==='8-4').length+' Exams');var _rec=_g('recent');if(_rec){_rec.innerHTML='';exams.slice(-6).reverse().forEach(e=>_rec.innerHTML+=`<tr><td>${e.name}</td><td>Grade ${e.cls}</td><td><span class="badge ${e.type==='file'?'bFile':e.type==='link'?'bLink':'bActive'}">${e.type}</span></td><td><span class="badge bActive">Active</span></td></tr>`);}if(_g('resTable'))renderResults();var _lib=_g('library');if(_lib&&!_lib.classList.contains('hidden'))renderLibrary();var _cp=_g('classPage');if(currentClassView&&_cp&&!_cp.classList.contains('hidden'))renderClass(currentClassView);var _pr=_g('progress');if(_pr&&!_pr.classList.contains('hidden'))renderProgress();var _rm=_g('remedial');if(_rm&&!_rm.classList.contains('hidden'))renderRemedial();var _dl=_g('dailyLearning');if(_dl&&!_dl.classList.contains('hidden'))renderDailyLearning();}catch(e){console.error('render():',e);}}
 function escP(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function renderProgress(){
   let pc=document.getElementById('progClass'); if(!pc)return;
@@ -2642,6 +2642,7 @@ window.addEventListener('load', function(){
     window._lmsRole='teacher';
     const now = byId('now');
     if(now) now.textContent = new Date().toLocaleString();
+    try { if(typeof showPage === 'function') showPage('dashboard'); } catch(e){ console.warn(e); }
     try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
     try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
     try { if(typeof loadFirebaseExams === 'function') loadFirebaseExams(); } catch(e){ console.warn(e); }
