@@ -1400,7 +1400,7 @@ async function saveExam(btn){
     if(!(examType&&examType.value==='file' && examFile&&examFile.files[0])) setButtonSaving(btn,false);
   }
 }
-function openClass(cls,btn){currentClassView=cls;showPage('classPage',btn);var _ct=document.getElementById('classTitle');if(_ct)_ct.textContent='Grade '+cls+' Exams';renderClass(cls);}
+function openClass(cls,btn){currentClassView=cls;window.currentClassView=cls;showPage('classPage',btn);var _ct=document.getElementById('classTitle');if(_ct)_ct.textContent='Grade '+cls+' Exams';renderClass(cls);}
 function renderClass(cls){let list=exams.filter(e=>e.cls===cls||e.cls==='all');var _cl=document.getElementById('classList');if(!_cl)return;_cl.innerHTML=list.length?'':'<p>No exams yet. Click Upload Exam to add one.</p>';list.forEach(e=>_cl.innerHTML+=examHTML(e));}
 function examHTML(e){
   let badge=e.type==='file'?'bFile':e.type==='link'?'bLink':'bActive';
@@ -1450,6 +1450,10 @@ async function toggleExamActive(id){
   const fbDocId = e._fbDocId;
   try{localStorage.setItem('ar_pro_exams',JSON.stringify(exams.map(x=>({...x,content:''}))));}catch(ex){}
   render();
+  // Fix: currentClassView is a let variable; the showPage override sets window.currentClassView.
+  // Sync them so render() picks up the right class, and force re-render the class page.
+  const _cls = currentClassView || window.currentClassView;
+  if(_cls){ currentClassView = _cls; renderClass(_cls); }
   if(window.updateExamActiveInFirebase){
     try{await window.updateExamActiveInFirebase(id,e.active,fbDocId);}
     catch(ex){console.error('Firebase active update error:',ex);}
