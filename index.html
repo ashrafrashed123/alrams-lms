@@ -1228,7 +1228,7 @@ function checkTeacherPassword(){
     setTimeout(()=>{el.style.border='';el.placeholder='Password';},2000);
     return;
   }
-  sessionStorage.setItem('teacherAuth','1');
+  localStorage.setItem('teacherAuth','1');
   document.getElementById('landingPage').style.display='none';
   document.getElementById('teacherSection').classList.add('lms-active');
   document.getElementById('lmsBackBtn').classList.add('visible');
@@ -2622,7 +2622,7 @@ window.addEventListener('load', function(){
   window.TEACHER_PASSWORD = SAFE_TEACHER_PASSWORD;
   function byId(id){ return document.getElementById(id); }
   function openTeacherPortal(){
-    try { sessionStorage.setItem('teacherAuth','1'); } catch(e){}
+    try { localStorage.setItem('teacherAuth','1'); } catch(e){}
     const landing = byId('landingPage');
     const teacherSection = byId('teacherSection');
     const studentSection = byId('studentSection');
@@ -2662,6 +2662,7 @@ window.addEventListener('load', function(){
     if(role === 'teacher'){
       if(studentSection) studentSection.classList.remove('lms-active');
       if(teacherSection) teacherSection.classList.add('lms-active');
+      if(localStorage.getItem('teacherAuth')==='1'){ openTeacherPortal(); return; }
       if(gate) gate.style.display='flex';
       if(app) app.style.display='none';
       setTimeout(()=>{ const p=byId('gatePassword'); if(p) p.focus(); },100);
