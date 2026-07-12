@@ -360,7 +360,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 <div id="studentDashboard" class="wrap hidden">
   <div class="hero"><h1 id="welcomeTitle">Welcome</h1><p>Choose an available exam. Completed exams cannot be done again.</p></div>
   <div class="card" id="learningPlanCard"></div>
-  <div class="card"><h2>Required Exams</h2><div id="examList"></div><button class="light" onclick="studentLogout()">Logout / Change Student</button></div>
+  <div class="card"><h2>📋 My Exams</h2><div id="examList"></div><br><button class="light" onclick="studentLogout()">Logout / Change Student</button></div>
   <div class="card" id="progressTableCard" style="display:none">
     <h2>📊 My Progress</h2>
     <div id="progressSummary" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px"></div>
@@ -756,12 +756,69 @@ function renderExamList(){
   if(!list.length){examList.innerHTML='<p style="color:#64748b;text-align:center;padding:20px">No exams available yet for Grade '+currentClass+'. Please wait for your teacher to add an exam.</p>';renderProgressChart();return;}
   let required=list.filter(e=>!(completed[e.id]||completed[e.name]));
   let doneList=list.filter(e=>(completed[e.id]||completed[e.name]));
-  examList.innerHTML+='<h3>📝 Required Exams</h3>';
-  if(!required.length){examList.innerHTML+='<p class="small">No new required exams now.</p>';}
-  required.forEach(e=>{let total=e.total||100;let html='<div class="examItem"><div><h3>'+esc(e.name)+'</h3><p class="small">Class: '+currentClass+' · Total: '+total+' marks</p><span class="badge todo">▶ Required</span></div><div>';if(e.available!==false){html+='<button class="green" onclick="startExam(\''+e.id+'\')">Start Exam</button>';}else{html+='<button class="light" disabled>Not Available</button>';}html+='</div></div>';examList.innerHTML+=html;});
-  examList.innerHTML+='<h3 style="margin-top:25px">✅ Completed Exams</h3>';
-  if(!doneList.length){examList.innerHTML+='<p class="small">No completed exams yet.</p>';}
-  doneList.forEach(e=>{let done=completed[e.id]||completed[e.name]||{};let total=done.total||e.total||100;let score=(done.score!==undefined?done.score:'')+' / '+total;let pct=(done.percentage!==undefined?done.percentage+'%':(done.percent!==undefined?done.percent+'%':''));let date=done.date?'<br>Date: '+esc(done.date):'';let html='<div class="examItem"><div><h3>'+esc(e.name)+'</h3><p class="small">Class: '+currentClass+' · Score: '+score+' '+pct+date+'</p><span class="badge done">✓ Completed</span></div><div><button class="light" disabled>Completed</button></div></div>';examList.innerHTML+=html;});
+
+  // ── Grid tile layout ──
+  let html='<style>'
+    +'.examGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin:14px 0}'
+    +'.examTile{border:1.5px solid #e2e8f0;border-radius:16px;background:#fff;padding:16px 14px;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:flex-start;transition:box-shadow .15s,transform .15s}'
+    +'.examTile:hover{box-shadow:0 6px 20px rgba(6,26,51,.12);transform:translateY(-2px)}'
+    +'.examTile.tileDone{border-color:#86efac;background:#f0fdf4}'
+    +'.examTile.tileUnavail{opacity:.55;cursor:default}'
+    +'.tileIconBox{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}'
+    +'.tileIconBox.iconReq{background:#dbeafe}'
+    +'.tileIconBox.iconDone{background:#dcfce7}'
+    +'.tileIconBox.iconLocked{background:#f1f5f9}'
+    +'.tileName{font-size:13px;font-weight:700;color:#0f172a;margin:0 0 4px;line-height:1.3}'
+    +'.tileMeta{font-size:11px;color:#64748b;margin:0}'
+    +'.tileBadge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px}'
+    +'.badgeDone{background:#dcfce7;color:#166534}'
+    +'.badgeReq{background:#dbeafe;color:#1d4ed8}'
+    +'.badgeLock{background:#f1f5f9;color:#64748b}'
+    +'.tileScore{font-size:12px;font-weight:700;color:#15803d;margin-top:auto;padding-top:8px}'
+    +'</style>';
+
+  if(required.length){
+    html+='<h3 style="margin:0 0 4px;font-size:15px;color:#374151">📝 Required Exams</h3>';
+    html+='<div class="examGrid">';
+    required.forEach(e=>{
+      let avail=e.available!==false;
+      let tileClass=avail?'examTile':'examTile tileUnavail';
+      let iconClass=avail?'tileIconBox iconReq':'tileIconBox iconLocked';
+      let icon=avail?'📄':'🔒';
+      let badge=avail?'<span class="tileBadge badgeReq">Required</span>':'<span class="tileBadge badgeLock">Locked</span>';
+      let action=avail?'onclick="startExam(\''+e.id+'\')"':'';
+      html+='<div class="'+tileClass+'" '+action+'>'
+        +badge
+        +'<div class="'+iconClass+'">'+icon+'</div>'
+        +'<p class="tileName">'+esc(e.name)+'</p>'
+        +'<p class="tileMeta">'+esc(currentClass)+' · '+(e.total||100)+' marks</p>'
+        +'</div>';
+    });
+    html+='</div>';
+  } else {
+    html+='<p style="color:#64748b;font-size:14px;margin:6px 0 18px">✅ No new required exams right now.</p>';
+  }
+
+  if(doneList.length){
+    html+='<h3 style="margin:18px 0 4px;font-size:15px;color:#374151">✅ Completed Exams</h3>';
+    html+='<div class="examGrid">';
+    doneList.forEach(e=>{
+      let done=completed[e.id]||completed[e.name]||{};
+      let total=done.total||e.total||100;
+      let score=done.score!==undefined?done.score:'—';
+      let pct=done.percentage!==undefined?done.percentage+'%':(done.percent!==undefined?done.percent+'%':'');
+      html+='<div class="examTile tileDone">'
+        +'<span class="tileBadge badgeDone">Done</span>'
+        +'<div class="tileIconBox iconDone">✅</div>'
+        +'<p class="tileName">'+esc(e.name)+'</p>'
+        +'<p class="tileMeta">'+esc(currentClass)+'</p>'
+        +'<p class="tileScore">'+score+' / '+total+(pct?' · '+pct:'')+'</p>'
+        +'</div>';
+    });
+    html+='</div>';
+  }
+
+  examList.innerHTML=html;
   renderProgressChart();
   renderProgressTable();
 }
