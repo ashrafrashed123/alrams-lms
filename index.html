@@ -20,44 +20,36 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .lms-section.lms-active{display:block!important}
 
 /* ── LANDING PAGE ── */
-#landingPage{min-height:100vh;display:flex;flex-direction:column;background:#f0f4f8}
+#landingPage{min-height:100vh;display:flex;flex-direction:column;background:#f8fafc}
 .lms-flag-bar{height:7px;background:linear-gradient(90deg,#00732f 0%,#00732f 33%,#fff 33%,#fff 66%,#ce1126 66%)}
-.lms-header{background:#0a1628;padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
-.lms-header-left{display:flex;align-items:center;gap:12px}
-.lms-emblem{font-size:28px;line-height:1}
-.lms-header-text h1{font-size:14px;font-weight:600;color:#fff;margin:0}
-.lms-header-text p{font-size:11px;color:rgba(255,255,255,.45);margin:2px 0 0}
-.lms-header-year{font-size:11px;color:rgba(255,255,255,.3);text-align:right}
-.lms-body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 16px}
-.lms-card{background:#fff;border-radius:20px;border:1px solid #d0daea;width:100%;max-width:440px;overflow:hidden}
-.lms-card-top{background:#1e3a5f;padding:36px 28px 48px;text-align:center;position:relative}
-.lms-card-top::after{content:'';position:absolute;bottom:0;left:0;right:0;height:36px;background:#fff;border-radius:36px 36px 0 0}
-.lms-school-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:5px 14px;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,.75);font-weight:500}
-.lms-badge-dot{width:7px;height:7px;border-radius:50%;background:#00b05a;display:inline-block;margin-right:2px}
-.lms-card-top h2{font-size:24px;font-weight:700;color:#fff;margin:0 0 5px}
-.lms-card-top h2 span{color:#7eb8f7}
-.lms-card-top .lms-sub{color:rgba(255,255,255,.5);font-size:13px;margin:0}
-.lms-card-bottom{padding:8px 28px 28px;text-align:center}
-.lms-teacher-tag{display:inline-flex;align-items:center;gap:6px;background:#eaf2ff;border-radius:999px;padding:5px 12px;margin-bottom:18px;font-size:12px;color:#1a6fb5;font-weight:500}
-.lms-teacher-dot{width:6px;height:6px;border-radius:50%;background:#1a6fb5}
-.lms-role-label{font-size:13px;color:#6b7f99;margin-bottom:14px}
-.lms-pills{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
-.lms-pill{flex:1;border:1.5px solid #d0daea;border-radius:999px;padding:11px 16px;cursor:pointer;text-align:center;background:#fff;transition:border-color .15s,background .15s;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:#334155}
-.lms-pill:hover{border-color:#1e3a5f;background:#f4f7fb}
-.lms-pill.lms-selected-teacher{border-color:#1e3a5f;background:#eef3fb;color:#1e3a5f}
-.lms-pill.lms-selected-student{border-color:#006b3f;background:#edf7f3;color:#006b3f}
-.lms-pill-icon{font-size:18px}
-.lms-pill-info{font-size:11px;color:#6b7f99;font-weight:400;text-align:center;margin-bottom:16px;min-height:16px}
-.lms-cta{display:block;width:100%;padding:13px;border-radius:999px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s;background:#1e3a5f;color:#fff}
-.lms-cta:disabled{opacity:.4;cursor:default}
-.lms-cta.student-mode{background:#006b3f}
+.lms-header{background:#0a1628;padding:14px 28px;display:flex;align-items:center;gap:14px}
+.lms-emblem{font-size:30px;line-height:1}
+.lms-header-text h1{font-size:14px;font-weight:700;color:#fff;margin:0}
+.lms-header-text p{font-size:11px;color:rgba(255,255,255,.4);margin:2px 0 0}
+.lms-body{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+.lms-card{background:#fff;border-radius:20px;border:1px solid #dde6f0;width:100%;max-width:480px;overflow:hidden}
+.lms-card-top{background:#0f2044;padding:40px 28px 32px;text-align:center}
+.lms-emblem-wrap{width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 18px}
+.lms-card-top h2{font-size:26px;font-weight:800;color:#fff;margin:0 0 6px;letter-spacing:-.3px}
+.lms-card-top .lms-sub{color:rgba(255,255,255,.45);font-size:13px;margin:0 0 3px}
+.lms-card-top .lms-teacher{color:#7eb8f7;font-size:12px;font-weight:600;margin-top:10px}
+.lms-card-bottom{padding:24px 24px 28px}
+.lms-role-label{text-align:center;font-size:12px;color:#94a3b8;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.lms-btn-group{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lms-role-btn{border:0;border-radius:14px;padding:20px 12px;cursor:pointer;font-weight:800;transition:transform .15s;display:flex;flex-direction:column;align-items:center;gap:8px}
+.lms-role-btn:hover{transform:translateY(-2px)}
+.lms-role-btn .lms-icon{font-size:30px}
+.lms-role-btn .lms-role-name{font-size:15px;color:#fff}
+.lms-role-btn .lms-role-desc{font-size:11px;font-weight:500;color:rgba(255,255,255,.6)}
+.lms-teacher-btn{background:#0f2044}
+.lms-student-btn{background:#006b3f}
 .lms-divider{border:0;border-top:1px solid #e8edf5;margin:20px 0}
 .lms-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
-.lms-info-item b{display:block;font-size:14px;color:#1e3a5f;font-weight:700}
-.lms-info-item span{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;display:block}
-.lms-footer{background:#0a1628;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,.35)}
-.lms-footer-uae{color:rgba(255,255,255,.6);font-weight:500}
-.lms-back-btn{position:fixed;top:14px;right:14px;z-index:9999;background:rgba(255,255,255,.95);border:1px solid #d0daea;border-radius:12px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;display:none}
+.lms-info-item b{display:block;font-size:15px;font-weight:700;color:#1e293b}
+.lms-info-item span{display:block;font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.lms-footer{background:#0a1628;color:rgba(255,255,255,.35);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.lms-footer-uae{color:rgba(255,255,255,.6);font-weight:600}
+.lms-back-btn{position:fixed;top:14px;right:14px;z-index:9999;background:rgba(255,255,255,.95);border:1px solid #dde6f0;border-radius:12px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;display:none}
 .lms-back-btn.visible{display:block}
 
 /* ── TEACHER STYLES ── */
@@ -104,35 +96,35 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 <div id="landingPage">
   <div class="lms-flag-bar"></div>
   <div class="lms-header">
-    <div class="lms-header-left">
-      <div class="lms-emblem">🇦🇪</div>
-      <div class="lms-header-text">
-        <h1>Ministry of Education — United Arab Emirates</h1>
-        <p>Al-Rams Boy's School &nbsp;|&nbsp; Cycle 2</p>
-      </div>
+    <div class="lms-emblem">🇦🇪</div>
+    <div class="lms-header-text">
+      <h1>Ministry of Education — United Arab Emirates</h1>
+      <p>Al-Rams Boy's School &nbsp;|&nbsp; Cycle 2 &nbsp;|&nbsp; Academic Year 2025–2026</p>
     </div>
-    <div class="lms-header-year">Academic Year<br>2025–2026</div>
   </div>
   <div class="lms-body">
     <div class="lms-card">
       <div class="lms-card-top">
-        <div class="lms-school-badge"><span class="lms-badge-dot"></span>Al-Rams Boy's School &nbsp;·&nbsp; Cycle 2</div>
-        <h2>Grade 8 <span>English</span> LMS</h2>
+        <div class="lms-emblem-wrap">📚</div>
+        <h2>Grade 8 English LMS</h2>
+        <p class="lms-sub">Al-Rams Boy's School &nbsp;·&nbsp; Cycle 2</p>
         <p class="lms-sub">English Department &nbsp;·&nbsp; Academic Year 2025–2026</p>
+        <p class="lms-teacher">👨‍🏫 Teacher: Ashraf Rashed</p>
       </div>
       <div class="lms-card-bottom">
-        <div class="lms-teacher-tag"><div class="lms-teacher-dot"></div>Teacher: Ashraf Rashed</div>
-        <p class="lms-role-label">Who are you?</p>
-        <div class="lms-pills">
-          <div class="lms-pill" id="lmsPillTeacher" onclick="lmsPick('teacher')">
-            <span class="lms-pill-icon">👩‍🏫</span> Teacher
-          </div>
-          <div class="lms-pill" id="lmsPillStudent" onclick="lmsPick('student')">
-            <span class="lms-pill-icon">🎓</span> Student
-          </div>
+        <p class="lms-role-label">Select your role to continue</p>
+        <div class="lms-btn-group">
+          <button class="lms-role-btn lms-teacher-btn" onclick="lmsSelectRole('teacher')">
+            <span class="lms-icon">👨‍🏫</span>
+            <span class="lms-role-name">Teacher</span>
+            <span class="lms-role-desc">Ashraf Rashed</span>
+          </button>
+          <button class="lms-role-btn lms-student-btn" onclick="lmsSelectRole('student')">
+            <span class="lms-icon">🎓</span>
+            <span class="lms-role-name">Student</span>
+            <span class="lms-role-desc">Grade 8 — Cycle 2</span>
+          </button>
         </div>
-        <div class="lms-pill-info" id="lmsPillInfo"></div>
-        <button class="lms-cta" id="lmsCtaBtn" onclick="lmsProceed()" disabled>Continue</button>
         <hr class="lms-divider">
         <div class="lms-info">
           <div class="lms-info-item"><b>Grade 8</b><span>Level</span></div>
@@ -144,7 +136,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   </div>
   <div class="lms-footer">
     <div class="lms-footer-uae">🇦🇪 &nbsp; United Arab Emirates — Ministry of Education</div>
-    <div>Al-Rams Boy's School &nbsp;|&nbsp; Grade 8 English LMS</div>
+    <div>Al-Rams Boy's School &nbsp;|&nbsp; Grade 8 English LMS &nbsp;|&nbsp; Ashraf Rashed</div>
   </div>
 </div>
 
@@ -397,19 +389,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 
 <!-- ════════════ LANDING PAGE ROUTER ════════════ -->
 <script>
-var _lmsRole=null;
-function lmsPick(role){
-  _lmsRole=role;
-  var pt=document.getElementById('lmsPillTeacher');
-  var ps=document.getElementById('lmsPillStudent');
-  var info=document.getElementById('lmsPillInfo');
-  var btn=document.getElementById('lmsCtaBtn');
-  if(pt)pt.className='lms-pill'+(role==='teacher'?' lms-selected-teacher':'');
-  if(ps)ps.className='lms-pill'+(role==='student'?' lms-selected-student':'');
-  if(info)info.textContent=role==='teacher'?'Ashraf Rashed · English Teacher':'Grade 8 — Cycle 2';
-  if(btn){btn.disabled=false;btn.className='lms-cta'+(role==='student'?' student-mode':'');}
-}
-function lmsProceed(){if(_lmsRole)lmsSelectRole(_lmsRole);}
 function lmsSelectRole(role){
   document.getElementById('landingPage').style.display='none';
   if(role==='teacher'){
