@@ -533,6 +533,7 @@ loginPage.classList.add('hidden');
 studentDashboard.classList.remove('hidden');
 welcomeTitle.innerHTML='Welcome '+esc(selectedStudent.englishName)+'<br><span class="arName">'+esc(selectedStudent.arabicName)+'</span><br><span class="small">'+esc(selectedStudent.code)+' · Grade '+esc(currentClass)+'</span>';
 renderExamList();
+startStudentLiveSync();
 }
 function studentLogout(){location.reload();}
 async function loadCompleted(){
@@ -612,6 +613,41 @@ async function loadMyDailyTasks(){
       saveSavedWeekly(saved);
     }
   }catch(e){console.warn('Could not load daily tasks from Firebase',e);}
+}
+
+// ── Student live sync: watches student_results in real-time ──
+let _unsubStudentLive = null;
+function startStudentLiveSync(){
+  if(_unsubStudentLive){_unsubStudentLive();_unsubStudentLive=null;}
+  try{
+    if(!window.firebaseReady||!window.firebaseFns||!window.db)return;
+    const {collection,query,where,onSnapshot}=window.firebaseFns;
+    const sid=getStudentId(); if(!sid)return;
+    const q=query(collection(window.db,'student_results'),where('studentId','==',sid));
+    _unsubStudentLive=onSnapshot(q,function(qsnap){
+      let needsRender=false;
+      qsnap.forEach(function(d){
+        const r=d.data();
+        // Always keep completed map up to date
+        completed[r.examId||r.examName]=r;
+        // Restore daily task completion for today
+        if(r.isDailyTask && String(r.dateKey||'')===todayISO() && Array.isArray(r.tasks)){
+          let saved=getSavedWeekly();
+          if(!saved.completed)saved.completed={};
+          if(!saved.results)saved.results={};
+          r.tasks.forEach(function(t,idx){
+            if(t.completed && !saved.completed[idx]){
+              saved.completed[idx]=true;
+              if(!saved.results[idx])saved.results[idx]={score:t.score,total:t.total,percentage:t.percentage,skill:t.skill,title:t.title,completedAt:t.completedAt||Date.now()};
+              needsRender=true;
+            }
+          });
+          if(needsRender)saveSavedWeekly(saved);
+        }
+      });
+      if(needsRender)renderStudentPlan();
+    },function(e){console.warn('Student live sync error:',e);});
+  }catch(e){console.warn('Could not start student live sync:',e);}
 }
 
 window.refreshExamListFromFirebase = function(loaded){
