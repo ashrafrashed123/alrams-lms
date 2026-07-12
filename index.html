@@ -544,7 +544,23 @@ async function loadCompleted(){
       if(sid){
         const q=query(collection(window.db,'student_results'),where('studentId','==',sid));
         const snap=await getDocs(q);
-        snap.forEach(d=>{let r=d.data();completed[r.examId||r.examName]=r;});
+        snap.forEach(d=>{
+          let r=d.data();
+          completed[r.examId||r.examName]=r;
+          // Restore daily task completion for cross-device sync
+          if(r.isDailyTask && String(r.dateKey||'')===todayISO() && Array.isArray(r.tasks)){
+            let saved=getSavedWeekly();
+            if(!saved.completed)saved.completed={};
+            if(!saved.results)saved.results={};
+            r.tasks.forEach((t,idx)=>{
+              if(t.completed){
+                saved.completed[idx]=true;
+                if(!saved.results[idx])saved.results[idx]={score:t.score,total:t.total,percentage:t.percentage,skill:t.skill,title:t.title,completedAt:t.completedAt||Date.now()};
+              }
+            });
+            saveSavedWeekly(saved);
+          }
+        });
       }
       // Old data fallback only for the same V10 key. This does not match by name.
       if(Object.keys(completed).length===0){
@@ -713,7 +729,22 @@ function submitDailyTask(i){
   if(act.writing){let txt=(document.getElementById('dailyWritingText')||{}).value||'';let words=txt.trim()?txt.trim().split(/\s+/).length:0;if(words<50){alert('Please write at least 50 words. Current words: '+words);return;}score=10;total=10;percentage=100;}
   else{let qs=act.questions||[];total=qs.length;for(let qi=0;qi<qs.length;qi++){let checked=document.querySelector('input[name="daily_q'+qi+'"]:checked');if(!checked){alert('Please answer all questions.');return;}if(Number(checked.value)===Number(qs[qi][2]))score++;}percentage=Math.round(score/total*100);}
   let saved=getSavedDaily(); if(!saved.completed)saved.completed={}; if(!saved.results)saved.results={}; saved.completed[i]=true; saved.results[i]={score,total,percentage,skill:task.skill,title:task.title,completedAt:Date.now()}; saveDailyLocal(saved);
-  rec=buildDailyRecord(tasks,level,skills,pct); syncDailyTasksToFirebase(rec); closeDailyTask(); renderStudentPlan(); alert('Task submitted. Score: '+score+' / '+total+' ('+percentage+'%)');
+  rec=buildDailyRecord(tasks,level,skills,pct);
+  // Save to student_results for reliable cross-device sync (same collection that works for exams)
+  if(window.saveToFirebaseResult){
+    const sid=getStudentId();
+    window.saveToFirebaseResult({
+      studentId:sid,studentStum:sid,stum:sid,
+      studentKey:studentKey(currentName,currentClass),
+      name:currentName,className:currentClass,
+      examId:'__daily__'+todayISO(),
+      examName:'Daily Tasks '+todayISO(),
+      isDailyTask:true,dateKey:todayISO(),
+      tasks:rec.tasks,
+      date:new Date().toLocaleString(),timestamp:Date.now()
+    }).catch(e=>console.warn('Daily task sync failed:',e));
+  }
+  closeDailyTask(); renderStudentPlan(); alert('Task submitted. Score: '+score+' / '+total+' ('+percentage+'%)');
 }
 
 function saveTaskProgress(i,checked){
@@ -726,7 +757,7 @@ function saveTaskProgress(i,checked){
 function renderProgressChart(){renderStudentPlan();return;}
 
 function renderProgressTable(){
-  let records=Object.values(completed||{}).filter(r=>r&&(r.examName||r.exam||r.examId));
+  let records=Object.values(completed||{}).filter(r=>r&&!r.isDailyTask&&(r.examName||r.exam||r.examId));
   // Deduplicate by examId/examName
   let seen=new Set();
   records=records.filter(r=>{let k=r.examId||r.examName||r.exam;if(seen.has(k))return false;seen.add(k);return true;});
