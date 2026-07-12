@@ -2189,7 +2189,7 @@ try{if(document.getElementById('dailyLearning')&&typeof renderDailyLearning==='f
 <!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 try{
 const firebaseConfig = {
@@ -2341,28 +2341,9 @@ window.loadFirebaseExams = async function(){
       }
     }
 
-    const snap2 = await getDocs(collection(db, "exams"));
-    const refreshed = [];
-    snap2.forEach(doc => {
-      const d = doc.data();
-      refreshed.push({
-        id: d.examId || doc.id,
-        _fbDocId: doc.id,
-        name: d.examName || d.name || "Untitled Exam",
-        cls: d.className || d.cls || "",
-        type: d.examType || d.type || "link",
-        link: d.examLink || d.link || "",
-        questions: d.questions || "",
-        content: d.content || "",
-        fileName: d.fileName || "",
-        date: d.date || "",
-        active: d.active !== false
-      });
-    });
-
-    // V5 FIX: Firebase is the source of truth. Do not merge old browser/local exams.
+    // Use already-fetched data (avoids a second full collection read)
     const byId = {};
-    refreshed.forEach(e => { byId[e.id] = e; });
+    firebaseExams.forEach(e => { byId[e.id] = e; });
     exams = Object.values(byId);
     localStorage.setItem('ar_pro_exams', JSON.stringify(exams));
     setFirebaseStatus("Firebase exams loaded");
@@ -2385,22 +2366,26 @@ window.saveResultToFirebase = async function(record){
   }
 };
 
-window.loadFirebaseResults = async function(){
+let _unsubResults=null;
+window.loadFirebaseResults = function(){
+  if(_unsubResults){ _unsubResults(); _unsubResults=null; }
   try{
-    const snap = await getDocs(collection(db, "student_results"));
-    const firebaseResults = [];
-    snap.forEach(d => firebaseResults.push({...d.data(), source:"Firebase", _fbId: d.id}));
-    firebaseResults.sort((a, b) => {
-      let da = new Date(a.date || 0), db2 = new Date(b.date || 0);
-      return db2 - da;
+    _unsubResults = onSnapshot(collection(db, "student_results"), (snap) => {
+      const firebaseResults = [];
+      snap.forEach(d => firebaseResults.push({...d.data(), source:"Firebase", _fbId: d.id}));
+      firebaseResults.sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+      results=firebaseResults; saveStore(); render(); renderResults();
+      if(document.getElementById('remedial')) renderRemedial();
+      if(document.getElementById('dailyLearning')) renderDailyLearning();
+      if(window.loadFirebaseDailyTasks) window.loadFirebaseDailyTasks();
+      setFirebaseStatus("Firebase • Live");
+    }, (error) => {
+      console.error("Firebase load error:", error);
+      setFirebaseStatus("Firebase load failed", false);
     });
-results=firebaseResults;saveStore();render();renderResults();if(document.getElementById('remedial'))renderRemedial();if(document.getElementById('dailyLearning'))renderDailyLearning();
-    if(window.loadFirebaseDailyTasks) await window.loadFirebaseDailyTasks();
-    setFirebaseStatus("Firebase results loaded");
   }catch(error){
     console.error("Firebase load error:", error);
     setFirebaseStatus("Firebase load failed", false);
-    console.warn("Could not load Firebase results. Check internet and Firestore rules.");
   }
 };
 
@@ -2418,15 +2403,19 @@ window.saveTeacherDailyRecord = async function(docId, record){
   }
 };
 
-window.loadFirebaseDailyTasks = async function(){
+let _unsubDailyTasks=null;
+window.loadFirebaseDailyTasks = function(){
+  if(_unsubDailyTasks){ _unsubDailyTasks(); _unsubDailyTasks=null; }
   try{
-    const snap = await getDocs(collection(db, "daily_tasks"));
-    const arr=[];
-    snap.forEach(d=>arr.push({...d.data(), _fbId:d.id}));
-    dailyTasks=arr;
-    if(document.getElementById('dailyLearning'))renderDailyLearning();
-    if(document.getElementById('remedial'))renderRemedial();
-    setFirebaseStatus("Daily learning loaded");
+    _unsubDailyTasks = onSnapshot(collection(db, "daily_tasks"), (snap) => {
+      const arr=[];
+      snap.forEach(d=>arr.push({...d.data(), _fbId:d.id}));
+      dailyTasks=arr;
+      if(document.getElementById('dailyLearning')) renderDailyLearning();
+      if(document.getElementById('remedial')) renderRemedial();
+    }, (error) => {
+      console.warn("Daily learning load error:", error);
+    });
   }catch(error){
     console.warn("Daily learning load error:", error);
   }
