@@ -561,30 +561,39 @@ async function loadCompleted(){
 async function loadMyDailyTasks(){
   teacherDailyRecord=null;
   try{
-    if(window.firebaseReady){
-      const {collection,getDocs,query,where}=window.firebaseFns;
-      const sid=getStudentId(); if(!sid)return;
-      const q=query(collection(window.db,'daily_tasks'),where('studentId','==',sid));
-      const snap=await getDocs(q);
-      let arr=[]; snap.forEach(d=>arr.push({...d.data(),_fbId:d.id}));
-      arr=arr.filter(r=>String(r.dateKey||'')===todayISO()).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-      teacherDailyRecord=arr[0]||null;
-      // Immediately sync Firebase completion into localStorage so renderStudentPlan
-      // shows correct status on any device, even if buildDailyRecord misses it
-      if(teacherDailyRecord&&Array.isArray(teacherDailyRecord.tasks)&&teacherDailyRecord.tasks.some(t=>t.completed)){
-        let saved=getSavedWeekly();
-        if(!saved.completed)saved.completed={};
-        if(!saved.results)saved.results={};
-        teacherDailyRecord.tasks.forEach((t,i)=>{
-          if(t.completed){
-            saved.completed[i]=true;
-            if(!saved.results[i]&&t.percentage!==undefined)
-              saved.results[i]={score:t.score,total:t.total,percentage:t.percentage,skill:t.skill,title:t.title,completedAt:t.completedAt||Date.now()};
-          }
-        });
-        if(!saved.taskSignature)saved.taskSignature=teacherDailyRecord.tasks.map(t=>(t.skill||'')+'|'+(t.title||'')).join('||');
-        saveSavedWeekly(saved);
-      }
+    if(!window.firebaseReady||!window.firebaseFns||!window.db)return;
+    const {getDoc,getDocs,collection,query,where,doc:fbDoc}=window.firebaseFns;
+    const sid=getStudentId(); if(!sid)return;
+    // Primary: read the student's own doc directly by its known ID (no collection-scan needed)
+    const docId=String('STUM_'+sid+'__'+todayISO()).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,180);
+    const snap=await getDoc(fbDoc(window.db,'daily_tasks',docId));
+    if(snap.exists()){
+      teacherDailyRecord={...snap.data(),_fbId:snap.id};
+    } else {
+      // Fallback: query for teacher-assigned record (different doc ID format)
+      try{
+        const q=query(collection(window.db,'daily_tasks'),where('studentId','==',sid));
+        const qsnap=await getDocs(q);
+        let arr=[]; qsnap.forEach(d=>arr.push({...d.data(),_fbId:d.id}));
+        arr=arr.filter(r=>String(r.dateKey||'')===todayISO()).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+        teacherDailyRecord=arr[0]||null;
+      }catch(e){console.warn('Daily tasks query failed',e);}
+    }
+    // Immediately write Firebase completion into localStorage so renderStudentPlan
+    // shows the correct status on any device
+    if(teacherDailyRecord&&Array.isArray(teacherDailyRecord.tasks)&&teacherDailyRecord.tasks.some(t=>t.completed)){
+      let saved=getSavedWeekly();
+      if(!saved.completed)saved.completed={};
+      if(!saved.results)saved.results={};
+      teacherDailyRecord.tasks.forEach((t,i)=>{
+        if(t.completed){
+          saved.completed[i]=true;
+          if(!saved.results[i]&&t.percentage!==undefined)
+            saved.results[i]={score:t.score,total:t.total,percentage:t.percentage,skill:t.skill,title:t.title,completedAt:t.completedAt||Date.now()};
+        }
+      });
+      if(!saved.taskSignature)saved.taskSignature=teacherDailyRecord.tasks.map(t=>(t.skill||'')+'|'+(t.title||'')).join('||');
+      saveSavedWeekly(saved);
     }
   }catch(e){console.warn('Could not load daily tasks from Firebase',e);}
 }
@@ -2277,7 +2286,7 @@ try{if(document.getElementById('dailyLearning')&&typeof renderDailyLearning==='f
 <!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, setDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 try{
 const firebaseConfig = {
@@ -2293,7 +2302,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 window.db = db;
 window.firebaseReady = true;
-window.firebaseFns = {collection, getDocs, query, where, setDoc, doc, addDoc, deleteDoc, updateDoc, onSnapshot};
+window.firebaseFns = {collection, getDocs, getDoc, query, where, setDoc, doc, addDoc, deleteDoc, updateDoc, onSnapshot};
 if(typeof setFirebaseStatus === "function") setFirebaseStatus("Firebase connected", true);
 
 // ── Teacher Firebase Functions ──
