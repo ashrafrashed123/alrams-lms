@@ -1912,7 +1912,45 @@ async function bulkDeleteDailyTasks(){let cls=document.getElementById('dailyClas
 
 // ── REMEDIAL PLANS — complete rewrite ──
 var _remLevelFilter=null;
-function filterRemLevel(bucket){_remLevelFilter=(_remLevelFilter===bucket)?null:bucket;renderRemedial();}
+function filterRemLevel(bucket){_remLevelFilter=(_remLevelFilter===bucket)?null:bucket;window.renderRemedial();}
+async function assignPlanForLevel(){
+  var cls=document.getElementById('remClass')?.value||'8-1';
+  var bucket=_remLevelFilter;
+  if(!bucket)return alert('Click a level card first to select a group.');
+  var levelLabel={pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'}[bucket]||bucket;
+  var pool=Array.isArray(window._lmsResults)?window._lmsResults:Array.isArray(results)?results:[];
+  var normCls=function(v){return String(v||'').toLowerCase().replace(/grade\s*/,'').replace(/\s+/g,'');};
+  var tCls=normCls(cls);
+  var classPool=pool.filter(function(r){
+    if(r.isDailyTask)return false;
+    var rc=normCls(r.cls||r.className||r.grade||r.class||'');
+    return rc===tCls||rc===''||!rc;
+  });
+  var classStudents=PSTUDENTS[cls]||[];
+  var targets=[];
+  classStudents.forEach(function(st){
+    var sid=String(st.stum||st.studentId||st.studentStum||'').trim();
+    if(!sid)return;
+    var matches=classPool.filter(function(r){return String(r.studentId||r.stum||r.studentStum||'').trim()===sid;});
+    var placement=matches.filter(function(r){return /placement|level|diagnostic/i.test(String(r.exam||r.examName||r.examId||''));});
+    var use=placement.length?placement:matches;
+    var latest=use.length?use.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);})[0]:null;
+    var pct=NaN;
+    if(latest){
+      pct=Number(String(latest.percentage||'').replace('%',''));
+      if(isNaN(pct)&&latest.score){var m=String(latest.score).match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);if(m&&Number(m[2]))pct=Math.round(Number(m[1])/Number(m[2])*100);}
+    }
+    var lev=remPctLevel(pct);
+    if(lev.bucket===bucket)targets.push(st);
+  });
+  if(!targets.length)return alert('No '+levelLabel+' students found in '+cls+'.');
+  if(!confirm('Assign '+levelLabel+' remedial plan to '+targets.length+' student(s) in Grade '+cls+'?\n\nThis creates/updates their daily task schedule based on their CEFR level.'))return;
+  var done=0;
+  for(var i=0;i<targets.length;i++){
+    try{await regenerateDailyForSidNoConfirm(cls,targets[i]);done++;}catch(e){console.warn('assign plan failed for',targets[i],e);}
+  }
+  alert('✅ Plan assigned to '+done+' '+levelLabel+' student(s) in Grade '+cls+'.');
+}
 function renderRemedial(){
   try{
     var cls=document.getElementById('remClass')?.value||'8-1';
@@ -2003,7 +2041,7 @@ function renderRemedial(){
     var banner=document.getElementById('remLevelBanner');
     var labelMap={pre:'🔴 Pre-A1',a1:'🟡 A1',a2:'🟢 A2',b1:'🔵 B1+'};
     if(banner){
-      if(_remLevelFilter){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[_remLevelFilter]+'</b> — '+cls+' ('+rowNum+' students) &nbsp;<a href="#" onclick="event.preventDefault();filterRemLevel(\''+_remLevelFilter+'\')">Show all</a>';}
+      if(_remLevelFilter){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[_remLevelFilter]+'</b> — '+cls+' ('+rowNum+' student'+(rowNum===1?'':'s')+') &nbsp;<a href="#" onclick="event.preventDefault();filterRemLevel(\''+_remLevelFilter+'\')">Show all</a> &nbsp;<button class="btn green" style="padding:3px 12px;font-size:13px" onclick="assignPlanForLevel()">📋 Assign Plan</button>';}
       else banner.style.display='none';
     }
   }catch(e){console.error('renderRemedial:',e);}
