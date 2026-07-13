@@ -1474,7 +1474,7 @@ async function saveExamFromFolder(btn){
 }
 
 function saveStore(){localStorage.setItem('ar_pro_exams',JSON.stringify(exams));localStorage.setItem('ar_pro_results',JSON.stringify(results));render();}
-function showPage(id,btn){try{var _SIDS=['dashboard','addExam','library','classPage','results','remedial','dailyLearning','progress'];for(var _i=0;_i<_SIDS.length;_i++){var _s=document.getElementById(_SIDS[_i]);if(_s){_s.classList.add('hidden');_s.style.cssText='display:none!important';}}var _el=document.getElementById(id);if(_el){_el.classList.remove('hidden');_el.style.cssText='display:block!important';}document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');if(id==='addExam'&&typeof renderExamFolderGrid==='function')try{renderExamFolderGrid();}catch(_){}if(id==='results'&&typeof window.renderResults==='function')try{window.renderResults();}catch(_){}if(id==='dailyLearning'&&typeof window.renderDailyLearning==='function')try{window.renderDailyLearning();}catch(_){}if(id==='remedial'&&typeof window.renderRemedial==='function')try{window.renderRemedial();}catch(_){}if(id==='progress'&&typeof renderProgress==='function')try{renderProgress();}catch(_){}try{render();}catch(re){console.warn('render error:',re);}}catch(e){console.error('showPage:',e);}}
+function showPage(id,btn){try{var _SIDS=['dashboard','addExam','library','classPage','results','remedial','dailyLearning','progress'];for(var _i=0;_i<_SIDS.length;_i++){var _s=document.getElementById(_SIDS[_i]);if(_s){_s.classList.add('hidden');_s.style.cssText='display:none!important';}}var _el=document.getElementById(id);if(_el){_el.classList.remove('hidden');_el.style.cssText='display:block!important';}document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');if(id==='addExam'&&typeof renderExamFolderGrid==='function')try{renderExamFolderGrid();}catch(_){}if(id==='results'&&typeof window.renderResults==='function')try{window.renderResults();}catch(_){}if(id==='dailyLearning'&&typeof window.renderDailyLearning==='function')try{window.renderDailyLearning();}catch(_){}if(id==='remedial'&&typeof window.renderRemedial==='function')try{window.renderRemedial();if(typeof refreshRemedialFirebase==='function')refreshRemedialFirebase();}catch(_){}if(id==='progress'&&typeof renderProgress==='function')try{renderProgress();}catch(_){}try{render();}catch(re){console.warn('render error:',re);}}catch(e){console.error('showPage:',e);}}
 function typeChange(){var _et=document.getElementById('examType');if(!_et)return;let t=_et.value;var _fb=document.getElementById('fileBox');if(_fb)_fb.classList.toggle('hidden',t!=='file');var _el=document.getElementById('examLink');if(_el)_el.classList.toggle('hidden',t!=='link');var _eq=document.getElementById('examQuestions');if(_eq)_eq.classList.toggle('hidden',t!=='mcq');}
 async function saveExam(btn){
   setButtonSaving(btn,true);
@@ -1816,14 +1816,21 @@ function resultMatchesClassForRemedial(r, cls){
   // Accept exact class, missing class, or class embedded in the student code/key.
   return !rClass || rClass===targetClass || skey.includes(targetClass);
 }
+function isPlacementResult(r){
+  // Accept only placement/diagnostic/level test results; exclude daily tasks and regular exams
+  if(r.isDailyTask) return false;
+  return /placement|level|diagnostic/i.test(String((r.exam||r.examName||r.examId||'')));
+}
 function getRemedialResultPool(cls){
-  return results.map(normalizeResult).filter(r=>resultMatchesClassForRemedial(r,cls));
+  // Only include placement test results (not daily tasks or regular exams) for CEFR classification
+  return results.filter(r=>!r.isDailyTask && isPlacementResult(r)).map(normalizeResult).filter(r=>resultMatchesClassForRemedial(r,cls));
 }
 function getLatestFromList(list){
   if(!list || !list.length) return null;
+  // Only use placement/diagnostic results — no fallback to regular exams
   let placement=list.filter(r=>/level|placement|diagnostic/i.test(String((r.exam||'')+' '+(r.examId||''))));
-  let use=placement.length?placement:list;
-  return use.sort((a,b)=>resultDateValue(a)-resultDateValue(b)).slice(-1)[0]||null;
+  if(!placement.length) return null;
+  return placement.sort((a,b)=>resultDateValue(a)-resultDateValue(b)).slice(-1)[0]||null;
 }
 function getStudentLatestDiagnosis(st,cls){
   let sid=stumKeyTeacher(st);
