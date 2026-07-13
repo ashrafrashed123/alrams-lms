@@ -271,22 +271,55 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     <section id="remedial" class="hidden">
       <div class="card">
         <h3>🎯 Remedial Plans — CEFR Classification</h3>
-        <div class="note"><b>Placement test results only.</b> Click a level card to see that group’s students. Counts update automatically from Firebase.</div>
-        <div class="resultsTools" style="grid-template-columns:1fr 1fr auto auto">
-          <select id="remClass" onchange="renderRemedial()"><option value="8-1">Grade 8-1</option><option value="8-2">Grade 8-2</option><option value="8-3">Grade 8-3</option><option value="8-4">Grade 8-4</option></select>
-          <input id="remSearch" oninput="renderRemedial()" placeholder="Search student name">
-          <button class="btn light" onclick="refreshRemedialFirebase()">🔄 Refresh Firebase</button>
-          <button class="btn gold" onclick="printRemedial()">🖨 Print Plans</button>
+        <p class="note" style="margin-bottom:14px">Classification based on <b>placement test results only</b>. Click a level card to filter the student list.</p>
+
+        <!-- Controls -->
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
+          <select id="lmsRemClass" onchange="window.lmsRenderRemedial()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px">
+            <option value="8-1">Grade 8-1</option><option value="8-2">Grade 8-2</option><option value="8-3">Grade 8-3</option><option value="8-4">Grade 8-4</option>
+          </select>
+          <input id="lmsRemSearch" placeholder="Search student..." oninput="window.lmsRenderRemedial()" style="flex:1;min-width:160px;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px">
+          <button class="btn light" onclick="window.lmsRefreshRemedial()">🔄 Refresh Firebase</button>
+          <button class="btn gold" onclick="window.print()">🖨 Print</button>
         </div>
-        <div class="levelGrid">
-          <div class="levelCard" id="remCardPre" onclick="window._remLevelFilter=(window._remLevelFilter===’pre’?null:’pre’);window.renderRemedial();" style="cursor:pointer;transition:all .15s" title="Click to show Pre-A1 students"><span>🔴 Pre-A1</span><b id="remPre">—</b><small>Intensive support</small></div>
-          <div class="levelCard" id="remCardA1"  onclick="window._remLevelFilter=(window._remLevelFilter===’a1’?null:’a1’);window.renderRemedial();"   style="cursor:pointer;transition:all .15s" title="Click to show A1 students"><span>🟡 A1</span><b id="remA1">—</b><small>Basic support</small></div>
-          <div class="levelCard" id="remCardA2"  onclick="window._remLevelFilter=(window._remLevelFilter===’a2’?null:’a2’);window.renderRemedial();"   style="cursor:pointer;transition:all .15s" title="Click to show A2 students"><span>🟢 A2</span><b id="remA2">—</b><small>Reinforcement</small></div>
-          <div class="levelCard" id="remCardB1"  onclick="window._remLevelFilter=(window._remLevelFilter===’b1’?null:’b1’);window.renderRemedial();"   style="cursor:pointer;transition:all .15s" title="Click to show B1+ students"><span>🔵 B1+</span><b id="remB1">—</b><small>Enrichment</small></div>
+
+        <!-- Level cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+          <div id="lmsCardPre" onclick="window.lmsFilterLevel(‘pre’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+            <div style="font-size:16px;font-weight:600">🔴 Pre-A1</div>
+            <div id="lmsCountPre" style="font-size:32px;font-weight:800;margin:6px 0;color:#dc2626">—</div>
+            <div style="font-size:12px;color:#64748b">Intensive support</div>
+          </div>
+          <div id="lmsCardA1" onclick="window.lmsFilterLevel(‘a1’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+            <div style="font-size:16px;font-weight:600">🟡 A1</div>
+            <div id="lmsCountA1" style="font-size:32px;font-weight:800;margin:6px 0;color:#d97706">—</div>
+            <div style="font-size:12px;color:#64748b">Basic support</div>
+          </div>
+          <div id="lmsCardA2" onclick="window.lmsFilterLevel(‘a2’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+            <div style="font-size:16px;font-weight:600">🟢 A2</div>
+            <div id="lmsCountA2" style="font-size:32px;font-weight:800;margin:6px 0;color:#16a34a">—</div>
+            <div style="font-size:12px;color:#64748b">Reinforcement</div>
+          </div>
+          <div id="lmsCardB1" onclick="window.lmsFilterLevel(‘b1’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+            <div style="font-size:16px;font-weight:600">🔵 B1+</div>
+            <div id="lmsCountB1" style="font-size:32px;font-weight:800;margin:6px 0;color:#2563eb">—</div>
+            <div style="font-size:12px;color:#64748b">Enrichment</div>
+          </div>
         </div>
-        <div id="remLevelBanner" style="display:none;margin:8px 0 4px;padding:8px 14px;background:#dbeafe;border-radius:8px;font-size:13px;color:#1d4ed8;font-weight:600"></div>
+
+        <!-- Filter banner -->
+        <div id="lmsBanner" style="display:none;padding:10px 16px;background:#dbeafe;border-radius:8px;margin-bottom:12px;color:#1d4ed8;font-weight:600;align-items:center;gap:12px;flex-wrap:wrap">
+          <span id="lmsBannerText"></span>
+          <a href="#" onclick="event.preventDefault();window.lmsFilterLevel(null)" style="color:#1d4ed8;font-size:13px">✕ Show all</a>
+          <button class="btn green" style="padding:4px 14px;font-size:13px" onclick="window.lmsAssignPlan()">📋 Assign Plan</button>
+        </div>
+
+        <!-- Student table -->
         <div class="tableWrap">
-          <table class="table"><thead><tr><th>#</th><th>Student</th><th>STUM</th><th>Score</th><th>CEFR Level</th></tr></thead><tbody id="remTable"><tr><td colspan="5" style="text-align:center;color:#64748b;padding:20px">Click 🔄 Refresh Firebase to load results</td></tr></tbody></table>
+          <table class="table">
+            <thead><tr><th>#</th><th>Student</th><th>STUM</th><th>Score</th><th>CEFR Level</th></tr></thead>
+            <tbody id="lmsRemTable"><tr><td colspan="5" style="text-align:center;color:#64748b;padding:24px">Click 🔄 Refresh Firebase to load results</td></tr></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -2458,8 +2491,130 @@ try{if(document.getElementById('dailyLearning')&&typeof renderDailyLearning==='f
     {var _rmp=document.getElementById('remPre');if(_rmp){_rmp.textContent=counts.pre;var _ra1=document.getElementById('remA1');if(_ra1)_ra1.textContent=counts.a1;var _ra2=document.getElementById('remA2');if(_ra2)_ra2.textContent=counts.a2;var _rb1=document.getElementById('remB1');if(_rb1)_rb1.textContent=counts.b1;}}
   };
 })();
-// Restore from protected reference — renderRemedial variable was overwritten by IIFEs above
-window.renderRemedial=window.__lms_renderRemedial;
+// ═══════════════════════════════════════════════════════════
+// REMEDIAL PLANS — Clean rebuild (runs AFTER all IIFEs)
+// All state and functions on window.lms* — zero IIFE conflict
+// ═══════════════════════════════════════════════════════════
+window._lmsRemFilter = null;
+
+window.lmsCefrLevel = function(pct){
+  pct = Number(pct);
+  if(isNaN(pct)) return {bucket:'none',label:'No result',css:'color:#f59e0b;font-weight:600',count:false};
+  if(pct<40) return {bucket:'pre',label:'🔴 Pre-A1',css:'color:#dc2626;font-weight:700',count:true};
+  if(pct<60) return {bucket:'a1', label:'🟡 A1',    css:'color:#d97706;font-weight:700',count:true};
+  if(pct<80) return {bucket:'a2', label:'🟢 A2',    css:'color:#16a34a;font-weight:700',count:true};
+  return            {bucket:'b1', label:'🔵 B1+',   css:'color:#2563eb;font-weight:700',count:true};
+};
+
+window.lmsFilterLevel = function(bucket){
+  window._lmsRemFilter = (window._lmsRemFilter===bucket) ? null : bucket;
+  window.lmsRenderRemedial();
+};
+
+window.lmsRenderRemedial = function(){
+  var cls = (document.getElementById('lmsRemClass')||{}).value || '8-1';
+  var q   = ((document.getElementById('lmsRemSearch')||{}).value||'').toLowerCase();
+  var students = (typeof PSTUDENTS!=='undefined' && PSTUDENTS[cls]) ? PSTUDENTS[cls] : [];
+  var pool = Array.isArray(window._lmsResults) ? window._lmsResults
+           : (typeof results!=='undefined' && Array.isArray(results)) ? results : [];
+  var norm = function(v){return String(v||'').toLowerCase().replace(/grade\s*/,'').replace(/\s+/g,'');};
+  var tc = norm(cls);
+  var classPool = pool.filter(function(r){
+    if(r.isDailyTask) return false;
+    var rc = norm(r.cls||r.className||r.grade||r.class||'');
+    return rc===tc||rc===''||!rc;
+  });
+  var counts = {pre:0,a1:0,a2:0,b1:0};
+  var filter = window._lmsRemFilter;
+  var rows = ''; var rowNum = 0;
+
+  students.forEach(function(st){
+    var name = st.englishName||st.name||'';
+    if(!name.toLowerCase().includes(q)) return;
+    var sid = String(st.stum||st.studentId||st.studentStum||'').trim();
+    if(!sid) return;
+    var all = classPool.filter(function(r){return String(r.studentId||r.stum||r.studentStum||'').trim()===sid;});
+    var placement = all.filter(function(r){return /placement|level|diagnostic/i.test(String(r.exam||r.examName||r.examId||''));});
+    var src = placement.length ? placement : all;
+    var best = src.length ? src.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);})[0] : null;
+    var pct = NaN;
+    if(best){
+      pct = Number(String(best.percentage||'').replace('%',''));
+      if(isNaN(pct)&&best.score){var m=String(best.score).match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);if(m&&Number(m[2]))pct=Math.round(Number(m[1])/Number(m[2])*100);}
+      if(isNaN(pct)&&best.total) pct=Math.round(Number(best.score||0)/Number(best.total)*100);
+    }
+    var lev = window.lmsCefrLevel(pct);
+    if(lev.count) counts[lev.bucket]++;
+    if(filter && lev.bucket!==filter) return;
+    rowNum++;
+    var scoreCell = best
+      ? '<b>'+(isNaN(pct)?'?':pct)+'%</b><br><small style="color:#64748b">'+escP(best.exam||best.examName||'')+'</small>'
+      : '<span style="color:#f59e0b;font-size:13px">No test yet</span>';
+    rows += '<tr><td>'+rowNum+'</td><td>'+escP(name)+'</td><td>'+escP(sid)+'</td><td>'+scoreCell+'</td><td><span style="'+lev.css+'">'+lev.label+'</span></td></tr>';
+  });
+
+  var tbody = document.getElementById('lmsRemTable');
+  if(tbody){
+    var empty = filter
+      ? 'No '+{pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'}[filter]+' students in Grade '+cls+'.'
+      : students.length+' students · '+pool.filter(function(r){return !r.isDailyTask;}).length+' results loaded';
+    tbody.innerHTML = rows || '<tr><td colspan="5" style="text-align:center;color:#64748b;padding:24px">'+empty+'</td></tr>';
+  }
+
+  var cardMap = {pre:'lmsCardPre',a1:'lmsCardA1',a2:'lmsCardA2',b1:'lmsCardB1'};
+  var countMap = {pre:'lmsCountPre',a1:'lmsCountA1',a2:'lmsCountA2',b1:'lmsCountB1'};
+  ['pre','a1','a2','b1'].forEach(function(b){
+    var cel = document.getElementById(countMap[b]); if(cel) cel.textContent = counts[b];
+    var card = document.getElementById(cardMap[b]);
+    if(card){card.style.borderColor=filter===b?'#2563eb':'#e2e8f0'; card.style.background=filter===b?'#dbeafe':'';}
+  });
+
+  var banner = document.getElementById('lmsBanner');
+  var bannerText = document.getElementById('lmsBannerText');
+  if(banner){
+    if(filter){
+      banner.style.display='flex';
+      if(bannerText) bannerText.textContent='Showing '+{pre:'🔴 Pre-A1',a1:'🟡 A1',a2:'🟢 A2',b1:'🔵 B1+'}[filter]+' — Grade '+cls+' ('+rowNum+' student'+(rowNum===1?'':'s')+')';
+    } else {
+      banner.style.display='none';
+    }
+  }
+};
+
+window.lmsRefreshRemedial = async function(){
+  if(window.loadFirebaseResults) await window.loadFirebaseResults();
+  window.lmsRenderRemedial();
+};
+
+window.lmsAssignPlan = async function(){
+  var cls = (document.getElementById('lmsRemClass')||{}).value || '8-1';
+  var bucket = window._lmsRemFilter;
+  if(!bucket) return alert('Click a level card first.');
+  var labelMap = {pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'};
+  var pool = Array.isArray(window._lmsResults)?window._lmsResults:(typeof results!=='undefined'&&Array.isArray(results)?results:[]);
+  var norm = function(v){return String(v||'').toLowerCase().replace(/grade\s*/,'').replace(/\s+/g,'');};
+  var tc = norm(cls);
+  var classPool = pool.filter(function(r){if(r.isDailyTask)return false;var rc=norm(r.cls||r.className||r.grade||r.class||'');return rc===tc||rc===''||!rc;});
+  var students = (typeof PSTUDENTS!=='undefined'&&PSTUDENTS[cls])?PSTUDENTS[cls]:[];
+  var targets = [];
+  students.forEach(function(st){
+    var sid=String(st.stum||st.studentId||st.studentStum||'').trim(); if(!sid)return;
+    var all=classPool.filter(function(r){return String(r.studentId||r.stum||r.studentStum||'').trim()===sid;});
+    var placement=all.filter(function(r){return /placement|level|diagnostic/i.test(String(r.exam||r.examName||r.examId||''));});
+    var best=(placement.length?placement:all).sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);})[0]||null;
+    var pct=NaN;
+    if(best){pct=Number(String(best.percentage||'').replace('%',''));if(isNaN(pct)&&best.score){var m=String(best.score).match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);if(m&&Number(m[2]))pct=Math.round(Number(m[1])/Number(m[2])*100);}}
+    if(window.lmsCefrLevel(pct).bucket===bucket) targets.push(st);
+  });
+  if(!targets.length) return alert('No '+labelMap[bucket]+' students found in Grade '+cls+'.');
+  if(!confirm('Assign '+labelMap[bucket]+' remedial plan to '+targets.length+' student(s) in Grade '+cls+'?\n\nThis builds and saves their daily tasks based on CEFR level.')) return;
+  var done=0;
+  for(var i=0;i<targets.length;i++){try{await regenerateDailyForSidNoConfirm(cls,targets[i]);done++;}catch(e){console.warn(e);}}
+  alert('✅ Plan assigned to '+done+' '+labelMap[bucket]+' student(s) in Grade '+cls+'.');
+};
+
+// Override window.renderRemedial so existing call chains (showPage, setResultsFromFirebase) use our new function
+window.renderRemedial = window.lmsRenderRemedial;
 </script>
 
 <!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
