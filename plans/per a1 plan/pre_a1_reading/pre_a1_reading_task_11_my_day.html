@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Pre-A1 Reading Task 11 - My Day</title><style>
+:root{--green:#0a8f45;--red:#c62828;--blue:#0d47a1;--bg:#f4f8ff;--card:#fff}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#122;font-size:18px;line-height:1.55;user-select:none}.wrap{max-width:1050px;margin:0 auto;padding:22px}.card{background:var(--card);border-radius:20px;padding:20px;margin:18px 0;box-shadow:0 8px 22px #0001;border:1px solid #d9e6ff}h1{font-size:32px;margin:0;color:var(--blue)}h2{font-size:20px;color:var(--blue)}.top{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}.badge{background:#e3f2fd;color:#0d47a1;padding:10px 16px;border-radius:999px;font-weight:bold}.passage{font-size:22px;background:#fffde7;border-left:10px solid #f9a825}.q{border:2px solid #dbe7ff;border-radius:16px;padding:14px;margin:14px 0;background:#fbfdff}.q-title{font-weight:bold;font-size:20px;margin-bottom:12px}.option{display:block;margin:9px 0;padding:12px 14px;border-radius:12px;border:2px solid #d6e2fa;background:#fff;cursor:pointer}.option input{transform:scale(1.25);margin-right:12px}.correct{border-color:var(--green)!important;background:#e9f7ef!important}.wrong{border-color:var(--red)!important;background:#ffebee!important}.student-wrong{color:var(--red);font-weight:900;font-size:21px}.correct-text{color:var(--green);font-weight:900}.btn{font-size:20px;font-weight:bold;border:0;border-radius:14px;padding:12px 18px;background:var(--blue);color:white;cursor:pointer;box-shadow:0 5px 12px #0002}.btn:disabled{background:#999;cursor:not-allowed}.start{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,#e3f2fd,#fff)}.hidden{display:none}.progressbox{position:sticky;top:0;z-index:5;background:#ffffffee;border-bottom:1px solid #cbdaf7;padding:12px 20px}.bar{height:18px;background:#dbe7ff;border-radius:999px;overflow:hidden}.bar>div{height:100%;background:#2e7d32;width:0%}.alert{background:#fff3cd;border:3px solid #ff9800;border-radius:16px;padding:14px;margin:12px 0;font-weight:bold}.danger{position:fixed;inset:0;background:#000b;color:#fff;display:none;align-items:center;justify-content:center;text-align:center;z-index:9999}.danger>div{background:#b71c1c;padding:30px;border-radius:20px;max-width:700px;font-size:20px}.score{font-size:28px;font-weight:900;color:var(--blue)}.small{font-size:15px;color:#456}.split-wrap{max-width:1280px;height:calc(100vh - 72px);display:flex;flex-direction:column;padding:18px}.split-layout{display:grid;grid-template-columns:45% 55%;gap:18px;min-height:0;flex:1}.left-panel{position:sticky;top:86px;align-self:start;height:calc(100vh - 105px);overflow:hidden}.right-panel{height:calc(100vh - 105px);overflow-y:auto;padding-right:8px;scroll-behavior:smooth}.questions-card{margin-top:0}.left-panel .passage{height:100%;margin:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start}.left-panel .passage p{font-size:24px;line-height:1.65}.fixed-note{font-size:16px;background:#e3f2fd;color:#0d47a1;border-radius:12px;padding:8px 12px;font-weight:bold;display:inline-block;margin-bottom:10px}.header-card{margin:0 0 14px 0}.exit-btn{background:#6b7280;margin-left:10px}.end-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:#f4f8ff}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:10000}.modal-box{background:white;color:#122;border-radius:18px;padding:24px;max-width:560px;text-align:center;box-shadow:0 10px 30px #0005}.modal-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}.btn-light{background:#0d47a1}.btn-danger{background:#c62828}@media(max-width:900px){.split-wrap{height:auto;padding:12px}.split-layout{display:block}.left-panel{position:relative;top:0;height:auto;overflow:visible}.right-panel{height:auto;overflow:visible;padding-right:0}.left-panel .passage{height:auto}.left-panel .passage p{font-size:21px;line-height:1.75}}@media(max-width:700px){body{font-size:20px}.wrap{padding:12px}h1{font-size:32px}.passage{font-size:20px}.btn{width:100%}}
+</style></head><body>
+<section id="start" class="start"><div class="card" style="max-width:760px"><h1>Pre-A1 Reading Task 11</h1><h2>My Day</h2><p>10 marks • First attempt is recorded • Full screen required</p><p class="small">Answer all questions, then submit to see your score and answer review.</p><div id="startMsg"></div><button class="btn" onclick="startExam()">Start Full Screen</button></div></section>
+<div id="exam" class="hidden"><div class="progressbox"><div class="top"><strong>Pre-A1 Reading Task 11: My Day</strong><span><span id="counter" class="badge">Answered 0 / 10</span><button class="btn exit-btn" onclick="openEndModal()">Exit / End Task</button></span></div><div class="bar"><div id="bar"></div></div></div><main class="wrap split-wrap"><div class="card top header-card"><div><h1>Reading Task 11</h1><h2>My Day</h2></div><div class="badge">10 Marks</div></div><div class="split-layout"><section class="left-panel"><div class="card passage"><span class="fixed-note">Reading text stays here</span><h2>Read</h2><p>I wake up at six o’clock. I eat breakfast with my family. I go to school by bus. After school, I play with my friends. At night, I read a book and sleep early.</p></div></section><section class="right-panel"><div class="card questions-card"><h2>Questions</h2><div id="msg" class="alert">Answer all questions before submitting.</div><div id="score" class="score"></div><div id="questions"></div><button id="submitBtn" class="btn" onclick="submitExam()" disabled>Submit</button></div></section></div></main></div><section id="endScreen" class="end-screen hidden"><div class="card" style="max-width:760px"><h1>Task Ended</h1><p id="endText">This reading task has ended.</p><p class="small">You may practise this task again. Practice scores are not recorded.</p></div></section><div id="endModal" class="modal"><div class="modal-box"><h2>End this task?</h2><p>If you end now, this attempt will be submitted. You may practise again later.</p><div class="modal-actions"><button class="btn btn-danger" onclick="confirmEndTask()">End Task</button><button class="btn btn-light" onclick="closeEndModal()">Continue Task</button></div></div></div><div id="danger" class="danger"><div id="dangerText"></div></div><script>
+const TASK_ID = 'pre_a1_reading_11';
+const questions = [{"q": "I wake up at ______ o\u2019clock.", "options": ["six", "seven", "eight"], "answer": "six"}, {"q": "I eat breakfast with my ______.", "options": ["family", "teacher", "friends"], "answer": "family"}, {"q": "I go to school by ______.", "options": ["bus", "bike", "car"], "answer": "bus"}, {"q": "After school, I ______ with my friends.", "options": ["play", "sleep", "read"], "answer": "play"}, {"q": "At night, I sleep ______.", "options": ["early", "late", "outside"], "answer": "early"}, {"q": "I wake up at six.", "options": ["True", "False"], "answer": "True"}, {"q": "I eat breakfast alone.", "options": ["True", "False"], "answer": "False"}, {"q": "I go to school by bus.", "options": ["True", "False"], "answer": "True"}, {"q": "I play after school.", "options": ["True", "False"], "answer": "True"}, {"q": "I sleep in the morning.", "options": ["True", "False"], "answer": "False"}];
+let submitted=false, ended=false, safeModal=false, warnings=0;
+const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelectorAll(s));
+function beep(){try{let c=new (window.AudioContext||window.webkitAudioContext)();let o=c.createOscillator();let g=c.createGain();o.type='sawtooth';o.frequency.value=780;o.connect(g);g.connect(c.destination);g.gain.value=.25;o.start();setTimeout(()=>{o.stop();c.close()},450)}catch(e){}}
+function startExam(){  document.documentElement.requestFullscreen?.().catch(()=>{}); $('#start').classList.add('hidden'); $('#exam').classList.remove('hidden'); render(); updateProgress();}
+function render(){let html='';questions.forEach((q,i)=>{html+=`<div class="q" id="q${i}"><div class="q-title">${i+1}. ${q.q}</div>`;q.options.forEach((op,j)=>{html+=`<label class="option"><input type="radio" name="q${i}" value="${escapeHtml(op)}" onchange="updateProgress()"> ${op}</label>`});html+='</div>'});$('#questions').innerHTML=html;}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function updateProgress(){let ans=questions.filter((_,i)=>document.querySelector(`input[name=q${i}]:checked`)).length;$('#counter').textContent=`Answered ${ans} / ${questions.length}`;$('#bar').style.width=(ans/questions.length*100)+'%';$('#submitBtn').disabled=ans<questions.length;}
+function submitExam(){if(submitted)return;let missing=[];questions.forEach((_,i)=>{if(!document.querySelector(`input[name=q${i}]:checked`))missing.push(i+1)}); if(missing.length){safeModal=true;$('#msg').innerHTML=`Please answer all questions. Missing: ${missing.join(', ')}`;beep();setTimeout(()=>safeModal=false,1200);document.getElementById('q'+(missing[0]-1)).scrollIntoView({behavior:'smooth',block:'center'});return;} submitted=true;let score=0;questions.forEach((q,i)=>{let val=document.querySelector(`input[name=q${i}]:checked`).value;if(val===q.answer)score++;let box=$('#q'+i);box.querySelectorAll('label').forEach(l=>{let inp=l.querySelector('input');inp.disabled=true;if(inp.value===q.answer)l.classList.add('correct');if(inp.checked&&inp.value!==q.answer)l.classList.add('wrong');});let review=document.createElement('div');review.style.marginTop='12px';if(val===q.answer){review.innerHTML=`<span class="correct-text">Correct ✓</span>`}else{review.innerHTML=`<div class="student-wrong">Your answer: ${val}</div><div class="correct-text">Correct answer: ${q.answer}</div>`}box.appendChild(review);});$('#score').innerHTML=`Your score: ${score} / 10`; const attemptResult=window.AshrafAttempt.record(score,questions.length); window.AshrafAttempt.showStatus($('#score'),attemptResult);$('#submitBtn').disabled=true;$('#msg').innerHTML='Submitted. Review your answers below.';window.scrollTo({top:0,behavior:'smooth'});}
+
+function openEndModal(){if(ended)return;safeModal=true;$('#endModal').style.display='flex';}
+function closeEndModal(){$('#endModal').style.display='none';setTimeout(()=>safeModal=false,700);}
+function confirmEndTask(){if(ended)return;ended=true;submitted=true;$('#endModal').style.display='none';$('#exam').classList.add('hidden');$('#endScreen').classList.remove('hidden');document.exitFullscreen?.().catch(()=>{});}
+document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('copy',e=>e.preventDefault());document.addEventListener('paste',e=>e.preventDefault());document.addEventListener('cut',e=>e.preventDefault());document.addEventListener('selectstart',e=>e.preventDefault());document.addEventListener('keydown',e=>{let k=e.key.toLowerCase(); if(e.key==='PrintScreen'||(e.ctrlKey&&['c','v','x','s','p','u','a'].includes(k))||e.key==='F12'){e.preventDefault();showDanger('Warning: cheating action is blocked.');}});
+function showDanger(t){if(submitted||ended||safeModal)return;warnings++;beep();$('#dangerText').textContent=t+(warnings>=2?' Second warning. Please continue the test.':'');$('#danger').style.display='flex';setTimeout(()=>$('#danger').style.display='none',1800)}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&!submitted&&!ended&&!safeModal)showDanger('Warning: do not leave the test page.')});document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!submitted&&!ended&&!safeModal)showDanger('Warning: stay in full screen mode.')});window.addEventListener('beforeunload',e=>{if(!submitted&&!ended){e.preventDefault();e.returnValue='';}});
+</script>
+<script id="first-attempt-recorder">
+(function(){
+  const taskId = (document.body && document.body.dataset && document.body.dataset.taskid) ||
+                 (typeof TASK_ID !== 'undefined' ? TASK_ID : location.pathname.split('/').pop().replace(/\.html?$/i,''));
+  const key = 'ashraf_lms_first_result_v1:' + taskId;
+  window.AshrafAttempt = {
+    taskId,
+    key,
+    hasFirstResult(){ return !!localStorage.getItem(key); },
+    record(score,total){
+      if(this.hasFirstResult()) return {recorded:false, practice:true};
+      const payload={
+        type:'ashraf-lms-task-result',
+        version:1,
+        resultId:'first:'+taskId,
+        taskId:taskId,
+        score:Number(score),
+        total:Number(total),
+        percentage: total ? Math.round(Number(score)*100/Number(total)) : 0,
+        firstAttempt:true,
+        completed:true,
+        submittedAt:new Date().toISOString(),
+        path:location.pathname
+      };
+      localStorage.setItem(key, JSON.stringify(payload));
+      try{ window.parent.postMessage(payload,'*'); }catch(e){}
+      try{ window.dispatchEvent(new CustomEvent('ashraf-lms-task-result',{detail:payload})); }catch(e){}
+      return {recorded:true, practice:false, payload};
+    },
+    decorateStart(){
+      const practice=this.hasFirstResult();
+      document.querySelectorAll('p').forEach(p=>{
+        p.innerHTML=p.innerHTML
+          .replace(/One attempt only\s*[•·]?/gi,'First attempt is recorded •')
+          .replace(/You cannot retake this task on this device\.?/gi,'You may practise this task again. Practice scores are not recorded.')
+          .replace(/you cannot retake it on this device\.?/gi,'you can practise again later; practice scores are not recorded.');
+      });
+      if(practice){
+        const startBtn=[...document.querySelectorAll('button')].find(b=>/Start/i.test(b.textContent));
+        if(startBtn) startBtn.textContent='Practice Again';
+        const host=document.querySelector('.start-card') || document.querySelector('#start .card') || document.querySelector('#start');
+        if(host && !document.getElementById('practiceModeNote')){
+          const n=document.createElement('div'); n.id='practiceModeNote';
+          n.style.cssText='margin:14px 0;padding:12px;border:2px solid #0d47a1;border-radius:12px;background:#e3f2fd;color:#0d47a1;font-weight:700';
+          n.textContent='Practice mode: your first score is already recorded. This attempt will not be sent to the teacher.';
+          const btn=host.querySelector('button'); host.insertBefore(n,btn||null);
+        }
+      }
+    },
+    showStatus(container, result){
+      if(!container) return;
+      const d=document.createElement('div');
+      d.style.cssText='margin-top:10px;font-size:16px;font-weight:700';
+      d.textContent=result.recorded ? 'First attempt recorded for the teacher.' : 'Practice attempt only — the teacher’s first recorded score was not changed.';
+      container.appendChild(d);
+    }
+  };
+  window.addEventListener('DOMContentLoaded',()=>window.AshrafAttempt.decorateStart());
+})();
+</script>
+</body></html>

@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pre-A1 Vocabulary Task 09 - Colors</title><style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#172033;font-size:18px;user-select:none}.start{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#0f5f8f,#163d67)}.start-card{background:white;border-radius:20px;padding:28px;max-width:760px;box-shadow:0 20px 50px #0005;text-align:center}.start-card h1{font-size:30px;margin:0 0 12px}.btn{border:0;border-radius:14px;padding:12px 20px;font-size:17px;font-weight:700;cursor:pointer;background:#0b74b8;color:white}.exit{background:#b42318}.submit{background:#0a7f3f;width:100%;margin-top:18px}.topbar{height:64px;background:#163d67;color:white;display:flex;align-items:center;gap:14px;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:5}.main{display:grid;grid-template-columns:35% 65%;height:calc(100vh - 64px)}.left{background:white;border-right:4px solid #d9e5ef;padding:22px;overflow:auto}.right{padding:18px;overflow:auto}.panel{background:#fff;border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:0 5px 18px #24364a14}.bank{display:flex;flex-wrap:wrap;gap:10px}.chip{border:2px dashed #6b86a1;border-radius:12px;padding:9px 12px;background:#f7fbff;font-weight:700}.q{background:white;border-radius:16px;padding:16px;margin-bottom:14px;border:2px solid #e4edf5}.q h3{font-size:19px;margin:0 0 10px}.opts label{display:block;border:2px solid #d9e5ef;border-radius:12px;margin:8px 0;padding:9px;background:#fbfdff}.gapselect{font-size:17px;padding:8px;border-radius:10px;border:2px solid #cbd8e6}.dropInput{font-size:17px;padding:8px;border-radius:10px;border:2px solid #cbd8e6;min-width:180px}.ok{border-color:#16803c!important;background:#e9f9ef!important}.bad{border-color:#d92d20!important;background:#fff0f0!important}.review{font-weight:700;margin-top:8px}.hidden{display:none}.score{font-size:22px;font-weight:800}.warn{background:#fff4e5;border:2px solid #ffb020;color:#7a3b00;border-radius:12px;padding:10px;margin:10px 0}.progress{height:10px;background:#d9e5ef;border-radius:99px;overflow:hidden;width:220px}.bar{height:100%;width:0;background:#15a34a}.locked{opacity:.95}@media(max-width:850px){.main{grid-template-columns:1fr;height:auto}.left{border-right:0;border-bottom:4px solid #d9e5ef;max-height:40vh;position:sticky;top:64px;z-index:2}.right{height:auto}.topbar{height:auto;flex-wrap:wrap;padding:10px}}
+</style></head><body>
+<div class="start"><div class="start-card"><h1>Pre-A1 Vocabulary Task 09</h1><h2>Colors</h2><p>10 questions = 10 marks. First attempt is recorded.</p><button class="btn" onclick="startTask()">Start Full Screen</button></div></div>
+<div class="exam hidden"><div class="topbar"><div><b>Vocabulary Task 09: Colors</b></div><div>Answered: <span id="answered">0</span>/10 <div class="progress"><div id="bar" class="bar"></div></div></div><button class="btn exit" onclick="endTask()">Exit / End Task</button></div>
+<div class="main"><aside class="left"><div class="panel"><h2>Word Bank</h2><div class="bank"><span class="chip">red</span><span class="chip">blue</span><span class="chip">green</span><span class="chip">yellow</span><span class="chip">black</span><span class="chip">white</span><span class="chip">brown</span><span class="chip">pink</span><span class="chip">purple</span><span class="chip">orange</span></div><p style="margin-top:16px">Use the words to complete the sentences. Some later questions have their own choices.</p></div></aside><section class="right"><div id="msg"></div><div class="q" id="qwrap1"><h3>Q1. A tomato is usually <b>_____</b>.</h3><select class="gapselect" id="q1"><option value="">Choose from the word bank</option><option>red</option><option>blue</option><option>green</option><option>yellow</option><option>black</option><option>white</option><option>brown</option><option>pink</option><option>purple</option><option>orange</option></select><div class="review"></div></div>
+<div class="q" id="qwrap2"><h3>Q2. The sky is often <b>_____</b>.</h3><select class="gapselect" id="q2"><option value="">Choose from the word bank</option><option>red</option><option>blue</option><option>green</option><option>yellow</option><option>black</option><option>white</option><option>brown</option><option>pink</option><option>purple</option><option>orange</option></select><div class="review"></div></div>
+<div class="q" id="qwrap3"><h3>Q3. Grass is <b>_____</b>.</h3><select class="gapselect" id="q3"><option value="">Choose from the word bank</option><option>red</option><option>blue</option><option>green</option><option>yellow</option><option>black</option><option>white</option><option>brown</option><option>pink</option><option>purple</option><option>orange</option></select><div class="review"></div></div>
+<div class="q" id="qwrap4"><h3>Q4. A banana is <b>_____</b>.</h3><select class="gapselect" id="q4"><option value="">Choose from the word bank</option><option>red</option><option>blue</option><option>green</option><option>yellow</option><option>black</option><option>white</option><option>brown</option><option>pink</option><option>purple</option><option>orange</option></select><div class="review"></div></div>
+<div class="q" id="qwrap5"><h3>Q5. Night is dark and <b>_____</b>.</h3><select class="gapselect" id="q5"><option value="">Choose from the word bank</option><option>red</option><option>blue</option><option>green</option><option>yellow</option><option>black</option><option>white</option><option>brown</option><option>pink</option><option>purple</option><option>orange</option></select><div class="review"></div></div>
+<div class="q" id="qwrap6"><h3>Q6. Milk is <b>_____</b>.</h3><div class="opts"><label><input type="radio" name="q6" value="white"> white</label><label><input type="radio" name="q6" value="green"> green</label><label><input type="radio" name="q6" value="brown"> brown</label></div><div class="review"></div></div>
+<div class="q" id="qwrap7"><h3>Q7. Chocolate is usually <b>_____</b>.</h3><select class="gapselect" id="q7"><option value="">Choose</option><option>brown</option><option>pink</option><option>blue</option></select><div class="review"></div></div>
+<div class="q" id="qwrap8"><h3>Q8. A rose can be <b>_____</b>.</h3><div class="opts"><label><input type="radio" name="q8" value="pink"> pink</label><label><input type="radio" name="q8" value="black"> black</label><label><input type="radio" name="q8" value="white"> white</label></div><div class="review"></div></div>
+<div class="q" id="qwrap9"><h3>Q9. Grapes can be <b>_____</b>.</h3><select class="gapselect" id="q9"><option value="">Choose</option><option>purple</option><option>yellow</option><option>red</option></select><div class="review"></div></div>
+<div class="q" id="qwrap10"><h3>Q10. Carrots are <b>_____</b>.</h3><div class="opts"><label><input type="radio" name="q10" value="orange"> orange</label><label><input type="radio" name="q10" value="blue"> blue</label><label><input type="radio" name="q10" value="green"> green</label></div><div class="review"></div></div><button class="btn submit" onclick="submitTask(false)">Submit Answers</button></section></div></div>
+<script>const ANSWERS={"q1": "red", "q2": "blue", "q3": "green", "q4": "yellow", "q5": "black", "q6": "white", "q7": "brown", "q8": "pink", "q9": "purple", "q10": "orange"};
+let submitted=false;let started=false;let answers=ANSWERS;let total=10;
+function startTask(){started=true;document.querySelector('.start').classList.add('hidden');document.querySelector('.exam').classList.remove('hidden');try{document.documentElement.requestFullscreen()}catch(e){} updateProgress();}
+function endTask(){ if(confirm('End this task now? Your answers will be submitted.')) submitTask(true); }
+function updateProgress(){let c=0;for(let i=1;i<=total;i++){let el=document.querySelector(`[name=q${i}]:checked`)||document.querySelector(`#q${i}`); if(el && el.value) c++;}document.getElementById('answered').textContent=c;document.getElementById('bar').style.width=(c*10)+'%';}
+function submitTask(force=false){ if(submitted)return; let missing=[]; let score=0; for(let i=1;i<=total;i++){let radio=document.querySelector(`[name=q${i}]:checked`);let sel=document.querySelector(`#q${i}`);let val=radio?radio.value:(sel?sel.value:''); if(!val) missing.push(i);}
+ if(missing.length&&!force){document.getElementById('msg').innerHTML='<div class="warn">Please answer: '+missing.join(', ')+'</div>';document.getElementById('qwrap'+missing[0]).scrollIntoView({behavior:'smooth',block:'center'});return;}
+ submitted=true;document.body.classList.add('locked');for(let i=1;i<=total;i++){let correct=answers['q'+i];let radio=document.querySelector(`[name=q${i}]:checked`);let sel=document.querySelector(`#q${i}`);let val=radio?radio.value:(sel?sel.value:'');let wrap=document.getElementById('qwrap'+i); if(val===correct){score++;wrap.classList.add('ok');}else{wrap.classList.add('bad');}
+ wrap.querySelectorAll('input,select').forEach(e=>e.disabled=true);let r=wrap.querySelector('.review');r.innerHTML=(val===correct?'✅ Correct':'❌ Your answer: '+(val||'No answer')+'<br>✅ Correct answer: '+correct);}
+ document.getElementById('msg').innerHTML='<div class="panel score">Score: '+score+' / 10</div>'; const attemptResult=window.AshrafAttempt.record(score,10); window.AshrafAttempt.showStatus(document.getElementById('msg'),attemptResult); try{document.exitFullscreen()}catch(e){} }
+document.addEventListener('change',updateProgress);document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('copy',e=>e.preventDefault());document.addEventListener('paste',e=>e.preventDefault());document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.key==='PrintScreen'||e.key==='F12'){e.preventDefault();alert('Security warning.');}});document.addEventListener('visibilitychange',()=>{if(started&&!submitted&&document.hidden) document.getElementById('msg').innerHTML='<div class="warn">Warning: stay on the task page.</div>';});
+</script>
+<script id="first-attempt-recorder">
+(function(){
+  const taskId = (document.body && document.body.dataset && document.body.dataset.taskid) ||
+                 (typeof TASK_ID !== 'undefined' ? TASK_ID : location.pathname.split('/').pop().replace(/\.html?$/i,''));
+  const key = 'ashraf_lms_first_result_v1:' + taskId;
+  window.AshrafAttempt = {
+    taskId,
+    key,
+    hasFirstResult(){ return !!localStorage.getItem(key); },
+    record(score,total){
+      if(this.hasFirstResult()) return {recorded:false, practice:true};
+      const payload={
+        type:'ashraf-lms-task-result',
+        version:1,
+        resultId:'first:'+taskId,
+        taskId:taskId,
+        score:Number(score),
+        total:Number(total),
+        percentage: total ? Math.round(Number(score)*100/Number(total)) : 0,
+        firstAttempt:true,
+        completed:true,
+        submittedAt:new Date().toISOString(),
+        path:location.pathname
+      };
+      localStorage.setItem(key, JSON.stringify(payload));
+      try{ window.parent.postMessage(payload,'*'); }catch(e){}
+      try{ window.dispatchEvent(new CustomEvent('ashraf-lms-task-result',{detail:payload})); }catch(e){}
+      return {recorded:true, practice:false, payload};
+    },
+    decorateStart(){
+      const practice=this.hasFirstResult();
+      document.querySelectorAll('p').forEach(p=>{
+        p.innerHTML=p.innerHTML
+          .replace(/One attempt only\s*[•·]?/gi,'First attempt is recorded •')
+          .replace(/You cannot retake this task on this device\.?/gi,'You may practise this task again. Practice scores are not recorded.')
+          .replace(/you cannot retake it on this device\.?/gi,'you can practise again later; practice scores are not recorded.');
+      });
+      if(practice){
+        const startBtn=[...document.querySelectorAll('button')].find(b=>/Start/i.test(b.textContent));
+        if(startBtn) startBtn.textContent='Practice Again';
+        const host=document.querySelector('.start-card') || document.querySelector('#start .card') || document.querySelector('#start');
+        if(host && !document.getElementById('practiceModeNote')){
+          const n=document.createElement('div'); n.id='practiceModeNote';
+          n.style.cssText='margin:14px 0;padding:12px;border:2px solid #0d47a1;border-radius:12px;background:#e3f2fd;color:#0d47a1;font-weight:700';
+          n.textContent='Practice mode: your first score is already recorded. This attempt will not be sent to the teacher.';
+          const btn=host.querySelector('button'); host.insertBefore(n,btn||null);
+        }
+      }
+    },
+    showStatus(container, result){
+      if(!container) return;
+      const d=document.createElement('div');
+      d.style.cssText='margin-top:10px;font-size:16px;font-weight:700';
+      d.textContent=result.recorded ? 'First attempt recorded for the teacher.' : 'Practice attempt only — the teacher’s first recorded score was not changed.';
+      container.appendChild(d);
+    }
+  };
+  window.addEventListener('DOMContentLoaded',()=>window.AshrafAttempt.decorateStart());
+})();
+</script>
+</body></html>
