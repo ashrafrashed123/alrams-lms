@@ -2008,7 +2008,8 @@ function renderRemedial(){
     }
   }catch(e){console.error('renderRemedial:',e);}
 }
-// Override any IIFE version — this must be the final renderRemedial
+// Save a protected reference BEFORE any IIFE can overwrite the renderRemedial variable
+window.__lms_renderRemedial=renderRemedial;
 window.renderRemedial=renderRemedial;
 function renderDailyLearning(){
   let cls=document.getElementById('dailyClass')?.value||'8-1';
@@ -2200,8 +2201,8 @@ function printRemedial(){showPage('remedial');renderRemedial();window.print();}
 
 function deleteLocalResult(i){if(confirm('Delete this result?')){let r=results[i];results.splice(i,1);saveStore();renderResults();if(r&&r._fbId&&window.deleteResultFromFirebase){window.deleteResultFromFirebase(r._fbId);}}}
 function printResults(){showPage('results');window.print();}
-window.setResultsFromFirebase=function(arr){results=arr;window._lmsResults=arr;localStorage.setItem('ar_pro_results',JSON.stringify(results));render();renderResults();if(document.getElementById('remedial'))renderRemedial();if(document.getElementById('dailyLearning'))renderDailyLearning();};
-function render(){try{const _g=id=>document.getElementById(id);const _t=(id,v)=>{var e=_g(id);if(e)e.textContent=v;};_t('stExams',exams.length);_t('stResults',results.length);_t('c81',exams.filter(e=>e.cls==='8-1').length+' Exams');_t('c82',exams.filter(e=>e.cls==='8-2').length+' Exams');_t('c83',exams.filter(e=>e.cls==='8-3').length+' Exams');_t('c84',exams.filter(e=>e.cls==='8-4').length+' Exams');var _rec=_g('recent');if(_rec){_rec.innerHTML='';exams.slice(-6).reverse().forEach(e=>_rec.innerHTML+=`<tr><td>${e.name}</td><td>Grade ${e.cls}</td><td><span class="badge ${e.type==='file'?'bFile':e.type==='link'?'bLink':'bActive'}">${e.type}</span></td><td><span class="badge bActive">Active</span></td></tr>`);}if(_g('resTable'))renderResults();var _lib=_g('library');if(_lib&&!_lib.classList.contains('hidden'))renderLibrary();var _cp=_g('classPage');if(currentClassView&&_cp&&!_cp.classList.contains('hidden'))renderClass(currentClassView);var _pr=_g('progress');if(_pr&&!_pr.classList.contains('hidden'))renderProgress();var _rm=_g('remedial');if(_rm&&!_rm.classList.contains('hidden'))renderRemedial();var _dl=_g('dailyLearning');if(_dl&&!_dl.classList.contains('hidden'))renderDailyLearning();}catch(e){console.error('render():',e);}}
+window.setResultsFromFirebase=function(arr){results=arr;window._lmsResults=arr;localStorage.setItem('ar_pro_results',JSON.stringify(results));render();renderResults();if(document.getElementById('remedial'))window.renderRemedial();if(document.getElementById('dailyLearning'))renderDailyLearning();};
+function render(){try{const _g=id=>document.getElementById(id);const _t=(id,v)=>{var e=_g(id);if(e)e.textContent=v;};_t('stExams',exams.length);_t('stResults',results.length);_t('c81',exams.filter(e=>e.cls==='8-1').length+' Exams');_t('c82',exams.filter(e=>e.cls==='8-2').length+' Exams');_t('c83',exams.filter(e=>e.cls==='8-3').length+' Exams');_t('c84',exams.filter(e=>e.cls==='8-4').length+' Exams');var _rec=_g('recent');if(_rec){_rec.innerHTML='';exams.slice(-6).reverse().forEach(e=>_rec.innerHTML+=`<tr><td>${e.name}</td><td>Grade ${e.cls}</td><td><span class="badge ${e.type==='file'?'bFile':e.type==='link'?'bLink':'bActive'}">${e.type}</span></td><td><span class="badge bActive">Active</span></td></tr>`);}if(_g('resTable'))renderResults();var _lib=_g('library');if(_lib&&!_lib.classList.contains('hidden'))renderLibrary();var _cp=_g('classPage');if(currentClassView&&_cp&&!_cp.classList.contains('hidden'))renderClass(currentClassView);var _pr=_g('progress');if(_pr&&!_pr.classList.contains('hidden'))renderProgress();var _rm=_g('remedial');if(_rm&&!_rm.classList.contains('hidden'))window.renderRemedial();var _dl=_g('dailyLearning');if(_dl&&!_dl.classList.contains('hidden'))renderDailyLearning();}catch(e){console.error('render():',e);}}
 function escP(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function renderProgress(){
   let pc=document.getElementById('progClass'); if(!pc)return;
@@ -2415,8 +2416,8 @@ try{if(document.getElementById('dailyLearning')&&typeof renderDailyLearning==='f
     {var _rmp=document.getElementById('remPre');if(_rmp){_rmp.textContent=counts.pre;var _ra1=document.getElementById('remA1');if(_ra1)_ra1.textContent=counts.a1;var _ra2=document.getElementById('remA2');if(_ra2)_ra2.textContent=counts.a2;var _rb1=document.getElementById('remB1');if(_rb1)_rb1.textContent=counts.b1;}}
   };
 })();
-// Ensure our clean renderRemedial always wins over IIFE overwrites
-window.renderRemedial=renderRemedial;
+// Restore from protected reference — renderRemedial variable was overwritten by IIFEs above
+window.renderRemedial=window.__lms_renderRemedial;
 </script>
 
 <!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
