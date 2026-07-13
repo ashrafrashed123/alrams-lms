@@ -2586,11 +2586,8 @@ window.lmsRefreshRemedial = async function(){
   window.lmsRenderRemedial();
 };
 
-window.lmsAssignPlan = async function(){
-  var cls = (document.getElementById('lmsRemClass')||{}).value || '8-1';
-  var bucket = window._lmsRemFilter;
-  if(!bucket) return alert('Click a level card first.');
-  var labelMap = {pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'};
+// Helper: resolve target students for current level filter
+window._lmsGetTargets = function(cls, bucket){
   var pool = Array.isArray(window._lmsResults)?window._lmsResults:(typeof results!=='undefined'&&Array.isArray(results)?results:[]);
   var norm = function(v){return String(v||'').toLowerCase().replace(/grade\s*/,'').replace(/\s+/g,'');};
   var tc = norm(cls);
@@ -2606,11 +2603,87 @@ window.lmsAssignPlan = async function(){
     if(best){pct=Number(String(best.percentage||'').replace('%',''));if(isNaN(pct)&&best.score){var m=String(best.score).match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);if(m&&Number(m[2]))pct=Math.round(Number(m[1])/Number(m[2])*100);}}
     if(window.lmsCefrLevel(pct).bucket===bucket) targets.push(st);
   });
-  if(!targets.length) return alert('No '+labelMap[bucket]+' students found in Grade '+cls+'.');
-  if(!confirm('Assign '+labelMap[bucket]+' remedial plan to '+targets.length+' student(s) in Grade '+cls+'?\n\nThis builds and saves their daily tasks based on CEFR level.')) return;
+  return targets;
+};
+
+// Helper: save custom task list to a student
+window._lmsSaveStudentPlan = async function(cls, st, tasks, weekLabel){
+  var sid = String(st.stum||st.studentId||st.studentStum||'').trim();
+  if(!sid) return;
+  var today = typeof todayISO==='function' ? todayISO() : new Date().toISOString().slice(0,10);
+  var rec = {
+    studentId:sid, studentStum:sid, stum:sid,
+    studentName:st.englishName||st.name||'',
+    className:cls, cls:cls,
+    dateKey:today, weekKey:weekLabel,
+    planType:'remedial',
+    tasks:tasks,
+    completedCount:0, totalTasks:tasks.length, allComplete:false,
+    teacherManaged:true, teacherAction:'plan-assigned',
+    updatedAt:Date.now(), source:'Remedial Plans'
+  };
+  var docId = String('STUM_'+sid+'__plan__'+weekLabel+'__'+cls).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,180);
+  if(window.saveTeacherDailyRecord) await window.saveTeacherDailyRecord(docId, rec);
+};
+
+window.lmsAssignPlan = async function(){
+  var cls = (document.getElementById('lmsRemClass')||{}).value || '8-1';
+  var bucket = window._lmsRemFilter;
+  if(!bucket) return alert('Click a level card first.');
+  var labelMap  = {pre:'Pre-A1', a1:'A1', a2:'A2', b1:'B1+'};
+  var folderMap = {pre:'pre-a1', a1:'a1',  a2:'a2', b1:'b1'};
+  var label  = labelMap[bucket];
+  var folder = folderMap[bucket];
+
+  // Ask which week
+  var weekInput = prompt('Which week to assign?\n(Enter a number, e.g. 1 for Week 1)', '1');
+  if(weekInput===null) return;
+  var weekNum = parseInt(weekInput);
+  if(isNaN(weekNum)||weekNum<1) return alert('Please enter a valid week number.');
+  var weekKey = 'week-'+weekNum;
+
+  // Fetch manifest from plans folder
+  var manifestUrl = 'plans/'+folder+'/'+weekKey+'/manifest.json';
+  var tasks;
+  try{
+    var resp = await fetch(manifestUrl);
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    var manifest = await resp.json();
+    if(!Array.isArray(manifest)||!manifest.length) throw new Error('Manifest is empty');
+    tasks = manifest.map(function(item,idx){
+      return {
+        idx:idx,
+        title:item.title||('Task '+(idx+1)),
+        skill:item.skill||'Reading',
+        link:'plans/'+folder+'/'+weekKey+'/'+(item.file||('task-'+(idx+1)+'.html')),
+        day:'Week '+weekNum+' · Day '+(idx+1),
+        completed:false, score:null, total:null, percentage:null
+      };
+    });
+  }catch(e){
+    return alert(
+      '❌ Could not load plan for '+label+' Week '+weekNum+'.\n\n'+
+      'Make sure this file exists on your server:\n'+manifestUrl+'\n\n'+
+      'See the folder structure guide below.\n\nError: '+e.message
+    );
+  }
+
+  var targets = window._lmsGetTargets(cls, bucket);
+  if(!targets.length) return alert('No '+label+' students found in Grade '+cls+'.');
+
+  var preview = tasks.slice(0,3).map(function(t){return '• '+t.skill+': '+t.title;}).join('\n');
+  if(!confirm(
+    'Assign '+label+' Week '+weekNum+' to '+targets.length+' student(s) in Grade '+cls+'?\n\n'+
+    tasks.length+' tasks:\n'+preview+(tasks.length>3?'\n  …and '+(tasks.length-3)+' more':'')+'\n\n'+
+    'Students will see these tasks in their Learning Plan.'
+  )) return;
+
   var done=0;
-  for(var i=0;i<targets.length;i++){try{await regenerateDailyForSidNoConfirm(cls,targets[i]);done++;}catch(e){console.warn(e);}}
-  alert('✅ Plan assigned to '+done+' '+labelMap[bucket]+' student(s) in Grade '+cls+'.');
+  for(var i=0;i<targets.length;i++){
+    try{ await window._lmsSaveStudentPlan(cls, targets[i], tasks, weekKey); done++; }
+    catch(e){ console.warn('assign failed for',targets[i],e); }
+  }
+  alert('✅ Week '+weekNum+' assigned to '+done+' '+label+' student(s) in Grade '+cls+'.');
 };
 
 // Override window.renderRemedial so existing call chains (showPage, setResultsFromFirebase) use our new function
