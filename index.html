@@ -622,6 +622,15 @@ async function loadMyDailyTasks(){
       if(!saved.taskSignature)saved.taskSignature=teacherDailyRecord.tasks.map(t=>(t.skill||'')+'|'+(t.title||'')).join('||');
       saveSavedWeekly(saved);
     }
+    // Also load the most recent remedial plan assignment (not filtered by date — plans last a week)
+    try{
+      const qplan=query(collection(window.db,'daily_tasks'),where('studentId','==',sid),where('planType','==','remedial'));
+      const qplanSnap=await getDocs(qplan);
+      let planRecs=[];
+      qplanSnap.forEach(d=>planRecs.push({...d.data(),_fbId:d.id}));
+      planRecs.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+      window._remedialPlanRecord=planRecs[0]||null;
+    }catch(e){console.warn('Remedial plan query failed',e);}
   }catch(e){console.warn('Could not load daily tasks from Firebase',e);}
 }
 
@@ -734,6 +743,9 @@ function buildDailyRecord(tasks,level,skills,pct){
 async function syncDailyTasksToFirebase(record){try{if(window.saveDailyTaskRecord)await window.saveDailyTaskRecord(record);}catch(e){console.warn('Daily task sync failed',e);}}
 function renderStudentPlan(){
   let box=document.getElementById('learningPlanCard');if(!box)return;
+  // Check for teacher-assigned remedial plan first
+  var planRec=window._remedialPlanRecord||(teacherDailyRecord&&teacherDailyRecord.planType==='remedial'?teacherDailyRecord:null);
+  if(planRec&&Array.isArray(planRec.tasks)&&planRec.tasks.length){window.lmsRenderRemedialPlanCard(box,planRec);return;}
   let records=getStudentRecords(), placement=findPlacementRecord(records);
   if(!placement){box.innerHTML='<h2>📅 Today\'s Learning</h2><div class="miniPlan"><b>No level test result yet.</b><br>Complete the placement / level test first. After submission, your two daily remedial tasks will appear here automatically.</div>';return;}
   let pct=Number(placement.percentage)||0, level=getPlanLevel(pct), skills=estimateSkills(records,pct), weak=getWeakestSkills(skills), tasks=chooseDailyTasks(level.code,weak);
@@ -2607,7 +2619,7 @@ window._lmsGetTargets = function(cls, bucket){
 };
 
 // Helper: save custom task list to a student
-window._lmsSaveStudentPlan = async function(cls, st, tasks, weekLabel){
+window._lmsSaveStudentPlan = async function(cls, st, tasks, weekLabel, cefrBucket, cefrLabel){
   var sid = String(st.stum||st.studentId||st.studentStum||'').trim();
   if(!sid) return;
   var today = typeof todayISO==='function' ? todayISO() : new Date().toISOString().slice(0,10);
@@ -2617,6 +2629,8 @@ window._lmsSaveStudentPlan = async function(cls, st, tasks, weekLabel){
     className:cls, cls:cls,
     dateKey:today, weekKey:weekLabel,
     planType:'remedial',
+    cefrBucket:cefrBucket||'',
+    cefrLabel:cefrLabel||'',
     tasks:tasks,
     completedCount:0, totalTasks:tasks.length, allComplete:false,
     teacherManaged:true, teacherAction:'plan-assigned',
@@ -2680,10 +2694,88 @@ window.lmsAssignPlan = async function(){
 
   var done=0;
   for(var i=0;i<targets.length;i++){
-    try{ await window._lmsSaveStudentPlan(cls, targets[i], tasks, weekKey); done++; }
+    try{ await window._lmsSaveStudentPlan(cls, targets[i], tasks, weekKey, bucket, label); done++; }
     catch(e){ console.warn('assign failed for',targets[i],e); }
   }
   alert('✅ Week '+weekNum+' assigned to '+done+' '+label+' student(s) in Grade '+cls+'.');
+};
+
+// ── Render the assigned remedial plan on the student page ──
+window.lmsRenderRemedialPlanCard = function(box, planRec){
+  var tasks = planRec.tasks;
+  var weekLabel = (planRec.weekKey||'').replace('week-','Week ') || 'This Week';
+  var cefrLabel = planRec.cefrLabel || '';
+  var done = tasks.filter(function(t){return t.completed;}).length;
+  var total = tasks.length;
+  var skillIcon = {Reading:'📖',Vocabulary:'📚',Grammar:'✏️',Writing:'✍️'};
+  var pillCls = {pre:'pill-red','Pre-A1':'pill-red',a1:'pill-yellow',A1:'pill-yellow',a2:'pill-blue',A2:'pill-blue',b1:'pill-green','B1+':'pill-green'};
+  var pill = pillCls[planRec.cefrBucket||''] || pillCls[cefrLabel] || 'pill-blue';
+  var taskHtml = tasks.map(function(t,i){
+    var ico = skillIcon[t.skill]||'📝';
+    var isDone = t.completed;
+    var scoreTag = isDone && t.percentage!=null ? '<div class="taskScore">✓ Done · '+t.percentage+'%</div>' : isDone ? '<div class="taskScore">✓ Done</div>' : '';
+    var btn = isDone
+      ? '<button class="light" style="font-size:13px;padding:7px 12px;margin-top:6px" onclick="window.lmsOpenPlanTask('+JSON.stringify(t.link||'')+','+i+',\'review\')">Review</button>'
+      : '<button class="green" style="font-size:13px;padding:7px 12px;margin-top:6px" onclick="window.lmsOpenPlanTask('+JSON.stringify(t.link||'')+','+i+',\'start\')">Start Task ▶</button>';
+    return '<div class="task '+(isDone?'taskDone':'')+'">'
+      +'<h3 style="font-size:14px;margin:0 0 4px">'+ico+' '+esc(t.skill)+'</h3>'
+      +'<b style="font-size:13px">'+esc(t.title)+'</b>'
+      +'<p class="small" style="margin:3px 0 5px;font-size:12px">'+esc(t.day||'')+'</p>'
+      +scoreTag+btn+'</div>';
+  }).join('');
+  var completionMsg = (done===total&&total>0)
+    ? '<div class="miniPlan" style="grid-column:1/-1;text-align:center"><h2>🎉 Excellent!</h2><b>You completed all '+total+' tasks for '+weekLabel+'!</b><br>Great work! Your teacher will assign the next week soon.</div>'
+    : '';
+  box.innerHTML =
+    '<h2>📋 Learning Plan — '+esc(weekLabel)+'</h2>'
+    +(cefrLabel?'<span class="levelPill '+pill+'">'+esc(cefrLabel)+'</span> ':'')
+    +'<div class="planGrid">'
+      +'<div class="planTile"><span class="small">Progress</span><b>'+done+' / '+total+'</b></div>'
+      +'<div class="planTile"><span class="small">Week</span><b style="font-size:18px">'+esc(weekLabel)+'</b></div>'
+      +'<div class="planTile"><span class="small">Level</span><b style="font-size:18px">'+esc(cefrLabel||'Remedial')+'</b></div>'
+      +'<div class="planTile"><span class="small">Status</span><b style="font-size:18px">'+(done===total&&total>0?'🎉 Done!':'📝 In Progress')+'</b></div>'
+    +'</div>'
+    +'<div class="miniPlan" style="margin:10px 0"><b>Your mission:</b> Complete all '+total+' tasks for '+esc(weekLabel)+'. Click <b>Start Task</b> to open each activity. Mark it done when finished.</div>'
+    +'<h3 style="margin:14px 0 8px">✅ Your '+total+' Tasks</h3>'
+    +'<div class="taskBox">'+completionMsg+taskHtml+'</div>';
+};
+
+// Open a plan task HTML file and show a "Mark Complete" panel
+window.lmsOpenPlanTask = function(link, taskIdx, mode){
+  if(!link) return alert('Task file not found.');
+  // Open HTML task in new tab
+  window.open(link, '_blank');
+  // Show a "mark done" prompt after a short delay (user returns)
+  if(mode==='start'){
+    setTimeout(function(){
+      var planRec = window._remedialPlanRecord;
+      if(!planRec||!Array.isArray(planRec.tasks)) return;
+      var t = planRec.tasks[taskIdx]; if(!t||t.completed) return;
+      if(confirm('Did you finish: "'+t.title+'"?\n\nClick OK to mark it as complete.')){
+        window.lmsMarkPlanTaskDone(taskIdx);
+      }
+    }, 3000);
+  }
+};
+
+// Mark a plan task as complete and save to Firebase
+window.lmsMarkPlanTaskDone = async function(taskIdx){
+  var planRec = window._remedialPlanRecord;
+  if(!planRec||!Array.isArray(planRec.tasks)) return;
+  planRec.tasks[taskIdx].completed = true;
+  planRec.tasks[taskIdx].completedAt = Date.now();
+  planRec.tasks[taskIdx].percentage = 100;
+  planRec.completedCount = planRec.tasks.filter(function(t){return t.completed;}).length;
+  planRec.allComplete = (planRec.completedCount===planRec.totalTasks);
+  planRec.updatedAt = Date.now();
+  // Save back to Firebase
+  if(window.saveTeacherDailyRecord && planRec._fbId){
+    try{ await window.saveTeacherDailyRecord(planRec._fbId, planRec); }
+    catch(e){ console.warn('Could not save plan completion', e); }
+  }
+  // Re-render
+  var box = document.getElementById('learningPlanCard');
+  if(box) window.lmsRenderRemedialPlanCard(box, planRec);
 };
 
 // Override window.renderRemedial so existing call chains (showPage, setResultsFromFirebase) use our new function
