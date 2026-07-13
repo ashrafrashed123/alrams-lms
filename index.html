@@ -169,7 +169,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     <div class="sec">MAIN</div><button class="active" onclick="showPage('dashboard',this)"><span class="ico">▦</span>Dashboard</button>
     <div class="sec">CLASSES</div><button onclick="openClass('8-1',this)"><span class="ico">👥</span>Grade 8-1</button><button onclick="openClass('8-2',this)"><span class="ico">👥</span>Grade 8-2</button><button onclick="openClass('8-3',this)"><span class="ico">👥</span>Grade 8-3</button><button onclick="openClass('8-4',this)"><span class="ico">👥</span>Grade 8-4</button>
     <div class="sec">EXAMS</div><button onclick="showPage('addExam',this)"><span class="ico">⬆</span>Upload Exam</button><button onclick="showPage('library',this)"><span class="ico">📚</span>Exam Library</button>
-    <div class="sec">REPORTS</div><button onclick="showPage('results',this)"><span class="ico">📊</span>Results Report</button><button onclick="showPage('remedial',this)"><span class="ico">🎯</span>Remedial Plans</button><button onclick="showPage('dailyLearning',this)"><span class="ico">📅</span>Daily Learning</button><button onclick="showPage('progress',this)"><span class="ico">📈</span>Monitor Exam</button>
+    <div class="sec">REPORTS</div><button onclick="showPage('results',this)"><span class="ico">📊</span>Results Report</button><button onclick="showPage('remedial',this)"><span class="ico">🎯</span>Remedial Plans</button><button onclick="showPage('progress',this)"><span class="ico">📈</span>Monitor Exam</button>
   </div>
 </aside>
 <main class="main">
@@ -270,51 +270,27 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 
     <section id="remedial" class="hidden">
       <div class="card">
-        <h3>🎯 Weekly Learning Status</h3>
-        <div class="note"><b>Automatic plan:</b> The system uses each student’s latest placement result and gives only two different daily tasks. Students see today’s tasks only.</div>
+        <h3>🎯 Remedial Plans — CEFR Classification</h3>
+        <div class="note"><b>Placement test results only.</b> Click a level card to see that group’s students. Counts update automatically from Firebase.</div>
         <div class="resultsTools" style="grid-template-columns:1fr 1fr auto auto">
           <select id="remClass" onchange="renderRemedial()"><option value="8-1">Grade 8-1</option><option value="8-2">Grade 8-2</option><option value="8-3">Grade 8-3</option><option value="8-4">Grade 8-4</option></select>
           <input id="remSearch" oninput="renderRemedial()" placeholder="Search student name">
-          <button class="btn light" onclick="refreshRemedialFirebase()">Refresh Firebase</button>
+          <button class="btn light" onclick="refreshRemedialFirebase()">🔄 Refresh Firebase</button>
           <button class="btn gold" onclick="printRemedial()">🖨 Print Plans</button>
-          <button class="btn gold" onclick="printAllParentReports()">📋 Print All Reports</button>
         </div>
         <div class="levelGrid">
-          <div class="levelCard" id="remCardPre" onclick="filterRemLevel('pre')" style="cursor:pointer" title="Click to filter"><span>🔴 Pre-A1</span><b id="remPre">0</b><small>Intensive support</small></div>
-          <div class="levelCard" id="remCardA1" onclick="filterRemLevel('a1')" style="cursor:pointer" title="Click to filter"><span>🟡 A1</span><b id="remA1">0</b><small>Basic support</small></div>
-          <div class="levelCard" id="remCardA2" onclick="filterRemLevel('a2')" style="cursor:pointer" title="Click to filter"><span>🟢 A2</span><b id="remA2">0</b><small>Reinforcement</small></div>
-          <div class="levelCard" id="remCardB1" onclick="filterRemLevel('b1')" style="cursor:pointer" title="Click to filter"><span>🔵 B1+</span><b id="remB1">0</b><small>Enrichment</small></div>
+          <div class="levelCard" id="remCardPre" onclick="filterRemLevel(‘pre’)" style="cursor:pointer;transition:all .15s" title="Click to show Pre-A1 students"><span>🔴 Pre-A1</span><b id="remPre">—</b><small>Intensive support</small></div>
+          <div class="levelCard" id="remCardA1"  onclick="filterRemLevel(‘a1’)"  style="cursor:pointer;transition:all .15s" title="Click to show A1 students"><span>🟡 A1</span><b id="remA1">—</b><small>Basic support</small></div>
+          <div class="levelCard" id="remCardA2"  onclick="filterRemLevel(‘a2’)"  style="cursor:pointer;transition:all .15s" title="Click to show A2 students"><span>🟢 A2</span><b id="remA2">—</b><small>Reinforcement</small></div>
+          <div class="levelCard" id="remCardB1"  onclick="filterRemLevel(‘b1’)"  style="cursor:pointer;transition:all .15s" title="Click to show B1+ students"><span>🔵 B1+</span><b id="remB1">—</b><small>Enrichment</small></div>
         </div>
-        <div id="remLevelBanner" style="display:none;margin:8px 0;padding:8px 14px;background:#dbeafe;border-radius:8px;font-size:13px;color:#1d4ed8;font-weight:600"></div>
+        <div id="remLevelBanner" style="display:none;margin:8px 0 4px;padding:8px 14px;background:#dbeafe;border-radius:8px;font-size:13px;color:#1d4ed8;font-weight:600"></div>
         <div class="tableWrap">
-          <table class="table"><thead><tr><th>#</th><th>Student</th><th>Class</th><th>Level Result</th><th>CEFR</th><th>Weak Skills</th><th>Week 1 Plan</th><th>Status</th><th>Action</th></tr></thead><tbody id="remTable"></tbody></table>
+          <table class="table"><thead><tr><th>#</th><th>Student</th><th>STUM</th><th>Score</th><th>CEFR Level</th></tr></thead><tbody id="remTable"><tr><td colspan="5" style="text-align:center;color:#64748b;padding:20px">Click 🔄 Refresh Firebase to load results</td></tr></tbody></table>
         </div>
       </div>
     </section>
-    <section id="dailyLearning" class="hidden">
-      <div class="card">
-        <h3>📅 Weekly Progress Dashboard</h3>
-        <div class="note"><b>Weekly system:</b> Each student receives 10 level-matched tasks per week. This page shows weekly completion status and teacher notifications.</div>
-        <div class="resultsTools" style="grid-template-columns:1fr 1fr auto auto">
-          <select id="dailyClass" onchange="renderDailyLearning()"><option value="8-1">Grade 8-1</option><option value="8-2">Grade 8-2</option><option value="8-3">Grade 8-3</option><option value="8-4">Grade 8-4</option></select>
-          <input id="dailySearch" oninput="renderDailyLearning()" placeholder="Search student name">
-          <button class="btn light" onclick="refreshDailyLearningFirebase()">Refresh Firebase</button>
-          <button class="btn green" onclick="bulkRegenerateDailyTasks()">Regenerate Week 1</button>
-          <button class="btn red" onclick="bulkDeleteDailyTasks()">Delete Week 1</button>
-          <button class="btn gold" onclick="printDailyLearning()">Print Weekly Status</button>
-        </div>
-        <div class="resultStats">
-          <div class="resultMini"><b id="dailyTotal">0</b><span>Students</span></div>
-          <div class="resultMini"><b id="dailyComplete">0</b><span>Completed Week 1</span></div>
-          <div class="resultMini"><b id="dailyStarted">0</b><span>Started</span></div>
-          <div class="resultMini"><b id="dailyNotStarted">0</b><span>Not started</span></div>
-        </div>
-        <div class="tableWrap">
-          <table class="table"><thead><tr><th>#</th><th>Student</th><th>Level</th><th>Week</th><th>Progress</th><th>Score</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead><tbody id="dailyTable"></tbody></table>
-        </div>
-      </div>
-    </section>
-    <section id="progress" class="hidden">
+<section id="progress" class="hidden">
       <div class="card">
         <h3>📈 Monitor Exam <span id="firebaseStatus2" class="firebaseStatus">Live</span></h3>
         <div class="note"><b>Monitor Exam:</b> Pick a class, then optionally pick one exam to monitor that test for that class only. With "All Exams" selected, columns show every exam assigned to the class. Each cell shows <b>Completed</b> (with questions answered and score%) or <b>Not Started</b> (0 questions answered). Click "Refresh Firebase" on the Results Report page first to pull in the latest submissions.</div>
@@ -1934,44 +1910,106 @@ async function bulkRegenerateDailyTasks(){let cls=document.getElementById('daily
 async function regenerateDailyForSidNoConfirm(cls,st){let r=getStudentLatestDiagnosis(st,cls), pct=r?Number(String(r.percentage).replace('%','')):NaN, lev=remPctLevel(pct);if(lev.code==='No Test')return;let skills=estimateSkillsTeacherForStudent(st,cls,isNaN(pct)?0:pct), weak=weakestSkillsTeacher(skills).reverse();let tasks=chooseDailyTasksTeacher(lev.code,weak);let rec=buildTeacherDailyRecord(st,cls,tasks,'bulk-regenerated');if(window.saveTeacherDailyRecord)await window.saveTeacherDailyRecord(dailyDocIdFor(st),rec);}
 async function bulkDeleteDailyTasks(){let cls=document.getElementById('dailyClass')?.value||'8-1';let students=makeRemedialStudentsForClass(cls);if(!confirm('Delete today\'s tasks for all '+students.length+' students in '+cls+'?\n\nPlacement tests and exam results will NOT be deleted.'))return;for(const st of students){let rec=buildTeacherDailyRecord(st,cls,[],'bulk-deleted');if(!rec)continue;rec.deleted=true;rec.deletedAt=Date.now();rec.totalTasks=0;if(window.saveTeacherDailyRecord)await window.saveTeacherDailyRecord(dailyDocIdFor(st),rec);}await refreshDailyLearningFirebase();alert('Class daily tasks deleted.');}
 
-let _remLevelFilter=null;
+// ── REMEDIAL PLANS — complete rewrite ──
+var _remLevelFilter=null;
 function filterRemLevel(bucket){_remLevelFilter=(_remLevelFilter===bucket)?null:bucket;renderRemedial();}
 function renderRemedial(){
-  let cls=document.getElementById('remClass')?.value||'8-1';
-  let q=(document.getElementById('remSearch')?.value||'').toLowerCase();
-  let students=makeRemedialStudentsForClass(cls).filter(st=>(st.englishName||st.name||'').toLowerCase().includes(q));
-  let counts={pre:0,a1:0,a2:0,b1:0};
-  let html=''; let rowNum=0;
-  students.forEach((st)=>{
-    let r=getStudentLatestDiagnosis(st,cls);
-    let pct=r?Number(String(r.percentage).replace('%','')):NaN;
-    if(r && isNaN(pct) && r.score){let m=String(r.score).match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);if(m&&Number(m[2])) pct=Math.round(Number(m[1])/Number(m[2])*100);}
-    if(r && isNaN(pct) && r.total && r.score!==undefined && String(r.score).indexOf('/')<0){pct=Math.round((Number(r.score)/Number(r.total))*100);}
-    let lev=remPctLevel(pct); if(counts[lev.bucket]!==undefined)counts[lev.bucket]++;
-    if(_remLevelFilter && lev.bucket!==_remLevelFilter)return;
-    rowNum++;
-    let skills=estimateSkillsTeacherForStudent(st,cls,isNaN(pct)?0:pct), weak=weakestSkillsTeacher(skills), tasks=chooseDailyTasksTeacher(lev.code,weak);
-    let rec=getDailyRecordForStudent(st,cls); if(rec&&Array.isArray(rec.tasks)&&rec.tasks.length)tasks=rec.tasks;
-    let w=weeklyStatsFromRecord(rec,tasks);
-    let score=r?(String(isNaN(pct)?(r.percentage||''):pct)+'%<br><small>'+escP(r.exam||'')+'</small>'):'<span class="priorityYellow">No result</span>';
-    html+=`<tr><td>${rowNum}</td><td>${escP(st.englishName||st.name||'')}<br><small>ID: ${escP(stumKeyTeacher(st)||'—')}</small></td><td>${escP(cls)}</td><td>${score}</td><td><span class="${lev.className}">${lev.label}</span></td><td>${progressHtmlFromWeekly(w)}</td><td><span class="${w.cls}">${w.label}</span>${w.avg!==null?'<br><small>Score: '+w.avg+'%</small>':''}</td><td>${actionButtonsFor(st,cls)}</td></tr>`;
-  });
-  // Update table
-  {var _rmt=document.getElementById('remTable');if(_rmt)_rmt.innerHTML=html||'<tr><td colspan="8" style="color:#64748b;text-align:center;padding:16px">'+(rowNum===0&&_remLevelFilter?'No students at this level in '+cls+'.':'No students/results found for this class. Click Refresh Firebase after students submit.')+'</td></tr>';}
-  // Update counts on cards
-  {var _rmp=document.getElementById('remPre');if(_rmp){_rmp.textContent=counts.pre;var _ra1=document.getElementById('remA1');if(_ra1)_ra1.textContent=counts.a1;var _ra2=document.getElementById('remA2');if(_ra2)_ra2.textContent=counts.a2;var _rb1=document.getElementById('remB1');if(_rb1)_rb1.textContent=counts.b1;}}
-  // Highlight active card
-  const cardMap={pre:'remCardPre',a1:'remCardA1',a2:'remCardA2',b1:'remCardB1'};
-  const labelMap={pre:'🔴 Pre-A1',a1:'🟡 A1',a2:'🟢 A2',b1:'🔵 B1+'};
-  Object.entries(cardMap).forEach(([b,id])=>{
-    let el=document.getElementById(id); if(!el)return;
-    if(_remLevelFilter===b){el.style.outline='3px solid #1d4ed8';el.style.background='#dbeafe';}
-    else{el.style.outline='';el.style.background='';}
-  });
-  // Banner
-  let banner=document.getElementById('remLevelBanner');
-  if(banner){if(_remLevelFilter){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[_remLevelFilter]+'</b> students in '+cls+' ('+rowNum+') — <a href="#" onclick="event.preventDefault();filterRemLevel(\''+_remLevelFilter+'\')">Show all levels</a>';}else{banner.style.display='none';}}
+  try{
+    var cls=document.getElementById('remClass')?.value||'8-1';
+    var q=(document.getElementById('remSearch')?.value||'').toLowerCase();
+    var classStudents=PSTUDENTS[cls]||[];
+
+    // Read Firebase results — window._lmsResults is set by the Firebase module
+    var pool=Array.isArray(window._lmsResults)?window._lmsResults:
+             Array.isArray(results)?results:[];
+
+    // Class filter (normalise "8-1" vs "Grade 8-1" etc.)
+    var normCls=function(v){return String(v||'').toLowerCase().replace(/grade\s*/,'').replace(/\s+/g,'');};
+    var tCls=normCls(cls);
+    var classPool=pool.filter(function(r){
+      if(r.isDailyTask) return false;
+      var rc=normCls(r.cls||r.className||r.grade||r.class||'');
+      return rc===tCls||rc===''||!rc;
+    });
+
+    var counts={pre:0,a1:0,a2:0,b1:0};
+    var html=''; var rowNum=0;
+
+    classStudents.filter(function(st){
+      return (st.englishName||st.name||'').toLowerCase().includes(q);
+    }).forEach(function(st){
+      var sid=String(st.stum||st.studentId||st.studentStum||'').trim();
+      if(!sid) return;
+
+      // Find this student's results
+      var matches=classPool.filter(function(r){
+        return String(r.studentId||r.stum||r.studentStum||'').trim()===sid;
+      });
+
+      // Prefer placement tests for CEFR classification
+      var placement=matches.filter(function(r){
+        return /placement|level|diagnostic/i.test(String(r.exam||r.examName||r.examId||''));
+      });
+      var use=placement.length?placement:matches;
+      var latest=use.length?use.sort(function(a,b){return (b.timestamp||0)-(a.timestamp||0);})[0]:null;
+
+      var pct=NaN;
+      if(latest){
+        pct=Number(String(latest.percentage||'').replace('%',''));
+        if(isNaN(pct)&&latest.score){
+          var m=String(latest.score).match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);
+          if(m&&Number(m[2]))pct=Math.round(Number(m[1])/Number(m[2])*100);
+        }
+        if(isNaN(pct)&&latest.total&&latest.score!==undefined){
+          pct=Math.round(Number(latest.score)/Number(latest.total)*100);
+        }
+      }
+
+      var lev=remPctLevel(pct);
+      if(counts[lev.bucket]!==undefined)counts[lev.bucket]++;
+      if(_remLevelFilter&&lev.bucket!==_remLevelFilter)return;
+      rowNum++;
+
+      var scoreCell=latest
+        ?('<b>'+(isNaN(pct)?'?':pct)+'%</b><br><small>'+escP(latest.exam||latest.examName||'')+'</small>')
+        :'<span style="color:#f59e0b;font-size:13px">No test yet</span>';
+
+      html+='<tr>'
+        +'<td>'+rowNum+'</td>'
+        +'<td>'+escP(st.englishName||st.name||'')+'</td>'
+        +'<td>'+escP(sid)+'</td>'
+        +'<td>'+scoreCell+'</td>'
+        +'<td><span class="'+lev.className+'">'+lev.label+'</span></td>'
+        +'</tr>';
+    });
+
+    var remTable=document.getElementById('remTable');
+    if(remTable){
+      var empty=_remLevelFilter
+        ?'No '+{pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'}[_remLevelFilter]+' students in '+cls+'.'
+        :'All students shown — '+classStudents.length+' students, '+pool.filter(function(r){return !r.isDailyTask;}).length+' results loaded.';
+      remTable.innerHTML=html||'<tr><td colspan="5" style="text-align:center;color:#64748b;padding:20px">'+empty+'</td></tr>';
+    }
+
+    // Update level card counts
+    ['pre','a1','a2','b1'].forEach(function(b){
+      var el=document.getElementById({pre:'remPre',a1:'remA1',a2:'remA2',b1:'remB1'}[b]);
+      if(el)el.textContent=counts[b];
+      var card=document.getElementById({pre:'remCardPre',a1:'remCardA1',a2:'remCardA2',b1:'remCardB1'}[b]);
+      if(card){card.style.outline=_remLevelFilter===b?'3px solid #1d4ed8':'';card.style.background=_remLevelFilter===b?'#dbeafe':'';}
+    });
+
+    // Banner
+    var banner=document.getElementById('remLevelBanner');
+    var labelMap={pre:'🔴 Pre-A1',a1:'🟡 A1',a2:'🟢 A2',b1:'🔵 B1+'};
+    if(banner){
+      if(_remLevelFilter){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[_remLevelFilter]+'</b> — '+cls+' ('+rowNum+' students) &nbsp;<a href="#" onclick="event.preventDefault();filterRemLevel(\''+_remLevelFilter+'\')">Show all</a>';}
+      else banner.style.display='none';
+    }
+  }catch(e){console.error('renderRemedial:',e);}
 }
+// Override any IIFE version — this must be the final renderRemedial
+window.renderRemedial=renderRemedial;
 function renderDailyLearning(){
   let cls=document.getElementById('dailyClass')?.value||'8-1';
   let q=(document.getElementById('dailySearch')?.value||'').toLowerCase();
@@ -2377,6 +2415,8 @@ try{if(document.getElementById('dailyLearning')&&typeof renderDailyLearning==='f
     {var _rmp=document.getElementById('remPre');if(_rmp){_rmp.textContent=counts.pre;var _ra1=document.getElementById('remA1');if(_ra1)_ra1.textContent=counts.a1;var _ra2=document.getElementById('remA2');if(_ra2)_ra2.textContent=counts.a2;var _rb1=document.getElementById('remB1');if(_rb1)_rb1.textContent=counts.b1;}}
   };
 })();
+// Ensure our clean renderRemedial always wins over IIFE overwrites
+window.renderRemedial=renderRemedial;
 </script>
 
 <!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
