@@ -1911,11 +1911,11 @@ async function regenerateDailyForSidNoConfirm(cls,st){let r=getStudentLatestDiag
 async function bulkDeleteDailyTasks(){let cls=document.getElementById('dailyClass')?.value||'8-1';let students=makeRemedialStudentsForClass(cls);if(!confirm('Delete today\'s tasks for all '+students.length+' students in '+cls+'?\n\nPlacement tests and exam results will NOT be deleted.'))return;for(const st of students){let rec=buildTeacherDailyRecord(st,cls,[],'bulk-deleted');if(!rec)continue;rec.deleted=true;rec.deletedAt=Date.now();rec.totalTasks=0;if(window.saveTeacherDailyRecord)await window.saveTeacherDailyRecord(dailyDocIdFor(st),rec);}await refreshDailyLearningFirebase();alert('Class daily tasks deleted.');}
 
 // ── REMEDIAL PLANS — complete rewrite ──
-var _remLevelFilter=null;
-function filterRemLevel(bucket){_remLevelFilter=(_remLevelFilter===bucket)?null:bucket;window.renderRemedial();}
+window._remLevelFilter=null;
+function filterRemLevel(bucket){window._remLevelFilter=(window._remLevelFilter===bucket)?null:bucket;window.renderRemedial();}
 async function assignPlanForLevel(){
   var cls=document.getElementById('remClass')?.value||'8-1';
-  var bucket=_remLevelFilter;
+  var bucket=window._remLevelFilter;
   if(!bucket)return alert('Click a level card first to select a group.');
   var levelLabel={pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'}[bucket]||bucket;
   var pool=Array.isArray(window._lmsResults)?window._lmsResults:Array.isArray(results)?results:[];
@@ -2005,7 +2005,7 @@ function renderRemedial(){
 
       var lev=remPctLevel(pct);
       if(counts[lev.bucket]!==undefined)counts[lev.bucket]++;
-      if(_remLevelFilter&&lev.bucket!==_remLevelFilter)return;
+      if(window._remLevelFilter&&lev.bucket!==window._remLevelFilter)return;
       rowNum++;
 
       var scoreCell=latest
@@ -2023,25 +2023,28 @@ function renderRemedial(){
 
     var remTable=document.getElementById('remTable');
     if(remTable){
-      var empty=_remLevelFilter
-        ?'No '+{pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'}[_remLevelFilter]+' students in '+cls+'.'
+      var rlf=window._remLevelFilter;
+      var empty=rlf
+        ?'No '+{pre:'Pre-A1',a1:'A1',a2:'A2',b1:'B1+'}[rlf]+' students in '+cls+'.'
         :'All students shown — '+classStudents.length+' students, '+pool.filter(function(r){return !r.isDailyTask;}).length+' results loaded.';
       remTable.innerHTML=html||'<tr><td colspan="5" style="text-align:center;color:#64748b;padding:20px">'+empty+'</td></tr>';
     }
 
     // Update level card counts
+    var rlf2=window._remLevelFilter;
     ['pre','a1','a2','b1'].forEach(function(b){
       var el=document.getElementById({pre:'remPre',a1:'remA1',a2:'remA2',b1:'remB1'}[b]);
       if(el)el.textContent=counts[b];
       var card=document.getElementById({pre:'remCardPre',a1:'remCardA1',a2:'remCardA2',b1:'remCardB1'}[b]);
-      if(card){card.style.outline=_remLevelFilter===b?'3px solid #1d4ed8':'';card.style.background=_remLevelFilter===b?'#dbeafe':'';}
+      if(card){card.style.outline=rlf2===b?'3px solid #1d4ed8':'';card.style.background=rlf2===b?'#dbeafe':'';}
     });
 
     // Banner
+    var rlf3=window._remLevelFilter;
     var banner=document.getElementById('remLevelBanner');
     var labelMap={pre:'🔴 Pre-A1',a1:'🟡 A1',a2:'🟢 A2',b1:'🔵 B1+'};
     if(banner){
-      if(_remLevelFilter){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[_remLevelFilter]+'</b> — '+cls+' ('+rowNum+' student'+(rowNum===1?'':'s')+') &nbsp;<a href="#" onclick="event.preventDefault();filterRemLevel(\''+_remLevelFilter+'\')">Show all</a> &nbsp;<button class="btn green" style="padding:3px 12px;font-size:13px" onclick="assignPlanForLevel()">📋 Assign Plan</button>';}
+      if(rlf3){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[rlf3]+'</b> — '+cls+' ('+rowNum+' student'+(rowNum===1?'':'s')+') &nbsp;<a href="#" onclick="event.preventDefault();filterRemLevel(\''+rlf3+'\')">Show all</a> &nbsp;<button class="btn green" style="padding:3px 12px;font-size:13px" onclick="assignPlanForLevel()">📋 Assign Plan</button>';}
       else banner.style.display='none';
     }
   }catch(e){console.error('renderRemedial:',e);}
