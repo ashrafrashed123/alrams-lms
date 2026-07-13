@@ -285,22 +285,22 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 
         <!-- Level cards -->
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
-          <div id="lmsCardPre" onclick="window.lmsFilterLevel(‘pre’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+          <div id="lmsCardPre" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
             <div style="font-size:16px;font-weight:600">🔴 Pre-A1</div>
             <div id="lmsCountPre" style="font-size:32px;font-weight:800;margin:6px 0;color:#dc2626">—</div>
             <div style="font-size:12px;color:#64748b">Intensive support</div>
           </div>
-          <div id="lmsCardA1" onclick="window.lmsFilterLevel(‘a1’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+          <div id="lmsCardA1" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
             <div style="font-size:16px;font-weight:600">🟡 A1</div>
             <div id="lmsCountA1" style="font-size:32px;font-weight:800;margin:6px 0;color:#d97706">—</div>
             <div style="font-size:12px;color:#64748b">Basic support</div>
           </div>
-          <div id="lmsCardA2" onclick="window.lmsFilterLevel(‘a2’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+          <div id="lmsCardA2" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
             <div style="font-size:16px;font-weight:600">🟢 A2</div>
             <div id="lmsCountA2" style="font-size:32px;font-weight:800;margin:6px 0;color:#16a34a">—</div>
             <div style="font-size:12px;color:#64748b">Reinforcement</div>
           </div>
-          <div id="lmsCardB1" onclick="window.lmsFilterLevel(‘b1’)" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
+          <div id="lmsCardB1" style="cursor:pointer;border:2px solid #e2e8f0;border-radius:12px;padding:16px 12px;text-align:center;transition:all .2s;user-select:none">
             <div style="font-size:16px;font-weight:600">🔵 B1+</div>
             <div id="lmsCountB1" style="font-size:32px;font-weight:800;margin:6px 0;color:#2563eb">—</div>
             <div style="font-size:12px;color:#64748b">Enrichment</div>
@@ -2615,6 +2615,18 @@ window.lmsAssignPlan = async function(){
 
 // Override window.renderRemedial so existing call chains (showPage, setResultsFromFirebase) use our new function
 window.renderRemedial = window.lmsRenderRemedial;
+
+// Attach card click handlers via JS — more reliable than inline onclick
+(function attachRemCards(){
+  var map = {lmsCardPre:'pre', lmsCardA1:'a1', lmsCardA2:'a2', lmsCardB1:'b1'};
+  Object.keys(map).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){
+      el.onclick = null; // clear any existing handler
+      el.addEventListener('click', function(){ window.lmsFilterLevel(map[id]); });
+    }
+  });
+})();
 </script>
 
 <!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
