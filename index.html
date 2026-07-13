@@ -1817,13 +1817,17 @@ function resultMatchesClassForRemedial(r, cls){
   return !rClass || rClass===targetClass || skey.includes(targetClass);
 }
 function isPlacementResult(r){
-  // Accept only placement/diagnostic/level test results; exclude daily tasks and regular exams
   if(r.isDailyTask) return false;
   return /placement|level|diagnostic/i.test(String((r.exam||r.examName||r.examId||'')));
 }
 function getRemedialResultPool(cls){
-  // Only include placement test results (not daily tasks or regular exams) for CEFR classification
-  return results.filter(r=>!r.isDailyTask && isPlacementResult(r)).map(normalizeResult).filter(r=>resultMatchesClassForRemedial(r,cls));
+  // Read from window._lmsResults (set by Firebase module) or fall back to script-scope results
+  var pool = (window._lmsResults && window._lmsResults.length) ? window._lmsResults : results;
+  // Classify by placement tests only; exclude daily task records
+  var placement = pool.filter(function(r){return !r.isDailyTask && isPlacementResult(r);});
+  // If no placement tests found at all, fall back to all non-daily results so students still appear
+  var src = placement.length ? placement : pool.filter(function(r){return !r.isDailyTask;});
+  return src.map(normalizeResult).filter(function(r){return resultMatchesClassForRemedial(r,cls);});
 }
 function getLatestFromList(list){
   if(!list || !list.length) return null;
@@ -2158,7 +2162,7 @@ function printRemedial(){showPage('remedial');renderRemedial();window.print();}
 
 function deleteLocalResult(i){if(confirm('Delete this result?')){let r=results[i];results.splice(i,1);saveStore();renderResults();if(r&&r._fbId&&window.deleteResultFromFirebase){window.deleteResultFromFirebase(r._fbId);}}}
 function printResults(){showPage('results');window.print();}
-window.setResultsFromFirebase=function(arr){results=arr;localStorage.setItem('ar_pro_results',JSON.stringify(results));render();renderResults();if(document.getElementById('remedial'))renderRemedial();if(document.getElementById('dailyLearning'))renderDailyLearning();};
+window.setResultsFromFirebase=function(arr){results=arr;window._lmsResults=arr;localStorage.setItem('ar_pro_results',JSON.stringify(results));render();renderResults();if(document.getElementById('remedial'))renderRemedial();if(document.getElementById('dailyLearning'))renderDailyLearning();};
 function render(){try{const _g=id=>document.getElementById(id);const _t=(id,v)=>{var e=_g(id);if(e)e.textContent=v;};_t('stExams',exams.length);_t('stResults',results.length);_t('c81',exams.filter(e=>e.cls==='8-1').length+' Exams');_t('c82',exams.filter(e=>e.cls==='8-2').length+' Exams');_t('c83',exams.filter(e=>e.cls==='8-3').length+' Exams');_t('c84',exams.filter(e=>e.cls==='8-4').length+' Exams');var _rec=_g('recent');if(_rec){_rec.innerHTML='';exams.slice(-6).reverse().forEach(e=>_rec.innerHTML+=`<tr><td>${e.name}</td><td>Grade ${e.cls}</td><td><span class="badge ${e.type==='file'?'bFile':e.type==='link'?'bLink':'bActive'}">${e.type}</span></td><td><span class="badge bActive">Active</span></td></tr>`);}if(_g('resTable'))renderResults();var _lib=_g('library');if(_lib&&!_lib.classList.contains('hidden'))renderLibrary();var _cp=_g('classPage');if(currentClassView&&_cp&&!_cp.classList.contains('hidden'))renderClass(currentClassView);var _pr=_g('progress');if(_pr&&!_pr.classList.contains('hidden'))renderProgress();var _rm=_g('remedial');if(_rm&&!_rm.classList.contains('hidden'))renderRemedial();var _dl=_g('dailyLearning');if(_dl&&!_dl.classList.contains('hidden'))renderDailyLearning();}catch(e){console.error('render():',e);}}
 function escP(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function renderProgress(){
@@ -2564,8 +2568,9 @@ window.loadFirebaseResults = function(){
       const firebaseResults = [];
       snap.forEach(d => firebaseResults.push({...d.data(), source:"Firebase", _fbId: d.id}));
       firebaseResults.sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
-      // Use window.setResultsFromFirebase so the script-level `results` variable is updated correctly
-      // (ES module scope cannot directly reach the let-declared `results` in the regular script)
+      // Store on window so any scope (module or regular script) can read it
+      window._lmsResults = firebaseResults;
+      // Also update via setResultsFromFirebase to keep the script-scope `results` in sync
       if(window.setResultsFromFirebase){
         window.setResultsFromFirebase(firebaseResults);
       } else {
