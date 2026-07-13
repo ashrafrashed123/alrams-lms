@@ -279,10 +279,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
           <button class="btn gold" onclick="printRemedial()">🖨 Print Plans</button>
         </div>
         <div class="levelGrid">
-          <div class="levelCard" id="remCardPre" onclick="filterRemLevel(‘pre’)" style="cursor:pointer;transition:all .15s" title="Click to show Pre-A1 students"><span>🔴 Pre-A1</span><b id="remPre">—</b><small>Intensive support</small></div>
-          <div class="levelCard" id="remCardA1"  onclick="filterRemLevel(‘a1’)"  style="cursor:pointer;transition:all .15s" title="Click to show A1 students"><span>🟡 A1</span><b id="remA1">—</b><small>Basic support</small></div>
-          <div class="levelCard" id="remCardA2"  onclick="filterRemLevel(‘a2’)"  style="cursor:pointer;transition:all .15s" title="Click to show A2 students"><span>🟢 A2</span><b id="remA2">—</b><small>Reinforcement</small></div>
-          <div class="levelCard" id="remCardB1"  onclick="filterRemLevel(‘b1’)"  style="cursor:pointer;transition:all .15s" title="Click to show B1+ students"><span>🔵 B1+</span><b id="remB1">—</b><small>Enrichment</small></div>
+          <div class="levelCard" id="remCardPre" onclick="window._remLevelFilter=(window._remLevelFilter===’pre’?null:’pre’);window.renderRemedial();" style="cursor:pointer;transition:all .15s" title="Click to show Pre-A1 students"><span>🔴 Pre-A1</span><b id="remPre">—</b><small>Intensive support</small></div>
+          <div class="levelCard" id="remCardA1"  onclick="window._remLevelFilter=(window._remLevelFilter===’a1’?null:’a1’);window.renderRemedial();"   style="cursor:pointer;transition:all .15s" title="Click to show A1 students"><span>🟡 A1</span><b id="remA1">—</b><small>Basic support</small></div>
+          <div class="levelCard" id="remCardA2"  onclick="window._remLevelFilter=(window._remLevelFilter===’a2’?null:’a2’);window.renderRemedial();"   style="cursor:pointer;transition:all .15s" title="Click to show A2 students"><span>🟢 A2</span><b id="remA2">—</b><small>Reinforcement</small></div>
+          <div class="levelCard" id="remCardB1"  onclick="window._remLevelFilter=(window._remLevelFilter===’b1’?null:’b1’);window.renderRemedial();"   style="cursor:pointer;transition:all .15s" title="Click to show B1+ students"><span>🔵 B1+</span><b id="remB1">—</b><small>Enrichment</small></div>
         </div>
         <div id="remLevelBanner" style="display:none;margin:8px 0 4px;padding:8px 14px;background:#dbeafe;border-radius:8px;font-size:13px;color:#1d4ed8;font-weight:600"></div>
         <div class="tableWrap">
@@ -2044,7 +2044,7 @@ function renderRemedial(){
     var banner=document.getElementById('remLevelBanner');
     var labelMap={pre:'🔴 Pre-A1',a1:'🟡 A1',a2:'🟢 A2',b1:'🔵 B1+'};
     if(banner){
-      if(rlf3){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[rlf3]+'</b> — '+cls+' ('+rowNum+' student'+(rowNum===1?'':'s')+') &nbsp;<a href="#" onclick="event.preventDefault();filterRemLevel(\''+rlf3+'\')">Show all</a> &nbsp;<button class="btn green" style="padding:3px 12px;font-size:13px" onclick="assignPlanForLevel()">📋 Assign Plan</button>';}
+      if(rlf3){banner.style.display='';banner.innerHTML='Showing <b>'+labelMap[rlf3]+'</b> — '+cls+' ('+rowNum+' student'+(rowNum===1?'':'s')+') &nbsp;<a href="#" onclick="event.preventDefault();window._remLevelFilter=null;window.renderRemedial();">Show all</a> &nbsp;<button class="btn green" style="padding:3px 12px;font-size:13px" onclick="window.assignPlanForLevel()">📋 Assign Plan</button>';}
       else banner.style.display='none';
     }
   }catch(e){console.error('renderRemedial:',e);}
@@ -2052,6 +2052,7 @@ function renderRemedial(){
 // Save a protected reference BEFORE any IIFE can overwrite the renderRemedial variable
 window.__lms_renderRemedial=renderRemedial;
 window.renderRemedial=renderRemedial;
+window.assignPlanForLevel=assignPlanForLevel;
 function renderDailyLearning(){
   let cls=document.getElementById('dailyClass')?.value||'8-1';
   let q=(document.getElementById('dailySearch')?.value||'').toLowerCase();
