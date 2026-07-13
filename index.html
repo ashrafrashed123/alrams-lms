@@ -2564,9 +2564,15 @@ window.loadFirebaseResults = function(){
       const firebaseResults = [];
       snap.forEach(d => firebaseResults.push({...d.data(), source:"Firebase", _fbId: d.id}));
       firebaseResults.sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
-      results=firebaseResults; saveStore(); render(); renderResults();
-      if(document.getElementById('remedial')) renderRemedial();
-      if(document.getElementById('dailyLearning')) renderDailyLearning();
+      // Use window.setResultsFromFirebase so the script-level `results` variable is updated correctly
+      // (ES module scope cannot directly reach the let-declared `results` in the regular script)
+      if(window.setResultsFromFirebase){
+        window.setResultsFromFirebase(firebaseResults);
+      } else {
+        render(); renderResults();
+        if(document.getElementById('remedial')) renderRemedial();
+        if(document.getElementById('dailyLearning')) renderDailyLearning();
+      }
       if(window.loadFirebaseDailyTasks) window.loadFirebaseDailyTasks();
       setFirebaseStatus("Firebase • Live");
     }, (error) => {
