@@ -360,10 +360,6 @@ function lmsSelectRole(role){
     document.getElementById('studentSection').classList.add('lms-active');
     setTimeout(()=>{
       restoreSavedLogin();
-      try{
-        let saved=JSON.parse(localStorage.getItem('ar_saved_login')||'null');
-        if(saved&&saved.cls&&saved.code&&saved.stum) studentLogin();
-      }catch(e){}
     },100);
   }
   document.getElementById('lmsBackBtn').classList.add('visible');
@@ -455,7 +451,7 @@ function restoreSavedLogin(){
     let stumInput=document.getElementById('studentStum');
     if(stumInput) stumInput.value=saved.stum;
     let status=document.getElementById('loginStatus');
-    if(status){status.textContent='Welcome back! Press Login to continue.';status.style.color='var(--green)';}
+    if(status){status.textContent='Last session restored — click Login to continue.';status.style.color='var(--green)';}
   }catch(e){}
 }
 function getSelectedStudent(){
