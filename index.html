@@ -484,8 +484,9 @@ studentDashboard.classList.remove('hidden');
 welcomeTitle.innerHTML='Welcome '+esc(selectedStudent.englishName)+'<br><span class="arName">'+esc(selectedStudent.arabicName)+'</span><br><span class="small">'+esc(selectedStudent.code)+' · Grade '+esc(currentClass)+'</span>';
 renderExamList();
 startStudentLiveSync();
+  startExamRefresh();
 }
-function studentLogout(){location.reload();}
+function studentLogout(){stopExamRefresh();location.reload();}
 async function loadCompleted(){
   completed={};
   try{
@@ -567,6 +568,19 @@ async function loadMyDailyTasks(){
 
 // ── Student live sync: watches student_results in real-time ──
 let _unsubStudentLive = null;
+let _examRefreshInterval = null;
+function stopExamRefresh(){ if(_examRefreshInterval){clearInterval(_examRefreshInterval);_examRefreshInterval=null;} }
+function startExamRefresh(){
+  stopExamRefresh();
+  _examRefreshInterval=setInterval(async function(){
+    if(!window.loadFirebaseExamsForStudent||!currentClass)return;
+    try{
+      await window.loadFirebaseExamsForStudent(currentClass);
+      if(typeof renderExamList==='function') renderExamList();
+    }catch(e){}
+  },90000); // refresh every 90 seconds
+}
+
 function startStudentLiveSync(){
   if(_unsubStudentLive){_unsubStudentLive();_unsubStudentLive=null;}
   try{
