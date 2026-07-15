@@ -2263,5 +2263,504 @@ try{if(document.getElementById('dailyLearning')&&typeof renderDailyLearning==='f
   };
 })();
 </script>
+
+<!-- ════════════ COMBINED FIREBASE MODULE ════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, setDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+try{
+const firebaseConfig = {
+  apiKey:"AIzaSyAxK_HHx-FAeeyrOzUt01R-QeZ9LFjiybg",
+  authDomain:"alrams-exam-system.firebaseapp.com",
+  projectId:"alrams-exam-system",
+  storageBucket:"alrams-exam-system.firebasestorage.app",
+  messagingSenderId:"606665828355",
+  appId:"1:606665828355:web:1b3d6d4a40b4ac13ccc636",
+  measurementId:"G-8NKMG47HMX"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+window.db = db;
+window.firebaseReady = true;
+window.firebaseFns = {collection, getDocs, getDoc, query, where, setDoc, doc, addDoc, deleteDoc, updateDoc, onSnapshot};
+if(typeof setFirebaseStatus === "function") setFirebaseStatus("Firebase connected", true);
+
+// ── Teacher Firebase Functions ──
+window.saveExamToFirebase = async function(exam){
+  try{
+    const payload = {
+      examId: exam.id,
+      examName: exam.name,
+      className: exam.cls,
+      examType: exam.type,
+      examLink: exam.link || "",
+      link: exam.link || "",
+      questions: exam.questions || "",
+      content: exam.content || "",
+      fileName: exam.fileName || "",
+      active: exam.active===true,
+      status: exam.active===true ? "active" : "inactive",
+      date: exam.date || new Date().toLocaleString(),
+      source: "Teacher Portal"
+    };
+    await addDoc(collection(db, "exams"), payload);
+    setFirebaseStatus("Exam saved to Firebase");
+    if(window.showToast) showToast("✅ Exam saved successfully to Firebase","success");
+  }catch(error){
+    console.error("Firebase exam save error:", error);
+    setFirebaseStatus("Exam save failed", false);
+    if(window.showToast) showToast("❌ Firebase exam save failed","error","Check internet, rules, or file size."); else alert("Exam was saved locally, but Firebase exam save failed. Check internet/rules/file size.");
+  }
+};
+
+window.deleteExamFromFirebase = async function(examId, fbDocId){
+  try{
+    if(fbDocId){
+      // Delete ONLY the specific Firestore document — safe for per-class exams
+      await deleteDoc(doc(db, "exams", fbDocId));
+    } else {
+      // Fallback: scan by examId (only used if _fbDocId wasn't stored)
+      const snap = await getDocs(collection(db, "exams"));
+      const deletions = [];
+      snap.forEach(d => {
+        const data = d.data();
+        if((data.examId || d.id) === examId){
+          deletions.push(deleteDoc(doc(db, "exams", d.id)));
+        }
+      });
+      await Promise.all(deletions);
+    }
+    setFirebaseStatus("Exam deleted from Firebase");
+  }catch(error){
+    console.error("Firebase exam delete error:", error);
+    setFirebaseStatus("Exam delete failed", false);
+    alert("Exam removed locally, but deleting it from Firebase failed. It may reappear after refresh.");
+  }
+};
+
+window.updateExamActiveInFirebase = async function(examId, isActive, fbDocId){
+  try{
+    if(fbDocId){
+      await updateDoc(doc(db, "exams", fbDocId), {
+        active: isActive,
+        status: isActive ? "active" : "inactive"
+      });
+    } else {
+      const snap = await getDocs(collection(db, "exams"));
+      const updates = [];
+      snap.forEach(d => {
+        const data = d.data();
+        if((data.examId || d.id) === examId){
+          updates.push(updateDoc(doc(db, "exams", d.id), {
+            active: isActive,
+            status: isActive ? "active" : "inactive"
+          }));
+        }
+      });
+      await Promise.all(updates);
+    }
+    setFirebaseStatus(isActive ? "Exam activated" : "Exam hidden from students");
+  }catch(error){
+    console.error("Firebase active update error:", error);
+    setFirebaseStatus("Firebase update failed", false);
+  }
+};
+
+window.deleteAllExamsFromFirebase = async function(){
+  try{
+    const snap = await getDocs(collection(db, "exams"));
+    const ids = [];
+    snap.forEach(d => ids.push(d.id));
+    alert("Found "+ids.length+" exam doc(s) in Firebase. Attempting to delete...");
+    let okCount=0, failCount=0, lastError='';
+    for(const id of ids){
+      try{ await deleteDoc(doc(db, "exams", id)); okCount++; }
+      catch(e){ failCount++; lastError = (e && e.message) || String(e); console.error("Delete failed for", id, e); }
+    }
+    alert("Deleted "+okCount+" of "+ids.length+" exam doc(s) from Firebase."+(failCount?(" "+failCount+" failed. Error: "+lastError):""));
+    setFirebaseStatus("All exams deleted from Firebase");
+  }catch(error){
+    console.error("Firebase exam delete error:", error);
+    setFirebaseStatus("Exam delete failed", false);
+    alert("Exams removed locally, but deleting them from Firebase failed. Error: "+((error&&error.message)||String(error)));
+  }
+};
+
+window.loadFirebaseExams = async function(){
+  try{
+    const snap = await getDocs(collection(db, "exams"));
+    const firebaseExams = [];
+    const firebaseIds = new Set();
+    snap.forEach(doc => {
+      const d = doc.data();
+      const fid = d.examId || doc.id;
+      firebaseIds.add(String(fid));
+      firebaseExams.push({
+        id: fid,
+        _fbDocId: doc.id,
+        name: d.examName || d.name || "Untitled Exam",
+        cls: d.className || d.cls || "",
+        type: d.examType || d.type || "link",
+        link: d.examLink || d.link || "",
+        questions: d.questions || "",
+        content: d.content || "",
+        fileName: d.fileName || "",
+        date: d.date || "",
+        active: d.active !== false
+      });
+    });
+
+    // Push any local teacher exams that are missing from Firebase.
+    // This fixes the case where the teacher can see the exam, but students cannot.
+    for(const e of exams){
+      if(e && e.id && !firebaseIds.has(String(e.id))){
+        try{ await window.saveExamToFirebase(e); firebaseIds.add(String(e.id)); }
+        catch(syncErr){ console.error("Auto-sync exam failed:", e && e.name, syncErr); }
+      }
+    }
+
+    // Use already-fetched data (avoids a second full collection read)
+    const byId = {};
+    firebaseExams.forEach(e => { byId[e.id] = e; });
+    exams = Object.values(byId);
+    localStorage.setItem('ar_pro_exams', JSON.stringify(exams));
+    setFirebaseStatus("Firebase exams loaded");
+    render();
+  }catch(error){
+    console.error("Firebase exam load error:", error);
+    setFirebaseStatus("Exam load failed", false);
+    console.warn("Firebase exams not loaded yet; using local view.");
+  }
+};
+
+window.saveResultToFirebase = async function(record){
+  try{
+    await addDoc(collection(db, "student_results"), record);
+    setFirebaseStatus("Firebase connected");
+  }catch(error){
+    console.error("Firebase save error:", error);
+    setFirebaseStatus("Firebase save failed", false);
+    console.warn("Firebase save failed. Check internet and Firestore rules.");
+  }
+};
+
+let _unsubResults=null;
+window.loadFirebaseResults = function(){
+  if(_unsubResults){ _unsubResults(); _unsubResults=null; }
+  try{
+    _unsubResults = onSnapshot(collection(db, "student_results"), (snap) => {
+      const firebaseResults = [];
+      snap.forEach(d => firebaseResults.push({...d.data(), source:"Firebase", _fbId: d.id}));
+      firebaseResults.sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+      // Store on window so any scope (module or regular script) can read it
+      window._lmsResults = firebaseResults;
+      // Also update via setResultsFromFirebase to keep the script-scope `results` in sync
+      if(window.setResultsFromFirebase){
+        window.setResultsFromFirebase(firebaseResults);
+      } else {
+        render(); renderResults();
+        if(document.getElementById('remedial')) renderRemedial();
+        if(document.getElementById('dailyLearning')) renderDailyLearning();
+      }
+      if(window.loadFirebaseDailyTasks) window.loadFirebaseDailyTasks();
+      setFirebaseStatus("Firebase • Live");
+    }, (error) => {
+      console.error("Firebase load error:", error);
+      setFirebaseStatus("Firebase load failed", false);
+    });
+  }catch(error){
+    console.error("Firebase load error:", error);
+    setFirebaseStatus("Firebase load failed", false);
+  }
+};
+
+
+
+window.saveTeacherDailyRecord = async function(docId, record){
+  try{
+    await setDoc(doc(db, "daily_tasks", docId), record, {merge:true});
+    setFirebaseStatus("Daily task updated");
+  }catch(error){
+    console.error("Daily task update error:", error);
+    setFirebaseStatus("Daily task update failed", false);
+    console.warn("Daily task update failed. Check Firebase rules.");
+    throw error;
+  }
+};
+
+let _unsubDailyTasks=null;
+window.loadFirebaseDailyTasks = function(){
+  if(_unsubDailyTasks){ _unsubDailyTasks(); _unsubDailyTasks=null; }
+  try{
+    _unsubDailyTasks = onSnapshot(collection(db, "daily_tasks"), (snap) => {
+      const arr=[];
+      snap.forEach(d=>arr.push({...d.data(), _fbId:d.id}));
+      dailyTasks=arr;
+      if(document.getElementById('dailyLearning')) renderDailyLearning();
+      if(document.getElementById('remedial')) renderRemedial();
+    }, (error) => {
+      console.warn("Daily learning load error:", error);
+    });
+  }catch(error){
+    console.warn("Daily learning load error:", error);
+  }
+};
+
+window.deleteResultFromFirebase = async function(fbId){
+  try{
+    await deleteDoc(doc(db, "student_results", fbId));
+    setFirebaseStatus("Result deleted from Firebase");
+  }catch(error){
+    console.error("Firebase result delete error:", error);
+    setFirebaseStatus("Result delete failed", false);
+    alert("Result removed locally, but deleting it from Firebase failed. It may reappear after refresh.");
+  }
+};
+
+window.deleteAllResultsFromFirebase = async function(){
+  try{
+    const snap = await getDocs(collection(db, "student_results"));
+    const ids = [];
+    snap.forEach(d => ids.push(d.id));
+    let okCount=0, failCount=0, lastError='';
+    for(const id of ids){
+      try{ await deleteDoc(doc(db, "student_results", id)); okCount++; }
+      catch(e){ failCount++; lastError = (e && e.message) || String(e); console.error("Delete failed for", id, e); }
+    }
+    alert("Deleted "+okCount+" of "+ids.length+" result(s) from Firebase."+(failCount?(" "+failCount+" failed. Error: "+lastError):""));
+    setFirebaseStatus("All results deleted from Firebase");
+  }catch(error){
+    console.error("Firebase result delete error:", error);
+    setFirebaseStatus("Result delete failed", false);
+    alert("Could not delete Firebase results. Error: "+((error&&error.message)||String(error)));
+  }
+};
+
+function setFirebaseStatus(text, ok=true){
+  ['firebaseStatus','firebaseStatus2'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){
+      el.textContent = text;
+      el.style.background = ok ? "#dcfce7" : "#fee2e2";
+      el.style.color = ok ? "#166534" : "#991b1b";
+    }
+  });
+}
+
+// V16 LOGIN SAFE: Do not auto-load Firebase before/over the login screen.
+// Firebase is loaded after unlock and by Refresh buttons.
+
+// ── Student Firebase Functions ──
+  window.saveToFirebaseResult = async function(record){
+    try{
+      // Use one fixed document ID per student + exam. This stops duplicate rows even if the exam sends the score more than once.
+      const clean = String(('STUM_'+(record.studentId||record.studentStum||record.stum||record.studentKey||'student'))+'__'+(record.examId||record.examName||'exam')).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,180);
+      await setDoc(doc(db,'student_results',clean), record, {merge:true});
+    }catch(e){
+      console.error('Firebase result save error:',e);
+      throw e;
+    }
+  };
+  window.saveDailyTaskRecord = async function(record){
+    try{
+      const clean = String(('STUM_'+(record.studentId||record.studentStum||record.stum||record.studentKey||'student'))+'__'+(record.dateKey||'today')).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,180);
+      await setDoc(doc(db,'daily_tasks',clean), record, {merge:true});
+    }catch(e){console.error('Firebase daily task save error:',e);throw e;}
+  };
+
+
+  window.loadFirebaseExamsForStudent = async function(cls){
+    getLocalExamFallback();
+    let loaded=[];
+    try{
+      const q=query(collection(db,'exams'));
+      const snap=await getDocs(q);
+      snap.forEach(doc=>{
+        const d=doc.data();
+        if(d.active===false||d.status==='inactive') return;
+        const examCls=d.className||d.cls||'';
+        if(examMatchesClass(examCls, cls)){
+          loaded.push({
+            id:d.examId||doc.id,
+            name:d.examName||d.name||'Untitled Exam',
+            classes:[examCls||'all'],
+            cls:examCls||'all',
+            type:d.examType||d.type||'link',
+            link:d.examLink||d.link||'',
+            questions:d.questions||'',
+            content:d.content||'',
+            fileName:d.fileName||'',
+            total:d.total||100,
+            available:true,
+            date:d.date||''
+          });
+        }
+      });
+    }catch(e){
+      console.warn('Could not load exams from Firebase',e);
+    }
+    const builtin=EXAMS.filter(e=>e.type==='builtin');
+    const byId={};
+    [...builtin, ...loaded].forEach(e=>{ byId[e.id||e.name]=e; });
+    EXAMS=Object.values(byId);
+  };
+}catch(e){
+  console.warn('Firebase init failed',e);
+  window.firebaseReady=false;
+  if(typeof setFirebaseStatus === 'function') setFirebaseStatus('Firebase failed to connect', false);
+  if(window.showToast) showToast('Firebase failed to connect','error',(e&&e.message)||String(e));
+}
+</script>
+
+<!-- ════════════ POST-LOAD ════════════ -->
+<script>
+window.addEventListener('load', function(){
+  if(typeof restoreSavedLogin === 'function') restoreSavedLogin();
+});
+</script>
+
+
+
+<!-- FINAL CLEAN SAFETY PATCH: dashboard buttons + firebase-safe refresh -->
+<script>
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  function toast(msg,type,detail){ if(window.showToast) showToast(msg,type||'info',detail||''); else console.log(msg, detail||''); }
+  function safeRender(){ try{ if(typeof window.render==='function') window.render(); }catch(e){ console.warn('render skipped', e); } }
+
+  // Make dashboard/navigation buttons work even if Firebase is not ready.
+  window.showPage = window.showPage || function(id, btn){
+    document.querySelectorAll('.content section').forEach(function(s){s.classList.add('hidden');});
+    var page=byId(id); if(page) page.classList.remove('hidden');
+    document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
+    if(btn) btn.classList.add('active');
+    if(id==='addExam' && typeof window.renderExamFolderGrid==='function') window.renderExamFolderGrid();
+    safeRender();
+  };
+
+  var oldShowPage = window.showPage;
+  /* showPage merged above */
+
+  var oldOpenClass = window.openClass;
+  window.openClass = function(cls, btn){
+    try{
+      window.currentClassView = cls;
+      window.showPage('classPage', btn);
+      var title=byId('classTitle'); if(title) title.textContent='Grade '+cls+' Exams';
+      if(typeof window.renderClass==='function') window.renderClass(cls);
+    }catch(e){ console.error('openClass failed', e); if(oldOpenClass) try{oldOpenClass(cls,btn);}catch(_){} }
+  };
+
+  // Safe Firebase buttons: they do not break the dashboard if connection/rules fail.
+  window.testFirebaseConnection = async function(){
+    try{
+      if(!window.db){ toast('Firebase is not ready','warn','Check internet, Firebase config, and Firestore rules.'); return false; }
+      if(typeof window.loadFirebaseResults==='function') await window.loadFirebaseResults();
+      toast('Firebase test finished','success','If rules allow reading, data will load now.');
+      return true;
+    }catch(e){ console.error(e); toast('Firebase test failed','error',(e&&e.message)||String(e)); return false; }
+  };
+
+  window.refreshDailyLearningFirebase = async function(){
+    try{
+      if(typeof window.loadFirebaseResults==='function') await window.loadFirebaseResults();
+      if(typeof window.loadFirebaseDailyTasks==='function') await window.loadFirebaseDailyTasks();
+      if(typeof window.renderDailyLearning==='function') window.renderDailyLearning();
+      toast('Daily Learning refreshed','success');
+    }catch(e){ console.error(e); if(typeof window.renderDailyLearning==='function') window.renderDailyLearning(); toast('Daily Learning shown from local data','warn',(e&&e.message)||'Firebase unavailable'); }
+    return false;
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var now=byId('now'); if(now) now.textContent=new Date().toLocaleString();
+    var actions=document.querySelector('#teacherSection .top .actions') || document.querySelector('.top .actions');
+    if(actions && !byId('testFirebaseBtn')){
+      var b=document.createElement('button'); b.id='testFirebaseBtn'; b.className='btn light'; b.textContent='🔌 Test Firebase';
+      b.onclick=function(){ window.testFirebaseConnection(); return false; };
+      actions.insertBefore(b, actions.firstChild);
+    }
+  });
+})();
+</script>
+
+
+
+
+<script>
+/* FINAL SAFE TEACHER LOGIN FIX — password: moe@6060 */
+(function(){
+  const SAFE_TEACHER_PASSWORD = 'moe@6060';
+  window.TEACHER_PASSWORD = SAFE_TEACHER_PASSWORD;
+  function byId(id){ return document.getElementById(id); }
+  function openTeacherPortal(){
+    try { localStorage.setItem('teacherAuth','1'); } catch(e){}
+    const landing = byId('landingPage');
+    const teacherSection = byId('teacherSection');
+    const studentSection = byId('studentSection');
+    const gate = byId('gateOverlay');
+    const app = byId('teacherApp');
+    const back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(teacherSection) teacherSection.classList.add('lms-active');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='flex';
+    if(back) back.classList.add('visible');
+    window._lmsRole='teacher';
+    const now = byId('now');
+    if(now) now.textContent = new Date().toLocaleString();
+    try { showPage('dashboard'); } catch(e){ console.warn(e); }
+    try { if(typeof render === 'function') render(); } catch(e){ console.warn(e); }
+    try { if(typeof loadFirebaseResults === 'function') loadFirebaseResults(); } catch(e){ console.warn(e); }
+    try { if(typeof loadFirebaseExams === 'function') loadFirebaseExams(); } catch(e){ console.warn(e); }
+  }
+  window.checkTeacherPassword = function(){
+    const input = byId('gatePassword');
+    const err = byId('gateError');
+    const entered = (input && input.value ? input.value : '').trim();
+    if(entered === SAFE_TEACHER_PASSWORD){ openTeacherPortal(); return true; }
+    if(err) err.textContent = 'Wrong password. Use: moe@6060';
+    if(input){
+      input.value=''; input.placeholder='Wrong password — use moe@6060'; input.style.border='2px solid #dc2626';
+      setTimeout(()=>{ input.style.border=''; input.placeholder='Password'; }, 1800);
+      input.focus();
+    }
+    return false;
+  };
+  window.lmsSelectRole = function(role){
+    const landing = byId('landingPage'), teacherSection = byId('teacherSection'), studentSection = byId('studentSection'), gate = byId('gateOverlay'), app = byId('teacherApp'), back = byId('lmsBackBtn');
+    if(landing) landing.style.display='none';
+    if(back) back.classList.add('visible');
+    window._lmsRole=role;
+    if(role === 'teacher'){
+      if(studentSection) studentSection.classList.remove('lms-active');
+      if(teacherSection) teacherSection.classList.add('lms-active');
+      if(localStorage.getItem('teacherAuth')==='1'){ openTeacherPortal(); return; }
+      if(gate) gate.style.display='flex';
+      if(app) app.style.display='none';
+      setTimeout(()=>{ const p=byId('gatePassword'); if(p) p.focus(); },100);
+    } else {
+      if(teacherSection) teacherSection.classList.remove('lms-active');
+      if(studentSection) studentSection.classList.add('lms-active');
+      try { if(typeof restoreSavedLogin === 'function') restoreSavedLogin(); } catch(e){}
+    }
+  };
+  window.lmsGoBack = function(){
+    const landing = byId('landingPage'), teacherSection = byId('teacherSection'), studentSection = byId('studentSection'), back = byId('lmsBackBtn'), gate = byId('gateOverlay'), app = byId('teacherApp');
+    if(landing) landing.style.display='flex';
+    if(teacherSection) teacherSection.classList.remove('lms-active');
+    if(studentSection) studentSection.classList.remove('lms-active');
+    if(back) back.classList.remove('visible');
+    if(gate) gate.style.display='none';
+    if(app) app.style.display='none';
+    window._lmsRole=null;
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    const input = byId('gatePassword');
+    if(input) input.addEventListener('keydown', function(e){ if(e.key === 'Enter') window.checkTeacherPassword(); });
+  });
+})();
+</script>
 </body>
 </html>
